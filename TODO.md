@@ -1,0 +1,8 @@
+- [x] Fix imports: add motion from framer-motion
+- [x] Correct useMemo typo
+- [x] Correct setTimeout typo
+- [x] Correct initial typo in animation properties
+- [x] Correct transition typo in animation properties
+- [x] Fix JSX syntax for greetings[index]
+- [x] Fix package.json syntax error (missing comma)
+- [x] Fix setTimeout duration (3 to 3000)
