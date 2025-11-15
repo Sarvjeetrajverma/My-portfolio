@@ -174,7 +174,7 @@ export default function Home() {
             alt="sarvjeet raj verma"
             className="absolute top-1/2 -translate-y-1/2 object-contain select-none pointer-events-none"
             style={{
-              right: "-80px",
+              right: "-150px",
               width: "min(45vw, 780px)",
               maxHeight: "90vh"
             }}

@@ -63,13 +63,13 @@ useEffect(() => {
 }, [forceVisible])
   return (
     <>
-      <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-6 py-4 z-50 transition-all duration-300 ${visible ? "translate-y-0" : "-translate-y-full"}`}>
+      <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-6 py-4 z-50 transition-transform duration-300 ${visible ? "translate-y-0" : "-translate-y-full"}`}>
         <div className="flex items-center space-x-2">
-          <img src={logo} alt="logo" className="w-13 h-13"/>
-          <div className="text-1xl font-bold text-white hidden sm:block"> 
+          <img src={logo} alt="logo" className="w-15 h-15"/>
+          <div className="text-2xl font-bold text-white hidden sm:block"> 
             Sarvjeet
           </div>
-          <div className="block lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+          <div className="block lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
             <button
               onClick={() => setMenuOpen(true)}
               className="text-white text-3xl focus:outline-none"
