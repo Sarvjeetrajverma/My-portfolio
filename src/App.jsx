@@ -25,14 +25,14 @@ export default function App(){
           <CustomCursor/>
           <Navbar/>
           <Home/>
-          <About/>
+          { /*<About/>
           <Skills/>
           <Projects/>
           <Experience/>
           <Testimonials/>
           <Contact/>
-          <Footer/>
-        </div>
+          <Footer/> */}
+        </div> 
         )}
     
     </>
