@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./sections/Home";
 import Testimonials from "./sections/Testimonials";
 import About from "./sections/About";
-import Contact from "./sections/contact";
+// import Contact from "./sections/contact";
 import Skills from "./sections/Skills";
 import Experience from "./sections/Experience";
 import Projects from "./sections/Projects";
