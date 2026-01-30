@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./sections/Home";
-import Testimonials from "./sections/Testimonials";
-import About from "./sections/About";
-// import Contact from "./sections/contact";
-import Skills from "./sections/Skills";
-import Experience from "./sections/Experience";
-import Projects from "./sections/Projects";
-import Footer from "./sections/footer";
+import IntroAnimation from "./components/IntroAnimation";
 import ParticlesBackground from "./components/ParticlesBackground";
 import CustomCursor from "./components/CustomCursor";
-import IntroAnimation from "./components/IntroAnimation";
+import About from "./sections/About";
+import Skills from "./sections/Skills";
+import Projects from "./sections/Projects";
+import Experience from "./sections/Experience";
+import Testimonials from "./sections/Testimonials";
+import Contact from "./sections/Contact";
+import Footer from "./sections/footer";
 
 export default function App(){
   const [introDone , setIntroDone] = useState(false);
