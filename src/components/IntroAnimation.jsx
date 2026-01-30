@@ -31,7 +31,7 @@ export default function IntroAnimation({onfinish}){
     initial={{ y: 0}}
       exit={{ y: "-100vh",
         transition: {
-          duration: 1.05,
+          duration: 0,
           ease :[ 0.22, 1, 0.36,1],
         }
       }}

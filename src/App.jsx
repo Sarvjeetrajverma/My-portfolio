@@ -20,18 +20,18 @@ export default function App(){
       {!introDone && <IntroAnimation onfinish={() => setIntroDone(true)} />}
 
       {introDone && (
-        <div className="relative gradient text-white">
-          {/*<ParticlesBackground/> */}
+        <div className="relative gradient text-white min-h-screen">
+          <ParticlesBackground/>
           <CustomCursor/>
           <Navbar/>
           <Home/>
-          { /*<About/>
+          <About/>
           <Skills/>
           <Projects/>
           <Experience/>
           <Testimonials/>
           <Contact/>
-          <Footer/> */}
+          <Footer/> 
         </div> 
         )}
     
