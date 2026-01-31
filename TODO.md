@@ -6,3 +6,6 @@
 - [x] Fix JSX syntax for greetings[index]
 - [x] Fix package.json syntax error (missing comma)
 - [x] Fix setTimeout duration (3 to 3000)
+- [x] Fix ESLint config for Node.js files
+- [x] Fix nodemailer createTransport typo
+- [x] Deploy to Vercel

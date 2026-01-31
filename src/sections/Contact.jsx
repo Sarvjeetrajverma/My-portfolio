@@ -1,60 +1,116 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [status, setStatus] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('Sending...');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Email sent successfully');
+        setStatus('Message sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        console.error('Error sending email:', data);
+        setStatus('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setStatus('Failed to send message. Please try again.');
+    }
+  };
+
   return (
-    <div id="contact" className="w-full py-16 px-4 bg-gray-100">
-      
-      {/* Container for the form box */}
-      <div className="max-w-[600px] mx-auto bg-white p-8 rounded-lg shadow-lg">
-        
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Contact Me</h2>
-          <p className="text-gray-600 mt-2">I'd love to hear from you!</p>
+    <div id="contact" className="w-full py-16 px-4 gradient">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">Get In Touch</h2>
+          <p className="text-lg text-gray-200">Send me a message!</p>
         </div>
 
-        {/* Form */}
-        <form action="https://getform.io/f/your-id-here" method="POST" className="flex flex-col gap-4">
-          
-          {/* Name Input */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-600 mb-1">Name</label>
-            <input 
-              className="border-2 border-gray-300 p-2 rounded-md focus:outline-blue-500" 
-              type="text" 
-              name="name" 
-              placeholder="Your Name" 
-            />
-          </div>
+        <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-lg p-8 shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-black text-sm font-medium mb-2">Name</label>
+              <input
+                className="w-full px-4 py-3 bg-white bg-opacity-20 border border-gray-300 rounded-md text-black placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your Name"
+                required
+                disabled={status === 'Sending...'}
+              />
+            </div>
 
-          {/* Email Input */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-600 mb-1">Email</label>
-            <input 
-              className="border-2 border-gray-300 p-2 rounded-md focus:outline-blue-500" 
-              type="email" 
-              name="email" 
-              placeholder="your@email.com" 
-            />
-          </div>
+            <div>
+              <label className="block text-black text-sm font-medium mb-2">Email</label>
+              <input
+                className="w-full px-4 py-3 bg-white bg-opacity-20 border border-gray-300 rounded-md text-black placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="your.email@example.com"
+                required
+                disabled={status === 'Sending...'}
+              />
+            </div>
 
-          {/* Message Input */}
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-600 mb-1">Message</label>
-            <textarea 
-              className="border-2 border-gray-300 p-2 rounded-md focus:outline-blue-500" 
-              rows="5" 
-              name="message" 
-              placeholder="Write your message here..."
-            ></textarea>
-          </div>
+            <div>
+              <label className="block text-black text-sm font-medium mb-2">Message</label>
+              <textarea
+                className="w-full px-4 py-3 bg-white bg-opacity-20 border border-gray-300 rounded-md text-black placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Tell me about your project or just say hi! I'm excited to connect with fellow developers."
+                required
+                disabled={status === 'Sending...'}
+              ></textarea>
+            </div>
 
-          {/* Button */}
-          <button className="bg-blue-600 text-white font-bold py-3 rounded-md mt-4 hover:bg-blue-700 transition duration-300">
-            Send Message
-          </button>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={status === 'Sending...'}
+            >
+              {status === 'Sending...' ? 'Sending...' : 'Send Message'}
+            </button>
 
-        </form>
+            {status && status !== 'Sending...' && (
+              <p className={`text-center text-sm ${status.includes('successfully') ? 'text-green-300' : 'text-red-300'}`}>
+                {status}
+              </p>
+            )}
+          </form>
+        </div>
+
+        <div className="text-center mt-8">
+          <p className="text-gray-300">Your message will be sent directly to my email!</p>
+        </div>
       </div>
     </div>
   );

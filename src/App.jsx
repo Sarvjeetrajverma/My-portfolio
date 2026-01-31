@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import Navbar from "./components/Navbar";
-import Home from "./sections/Home";
 import IntroAnimation from "./components/IntroAnimation";
 import ParticlesBackground from "./components/ParticlesBackground";
 import CustomCursor from "./components/CustomCursor";
+import Navbar from "./components/Navbar";
+import Home from "./sections/Home";
 import About from "./sections/About";
 import Skills from "./sections/Skills";
 import Projects from "./sections/Projects";
@@ -20,7 +20,7 @@ export default function App(){
       {!introDone && <IntroAnimation onfinish={() => setIntroDone(true)} />}
 
       {introDone && (
-        <div className="relative gradient text-white min-h-screen">
+        <div className="relative gradient text-white min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
           <ParticlesBackground/>
           <CustomCursor/>
           <Navbar/>
@@ -31,8 +31,8 @@ export default function App(){
           <Experience/>
           <Testimonials/>
           <Contact/>
-          <Footer/> 
-        </div> 
+          <Footer/>
+        </div>
         )}
     
     </>

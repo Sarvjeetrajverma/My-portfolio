@@ -26,4 +26,18 @@ export default defineConfig([
       'no-unused-vars': 'off',
     },
   },
+  {
+    files: ['api/**/*.js', 'backend/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': 'off',
+    },
+  },
 ])

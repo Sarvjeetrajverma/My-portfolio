@@ -3,7 +3,7 @@ import ParticlesBackground from "../components/ParticlesBackground";
 import { motion } from "framer-motion";
 import React from "react";
 import { FaXTwitter, FaLinkedinIn, FaGithub, FaInstagram } from "react-icons/fa6";
-import avator from "../assets/avator.png";
+//import avator from "../assets/avator.png";
 
 const socials = [
   { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet" },
@@ -57,9 +57,9 @@ export default function Home() {
         ></div>
       </div>
 
-      <div className="relative z-10 h-full w-full max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2">
-        <div className="flex flex-col justify-center h-full text-center lg:text-left relative">
-          <div className="w-full lg:pr-24 mx-auto max-w-[48rem]">
+      <div className="relative z-10 h-full w-full max-w-7xl mx-auto px-4 grid grid-cols-1">
+        <div className="flex flex-col justify-center h-full text-center relative">
+          <div className="w-full mx-auto max-w-[48rem]">
             <motion.div
               className="mb-3 text-xl sm:text-2xl md:text-3xl font-semibold text-white tracking-wide min-h-[1.6em]"
               initial={{ opacity: 0, y: 12 }}
@@ -86,7 +86,7 @@ export default function Home() {
             </motion.h1>
 
             <motion.p
-              className="mt-6 text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0"
+              className="mt-6 text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 1 }}
@@ -95,7 +95,7 @@ export default function Home() {
             </motion.p>
 
             <motion.div
-              className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
+              className="mt-10 flex flex-wrap items-center justify-center gap-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 0.6 }}
@@ -107,7 +107,7 @@ export default function Home() {
                 View My Work
               </a>
               <a
-                href="/resume.pdf"
+                href="/sarvjeetrajverma_resume.pdf"
                 download
                 className="px-6 py-3 rounded-full text-lg font-medium text-black bg-white hover:bg-gray-200 shadow-lg hover:scale-105 transition-all"
               >
@@ -115,26 +115,7 @@ export default function Home() {
               </a>
             </motion.div>
 
-            <motion.div
-              className="mt-8 flex justify-center lg:justify-start gap-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.0, duration: 0.6 }}
-            >
-              {socials.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-[#00bf8f] transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon size={24} />
-                </a>
-              ))}
-            </motion.div>
-            <div className="mt-10 flex gap-5 text-2xl md:text-3xl justify-center lg:justify-start">
+            <div className="mt-10 flex gap-5 text-2xl md:text-3xl justify-center">
               {socials.map(({ icon, label, link }) => (
                 <motion.a
                   href={link}
@@ -170,8 +151,8 @@ export default function Home() {
           />
 
           <motion.img
-            src={avator}
-            alt="sarvjeet raj verma"
+           // src={avator}
+           // alt="sarvjeet raj verma"
             className="absolute top-1/2 -translate-y-1/2 object-contain select-none pointer-events-none"
             style={{
               right: "-150px",
