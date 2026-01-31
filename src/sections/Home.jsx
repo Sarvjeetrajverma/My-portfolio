@@ -116,7 +116,7 @@ export default function Home() {
             </motion.div>
 
             <div className="mt-10 flex gap-5 text-2xl md:text-3xl justify-center">
-              {socials.map(({ icon, label, link }) => (
+              {socials.map(({ icon: Icon, label, link }) => (
                 <motion.a
                   href={link}
                   key={label}
@@ -129,7 +129,7 @@ export default function Home() {
                   whileHover="hover"
                   whileTap="tap"
                 >
-                  {icon}
+                  <Icon />
                 </motion.a>
               ))}
             </div>
