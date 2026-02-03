@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { travelData } from '../sections/travelData';
-import ParticlesBackground from './ParticlesBackground';
-import CustomCursor from './CustomCursor';
 import Navbar from './Navbar';
 import ScrollToTop from './ScrollToTop';
+import ParticlesBackground from './ParticlesBackground';
+import CustomCursor from './CustomCursor';
 import './TravelGallery.css';
 
 // Icons
@@ -19,62 +19,117 @@ const Icons = {
   Download: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
   ),
-  Close: () => (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-  ),
   Back: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
   )
 };
 
-const INITIAL_PHOTOS_COUNT = 4;
-const LOAD_MORE_COUNT = 4;
+const PhotoCard = ({ photo, containerRef, onPhotoClick, isLiked, onLike, onShare, onDownload }) => {
+  const cardRef = useRef(null);
+  
+  // Track this card's position within the container
+  const { scrollXProgress } = useScroll({
+    container: containerRef,
+    target: cardRef,
+    axis: "x",
+    offset: ["center end", "center start"]
+  });
+
+  // Scale up when in center (0.5 progress), scale down at edges (0 and 1)
+  const scale = useTransform(scrollXProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+  const opacity = useTransform(scrollXProgress, [0, 0.5, 1], [0.6, 1, 0.6]);
+
+  return (
+    <motion.div 
+      ref={cardRef} 
+      className="photo-card"
+      style={{ scale, opacity }}
+    >
+      <div className="photo-image-wrapper" onClick={() => onPhotoClick(photo)}>
+        <img src={photo.url} alt={photo.caption} className="photo-thumbnail" />
+        <div className="photo-overlay">
+          <div className="photo-info">
+            <span className="photo-caption">{photo.caption}</span>
+            <div className="photo-meta-row">
+              <span>{photo.date}</span>
+              <span>•</span>
+              <span>{photo.location}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="photo-actions-bar">
+          <button className={`action-icon-btn ${isLiked ? 'liked' : ''}`} onClick={() => onLike(photo.id)} title="Like">
+            <Icons.Heart fill={isLiked} />
+          </button>
+          <button className="action-icon-btn" onClick={() => onShare(photo)} title="Share">
+            <Icons.Share />
+          </button>
+          <button className="action-icon-btn" onClick={() => onDownload(photo)} title="Download">
+            <Icons.Download />
+          </button>
+      </div>
+    </motion.div>
+  );
+};
+
+const PhotoReel = ({ photos, onPhotoClick, likedPhotos, onLike, onShare, onDownload }) => {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      const onWheel = (e) => {
+        if (e.deltaY === 0) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+        const isScrollable = el.scrollWidth > el.clientWidth;
+        if (!isScrollable) return;
+
+        const atLeft = el.scrollLeft === 0;
+        const atRight = Math.abs(el.scrollWidth - el.clientWidth - el.scrollLeft) < 2;
+
+        if ((e.deltaY < 0 && !atLeft) || (e.deltaY > 0 && !atRight)) {
+           e.preventDefault();
+           el.scrollLeft += e.deltaY * 2;
+        }
+      };
+      el.addEventListener("wheel", onWheel, { passive: false });
+      return () => el.removeEventListener("wheel", onWheel);
+    }
+  }, []);
+
+  if (!photos || photos.length === 0) {
+    return <p>No photos added yet for this destination.</p>;
+  }
+
+  return (
+    <div ref={scrollRef} className="photos-horizontal-scroll">
+      {photos.map((photo) => (
+        <PhotoCard 
+          key={photo.id} 
+          photo={photo} 
+          containerRef={scrollRef}
+          onPhotoClick={onPhotoClick}
+          isLiked={likedPhotos[photo.id]}
+          onLike={onLike}
+          onShare={onShare}
+          onDownload={onDownload}
+        />
+      ))}
+    </div>
+  );
+};
 
 const TripDetails = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
-  const [lightboxImage, setLightboxImage] = useState(null);
+  const [selectedTrip] = useState(() => travelData.find(t => t.id === tripId));
   const [likedPhotos, setLikedPhotos] = useState({});
-
-  // Derive selectedTrip from tripId - no effect needed
-  const selectedTrip = travelData.find(t => t.id === tripId);
-
-  // Compute initial counts from selectedTrip (memoized for efficiency)
-  const initialCounts = React.useMemo(() => {
-    if (!selectedTrip) return {};
-    const counts = {};
-    selectedTrip.destinations.forEach(destination => {
-      counts[destination.id] = INITIAL_PHOTOS_COUNT;
-    });
-    return counts;
-  }, [selectedTrip]);
-
-  // visibleCounts state with lazy initialization
-  // Only recomputes on first render or when tripId changes (via lazyInit)
-  const [visibleCounts, setVisibleCounts] = useState(() => {
-    // This function runs once: on mount OR when lazyInit is triggered
-    // We use a ref-like pattern: compute from selectedTrip, which only changes when tripId changes
-    const trip = travelData.find(t => t.id === tripId);
-    if (!trip) return {};
-    const counts = {};
-    trip.destinations.forEach(destination => {
-      counts[destination.id] = INITIAL_PHOTOS_COUNT;
-    });
-    return counts;
-  });
-
-  // Effect to sync visibleCounts with initialCounts when tripId changes
-  // This effect runs AFTER render, so it won't cause cascading renders
-  useEffect(() => {
-    setVisibleCounts(initialCounts);
-  }, [initialCounts]);
-
+  
   const handleLike = (photoId) => {
     setLikedPhotos(prev => ({ ...prev, [photoId]: !prev[photoId] }));
-  };
-
-  const handleLoadMore = (destinationId) => {
-    setVisibleCounts(prev => ({ ...prev, [destinationId]: (prev[destinationId] || 0) + LOAD_MORE_COUNT }));
   };
 
   const handleShare = async (photo) => {
@@ -105,9 +160,7 @@ const TripDetails = () => {
       className="relative text-white min-h-screen bg-black overflow-hidden"
     >
       {/* Global Background */}
-      <div 
-        className="fixed inset-0 z-0 pointer-events-none"
-      >
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <ParticlesBackground />
         <div className="absolute -top-32 -left-32 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-30 sm:opacity-20 md:opacity-10 blur-[100px] sm:blur-[130px] md:blur-[150px] animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-30 sm:opacity-20 md:opacity-10 blur-[100px] sm:blur-[130px] md:blur-[150px] animate-pulse delay-500"></div>
@@ -134,56 +187,15 @@ const TripDetails = () => {
               <p>{destination.description}</p>
             </div>
             
-            <div className="photos-grid">
-              {destination.photos.length > 0 ? (
-                destination.photos.slice(0, visibleCounts[destination.id]).map((photo, index) => (
-                  <motion.div 
-                    key={photo.id} 
-                    className="photo-card"
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: (index % 4) * 0.1 }}
-                  >
-                    <img src={photo.url} alt={photo.caption} className="photo-thumbnail" onClick={() => setLightboxImage(photo)} />
-                    <div className="photo-details">
-                      <div className="photo-meta"><span>{photo.date}</span><span>{photo.location}</span></div>
-                      <span className="photo-caption">{photo.caption}</span>
-                      <div className="photo-actions">
-                        <button className={`action-btn ${likedPhotos[photo.id] ? 'liked' : ''}`} onClick={() => handleLike(photo.id)}>
-                          <Icons.Heart fill={likedPhotos[photo.id]} /> {likedPhotos[photo.id] ? 'Liked' : 'Like'}
-                        </button>
-                        <button className="action-btn" onClick={() => handleShare(photo)}><Icons.Share /> Share</button>
-                        <button className="action-btn" onClick={() => handleDownload(photo)}><Icons.Download /> Download</button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (<p>No photos added yet for this destination.</p>)}
-            </div>
-
-            {destination.photos.length > (visibleCounts[destination.id] || 0) && (
-              <div className="load-more-container">
-                <button onClick={() => handleLoadMore(destination.id)} className="load-more-button">Load More</button>
-              </div>
-            )}
+            <PhotoReel 
+              photos={destination.photos}
+              likedPhotos={likedPhotos}
+              onLike={handleLike}
+              onShare={handleShare}
+              onDownload={handleDownload}
+            />
           </div>
         ))}
-
-        {lightboxImage && (
-          <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
-            <motion.div 
-              className="lightbox-content" 
-              onClick={e => e.stopPropagation()}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <button className="close-lightbox" onClick={() => setLightboxImage(null)}><Icons.Close /></button>
-              <img src={lightboxImage.url} alt={lightboxImage.caption} className="lightbox-image" />
-            </motion.div>
-          </div>
-        )}
       </div>
     </div>
   );

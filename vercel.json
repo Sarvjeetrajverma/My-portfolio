@@ -9,5 +9,8 @@
   },
   "env": {
     "NODE_OPTIONS": "--max-old-space-size=512"
-  }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

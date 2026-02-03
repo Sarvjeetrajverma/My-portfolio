@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { travelData } from '../sections/travelData';
 import './TravelGallery.css';
 
@@ -16,6 +17,72 @@ const HighlightText = ({ text, highlight }) => {
         part.toLowerCase() === highlight.toLowerCase() ? <span key={i} className="highlight">{part}</span> : part
       )}
     </>
+  );
+};
+
+// Tilt Card Component for 3D effect
+const TiltCard = ({ children, onClick, coverImage, title }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseX = useSpring(x, { stiffness: 500, damping: 30 });
+  const mouseY = useSpring(y, { stiffness: 500, damping: 30 });
+
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-7deg", "7deg"]);
+  
+  // Parallax effect: Image moves opposite to tilt
+  const imageX = useTransform(mouseX, [-0.5, 0.5], ["8%", "-8%"]);
+  const imageY = useTransform(mouseY, [-0.5, 0.5], ["8%", "-8%"]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseXFromCenter = e.clientX - rect.left - width / 2;
+    const mouseYFromCenter = e.clientY - rect.top - height / 2;
+    x.set(mouseXFromCenter / width);
+    y.set(mouseYFromCenter / height);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      className="trip-card"
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1000
+      }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div style={{ height: '200px', overflow: 'hidden', borderRadius: '12px 12px 0 0', transform: "translateZ(20px)" }}>
+        <motion.img 
+          src={coverImage} 
+          alt={title} 
+          style={{
+            x: imageX,
+            y: imageY,
+            scale: 1.15,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+        />
+      </div>
+      <div style={{ transform: "translateZ(30px)" }}>
+        {children}
+      </div>
+    </motion.div>
   );
 };
 
@@ -124,13 +191,27 @@ const TravelGallery = () => {
           filteredTrips.map(trip => {
             const deepMatches = getDeepMatches(trip, searchTerm);
             return (
-              <div key={trip.id} className="trip-card" onClick={() => navigate(`/travel/${trip.id}`)}>
-                <img src={trip.coverImage} alt={trip.title} className="trip-cover" />
+              <TiltCard key={trip.id} onClick={() => navigate(`/travel/${trip.id}`)} coverImage={trip.coverImage} title={trip.title}>
                 <div className="trip-info">
-                  <h3><HighlightText text={trip.title} highlight={searchTerm} /></h3>
+                  <div className="trip-header-row">
+                    <h3><HighlightText text={trip.title} highlight={searchTerm} /></h3>
+                    {trip.date.includes(new Date().getFullYear().toString()) && (
+                      <span className="new-badge">NEW</span>
+                    )}
+                  </div>
                   <span className="trip-date">{trip.date}</span>
                   <p><HighlightText text={trip.description} highlight={searchTerm} /></p>
-                  <p><strong>{trip.destinations.length} Destinations</strong></p>
+                  
+                  <div className="trip-tags">
+                    {trip.destinations.slice(0, 3).map(dest => (
+                      <span key={dest.id} className="trip-tag">
+                        <HighlightText text={dest.name} highlight={searchTerm} />
+                      </span>
+                    ))}
+                    {trip.destinations.length > 3 && (
+                      <span className="trip-tag">+{trip.destinations.length - 3}</span>
+                    )}
+                  </div>
                   
                   {searchTerm && deepMatches.length > 0 && (
                     <div className="search-matches">
@@ -144,7 +225,7 @@ const TravelGallery = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              </TiltCard>
             );
           })
         ) : (
