@@ -102,7 +102,7 @@ const FlowerParticle = ({ x, y, rotate, scale, duration }) => {
       // 'will-change' improves performance significantly
       className="absolute text-xl pointer-events-none select-none z-50 will-change-transform"
     >
-      🌼 🏵️ 🌸 ❤️
+      🌼 🏵️ 🌸 
     </motion.span>
   );
 };

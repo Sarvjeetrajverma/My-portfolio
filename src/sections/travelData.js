@@ -4,7 +4,7 @@
 // ----------------------------------------------------------------------
 
 // Load all images (Vite specific).
-const images = import.meta.glob('../assets/travel/*.{jpeg,jpg,jpeg,svg,webp}', { eager: true });
+const images = import.meta.glob('../assets/travel/*.{jpeg,jpeg,jpeg,svg,webp}', { eager: true });
 
 const getImage = (filename) => {
   return images[`../assets/travel/${filename}`]?.default;
@@ -108,13 +108,163 @@ export const travelData = [
         photos: [
           {
             id: 'ts-1',
-            url: getImage('tsomgo-1.jpg') ,
+            url: getImage('sikkim.jpeg') ,
             date: "march 12, 2025",
             location: "Tsomgo Lake",
             caption: "Frozen beauty of Tsomgo."
-          }
+          },
+           {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          }, {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },
         ]
       },
+      {
+        id: 'tsomgo',
+        name: "yumthang valley",
+        description: "yumthang valley ",
+        photos: [
+          {
+            id: 'ts-1',
+            url: getImage('sikkim.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },
+          {
+            id: 'ts-1',
+            url: getImage('sikkim3.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim4.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim5.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim6.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },
+          {
+            id: 'ts-1',
+            url: getImage('sikkim7.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim8.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim9.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },
+          {
+            id: 'ts-1',
+            url: getImage('sikkim10.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },{
+            id: 'ts-1',
+            url: getImage('sikkim11.jpeg') ,
+            date: "march 12, 2025",
+            location: "Tsomgo Lake",
+            caption: "Frozen beauty of Tsomgo."
+          },
+        ] 
+      }
       
     ]
   }
