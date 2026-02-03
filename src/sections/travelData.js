@@ -254,7 +254,7 @@ caption: "Pure, unadulterated nature at its finest."
 id: '-january-2026',
 title: "Jharkhand, India",
 date: "January 2026",
-description: "A amazing journey through the snowy peaks and amazing culture of Jharkhand.",
+description: "A difficult 7hrs of treking 4440 ft altitude height with amazing Nature of hills .",
 coverImage: getImage('prs1 (4).jpeg'),
 destinations: [
 {
@@ -399,7 +399,7 @@ caption: "The final ascent: A test of faith and endurance."
 id: 'vanaras-january-2026',
 title: "Uttarpardesh, India",
 date: "june 2024",
-description: "A amazing journey through the snowy peaks and amazing culture of U.P.",
+description: " The holy Ganga maa and mahadev city Kashi ghats and small streets feels you are in heaven. Delicious 🤤 street food of U.P.",
 coverImage: getImage('var (1).jpeg'),
 destinations: [
 {
