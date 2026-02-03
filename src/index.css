@@ -14,3 +14,128 @@ h1, h2 {
     background: linear-gradient(-45deg, #302b63, #00bf8f, #1cd8d2);
   }
 }
+/* STARFIELD: many tiny stars using box-shadow trick */
+.starfield {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: -10;
+  pointer-events: none;
+  animation: starfieldMove 60s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.02));
+}
+.starfield::before,
+.starfield::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.9) 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 10%, rgba(255,255,255,0.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.5) 50%, transparent 51%);
+  background-size: 100% 100%;
+  opacity: 0.9;
+  animation: twinkle 6s infinite ease-in-out;
+  mix-blend-mode: screen;
+}
+
+/* Nebula soft blobs */
+.nebula {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(30% 30% at 20% 30%, rgba(14,165,233,0.06), transparent 20%),
+              radial-gradient(25% 25% at 80% 70%, rgba(255,107,203,0.05), transparent 20%),
+              radial-gradient(40% 40% at 50% 50%, rgba(124,58,237,0.04), transparent 30%);
+  filter: blur(36px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Shooting star */
+.shooting-star {
+  position: absolute;
+  top: 12%;
+  left: -10%;
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0.0));
+  transform: rotate(-20deg);
+  box-shadow: 0 0 8px 2px rgba(255,255,255,0.9);
+  animation: shoot 6s linear infinite;
+  opacity: 0.9;
+}
+
+/* Nebula rings around avatar */
+.ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.ring-1 { width: 420px; height: 420px; margin-left: -210px; margin-top: -210px; border: 1px solid rgba(124,58,237,0.06); box-shadow: 0 0 60px rgba(124,58,237,0.06); transform: scale(1); animation: ringPulse 8s ease-in-out infinite; }
+.ring-2 { width: 360px; height: 360px; margin-left: -180px; margin-top: -180px; border: 1px solid rgba(14,165,233,0.04); box-shadow: 0 0 40px rgba(14,165,233,0.04); transform: rotate(30deg); animation: ringRotate 18s linear infinite; }
+.ring-3 { width: 300px; height: 300px; margin-left: -150px; margin-top: -150px; border: 1px solid rgba(255,107,203,0.03); box-shadow: 0 0 30px rgba(255,107,203,0.03); transform: rotate(-20deg); animation: ringRotateReverse 22s linear infinite; }
+
+/* Keyframes */
+@keyframes starfieldMove {
+  from { transform: translateY(0); }
+  to { transform: translateY(-200px); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.98); }
+}
+@keyframes shoot {
+  0% { transform: translateX(0) translateY(0) rotate(-20deg) scaleX(0.2); opacity: 0; left: -10%; top: 10%; }
+  10% { opacity: 1; }
+  60% { transform: translateX(120vw) translateY(-40vh) rotate(-20deg) scaleX(1); opacity: 1; }
+  100% { opacity: 0; left: 120%; top: -40%; }
+}
+@keyframes ringPulse {
+  0% { transform: scale(0.98); opacity: 0.9; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(0.98); opacity: 0.9; }
+}
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes ringRotateReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* small responsive tweaks */
+@media (max-width: 1024px) {
+  .ring-1, .ring-2, .ring-3 { display: none; }
+  .shooting-star { display: none; }
+}
+/* Canvas sits behind content */
+canvas { display: block; width: 100%; height: 100%; }
+
+/* Nebula rings around avatar */
+.ring { position: absolute; border-radius: 50%; pointer-events: none; }
+.ring-1 { width: 420px; height: 420px; margin-left: -210px; margin-top: -210px; border: 1px solid rgba(124,58,237,0.06); box-shadow: 0 0 60px rgba(124,58,237,0.06); transform: scale(1); animation: ringPulse 8s ease-in-out infinite; }
+.ring-2 { width: 360px; height: 360px; margin-left: -180px; margin-top: -180px; border: 1px solid rgba(14,165,233,0.04); box-shadow: 0 0 40px rgba(14,165,233,0.04); transform: rotate(30deg); animation: ringRotate 18s linear infinite; }
+.ring-3 { width: 300px; height: 300px; margin-left: -150px; margin-top: -150px; border: 1px solid rgba(255,107,203,0.03); box-shadow: 0 0 30px rgba(255,107,203,0.03); transform: rotate(-20deg); animation: ringRotateReverse 22s linear infinite; }
+
+/* subtle overlay gradients to enrich the scene */
+#home::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -19;
+  background: radial-gradient(30% 30% at 20% 30%, rgba(14,165,233,0.06), transparent 20%),
+              radial-gradient(25% 25% at 80% 70%, rgba(255,107,203,0.05), transparent 20%),
+              linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* ring animations */
+@keyframes ringPulse { 0% { transform: scale(0.98); opacity: 0.9; } 50% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(0.98); opacity: 0.9; } }
+@keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ringRotateReverse { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  .ring-1, .ring-2, .ring-3 { animation: none; transform: none; }
+  #home::before { filter: none; }
+}

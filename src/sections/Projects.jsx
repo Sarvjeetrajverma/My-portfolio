@@ -1,105 +1,193 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaHammer, FaCode } from 'react-icons/fa'; // Changed icons to Hammer/Code
+import project1Image from '../assets/project1.png';
 
 const projects = [
   {
-    title: "Task Manager App",
-    description: "A full-stack Todo application allowing users to create, read, update, and delete tasks. Features user authentication and task categorization.",
-    tech: ["React", "Node.js", "MongoDB", "Express", "Tailwind CSS"],
-    github: "https://github.com",
-    demo: "https://netlify.com",
-    image: "https://images.unsplash.com/photo-1540350394557-8d14678e7f91?ixlib=rb-4.0.3&auto=format&fit=crop&w=1032&q=80"
-  },
-  {
-    title: "Weather Dashboard",
-    description: "A responsive weather application that fetches real-time weather data using the OpenWeatherMap API. Displays current conditions and a 5-day forecast.",
-    tech: ["React", "OpenWeatherMap API", "CSS3"],
-    github: "https://github.com",
-    demo: "https://netlify.com",
-    image: "https://images.unsplash.com/photo-1592210454359-9043f067919b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-  },
-  {
-    title: "Personal Blog Platform",
-    description: "A dynamic blog site where I share my learning journey. Includes a markdown editor for writing posts and a comment section for engagement.",
-    tech: ["Next.js", "Firebase", "Markdown"],
-    github: "https://github.com",
-    demo: "https://netlify.com",
-    image: "/src/assets/project1.png"
-  },
-  {
-    title: "E-commerce Starter",
-    description: "A simple e-commerce frontend with product listing, filtering, and a shopping cart functionality using React Context API.",
-    tech: ["React", "Context API", "Styled Components"],
-    github: "https://github.com",
-    demo: "https://netlify.com",
-    image: "https://images.unsplash.com/photo-1557821552-17105176677c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2232&q=80"
+    title: "Portfolio Launchpad",
+    description: "My first step into the digital frontier. This site was built to apply my learning of React components, responsive design, and modern CSS animations.",
+    tech: ["React Basics", "Tailwind CSS", "JSX"],
+    github: "#",
+    demo: "#",
+    image: project1Image,
+    status: "v1.0 Online"
   }
 ];
 
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.9, 
+    filter: "blur(10px)",
+    y: 20
+  },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    filter: "blur(0px)",
+    y: 0,
+    transition: { 
+      duration: 0.8, 
+      ease: [0.22, 1, 0.36, 1] 
+    }
+  }
+};
+
 const Projects = () => {
   return (
-    <section id="projects" className="w-full py-20 bg-gray-900 text-white">
-      <div className="max-w-[1240px] mx-auto px-4">
-        <div className="text-center mb-12">
-          <p className="text-teal-400 font-bold uppercase tracking-wider">Portfolio</p>
-          <h2 className="text-3xl md:text-4xl font-bold py-4">My Projects</h2>
-        </div>
+    <section id="projects" className="w-full py-24 text-white relative overflow-hidden">
+      
+      {/* Background Grid Decoration */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+      <div className="max-w-[1240px] mx-auto px-4 relative z-10">
+        
+        {/* Section Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-16 flex flex-col items-center"
+        >
+          <div className="flex items-center gap-2 mb-3">
+             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+             <span className="text-cyan-400 font-mono text-xs tracking-[0.2em] uppercase">Student_Log: Active</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">
+            Project Index
+          </h2>
+        </motion.div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="grid md:grid-cols-2 gap-8"
+        >
+          
+          {/* --- 1. ACTIVE PROJECT CARD (Your Portfolio) --- */}
           {projects.map((project, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-teal-500/20 transition-all duration-300 border border-gray-700"
+              variants={itemVariants}
+              className="group relative bg-gray-900/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm hover:border-cyan-500/50 transition-colors duration-500"
             >
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={project.image} 
-                  alt={project.title} 
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+              {/* Image Section */}
+              <div className="relative h-64 overflow-hidden">
+                <motion.img
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.7 }}
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                 />
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-2 text-white">{project.title}</h3>
-                <p className="text-gray-400 mb-4 text-sm leading-relaxed">
-                  {project.description}
-                </p>
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
                 
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.tech.map((tech, i) => (
-                    <span key={i} className="text-xs bg-gray-700 text-teal-400 px-3 py-1 rounded-full border border-gray-600">
-                      {tech}
-                    </span>
-                  ))}
+                {/* Status Badge */}
+                <div className="absolute top-4 right-4 bg-black/50 backdrop-blur border border-white/10 px-3 py-1 rounded-full text-xs font-mono text-green-400 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                  {project.status}
                 </div>
+              </div>
 
-                <div className="flex gap-4">
-                  <a 
-                    href={project.github} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-teal-500 text-white rounded-lg transition-colors duration-300 text-sm font-semibold"
-                  >
-                    <FaGithub size={18} /> Code
-                  </a>
-                  <a 
-                    href={project.demo} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-teal-500 text-white rounded-lg transition-colors duration-300 text-sm font-semibold"
-                  >
-                    <FaExternalLinkAlt size={16} /> Live Demo
-                  </a>
+              {/* Content Section */}
+              <div className="p-8 relative -mt-12">
+                <div className="bg-gray-900/80 backdrop-blur-xl border border-white/10 p-6 rounded-xl shadow-2xl relative overflow-hidden group-hover:border-cyan-500/30 transition-colors">
+                  
+                  {/* Subtle Glow */}
+                  <div className="absolute -top-10 -right-10 w-20 h-20 bg-cyan-500/20 blur-2xl rounded-full group-hover:bg-cyan-500/30 transition-colors"></div>
+
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{project.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                    {project.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {project.tech.map((tech, i) => (
+                      <span key={i} className="text-[11px] font-mono uppercase bg-white/5 border border-white/10 text-gray-300 px-2 py-1 rounded hover:bg-white/10 transition-colors">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-4 pt-2 border-t border-white/5">
+                    <a href={project.github} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors hover:translate-x-1 duration-300">
+                      <FaGithub /> <span className="font-mono">Codebase</span>
+                    </a>
+                    <a href={project.demo} className="flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors hover:translate-x-1 duration-300">
+                      <FaExternalLinkAlt /> <span className="font-mono">Live_Demo</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>
           ))}
-        </div>
+
+          {/* --- 2. COMING SOON BLOCK (Student Focus) --- */}
+          <motion.div 
+            variants={itemVariants}
+            className="relative h-full min-h-[400px] bg-black/20 border border-white/5 border-dashed rounded-2xl p-8 flex flex-col justify-center items-center text-center overflow-hidden group"
+          >
+            {/* Animated Scanning Line */}
+            <motion.div 
+              animate={{ top: ["0%", "100%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="absolute left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent w-full opacity-50 pointer-events-none"
+            />
+
+            {/* Background Noise */}
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+            {/* Icon Animation */}
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+              transition={{ duration: 0.5 }}
+              className="relative z-10 w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center border border-white/10 mb-6 group-hover:border-cyan-500/50 group-hover:text-cyan-400 transition-colors"
+            >
+              <FaCode className="text-3xl text-gray-500 group-hover:text-cyan-400 transition-colors" />
+              <div className="absolute inset-0 rounded-full border border-white/5 animate-ping opacity-20"></div>
+            </motion.div>
+
+            <h3 className="relative z-10 text-xl font-bold text-gray-300 mb-2 font-mono">
+              [ Loading_Future_Builds ]
+            </h3>
+            
+            <p className="relative z-10 text-gray-500 max-w-sm text-sm leading-relaxed">
+              I am actively coding behind the scenes. This space is reserved for my upcoming projects as I master 
+              <span className="text-gray-300"> Backend Logic</span>, 
+              <span className="text-gray-300"> Databases</span>, and 
+              <span className="text-gray-300"> Complex Algorithms</span>.
+            </p>
+
+            <div className="mt-6 flex items-center gap-2 relative z-10">
+               <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+               <span className="text-xs font-mono text-yellow-500">Learning_in_progress...</span>
+            </div>
+
+            {/* Decorative Corners */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-gray-600"></div>
+            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-gray-600"></div>
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-gray-600"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-gray-600"></div>
+
+          </motion.div>
+
+        </motion.div>
       </div>
     </section>
   );
