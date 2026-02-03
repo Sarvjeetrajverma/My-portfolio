@@ -4,7 +4,7 @@ import logo from "../assets/logo.png"; // Adjust the path as needed
 import { FiMenu } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+export default function Navbar({ forceHidden }) {
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showHello, setShowHello] = useState(false); // State for the popup
@@ -48,7 +48,7 @@ export default function Navbar() {
     <>
       <nav
         className={`fixed top-0 left-0 w-full flex items-center justify-between px-6 py-4 z-50 transition-transform duration-300 ${
-          visible ? "translate-y-0" : "-translate-y-full"
+          visible && !forceHidden ? "translate-y-0" : "-translate-y-full"
         } bg-transparent`}
       >
         {/* LOGO CONTAINER */}

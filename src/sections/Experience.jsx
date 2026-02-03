@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaLaptopCode, FaGraduationCap, FaSchool, FaTrophy, FaUsers, FaMicrochip } from 'react-icons/fa';
+import { FaLaptopCode, FaGraduationCap, FaSchool, FaTrophy, FaUsers, FaMicrochip, FaAtom, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const experiences = [
   {
@@ -20,6 +20,20 @@ const experiences = [
   },
   {
     id: "02",
+    role: "JEE Scholar",
+    institution: "Magadh Super 30, Gaya",
+    period: "2020 - 2022",
+    status: "Completed",
+    color: "orange",
+    icon: <FaAtom />,
+    details: [
+      { label: "Mentorship", value: "Under Ex-DGP (Bihar) Abhiyanand Sir" },
+      { label: "Program", value: "Residential Coaching" },
+      { label: "Focus", value: "Advanced Physics & Math" }
+    ]
+  },
+  {
+    id: "03",
     role: "Intermediate (Science)",
     institution: "S.S. College Jehanabad",
     period: "2020 - 2022",
@@ -33,7 +47,7 @@ const experiences = [
     ]
   },
   {
-    id: "03",
+    id: "04",
     role: "High School",
     institution: "+2 High School,Ghosi",
     period: "2019 - 2020",
@@ -67,6 +81,18 @@ const cardVariants = {
 };
 
 const Experience = () => {
+  const scrollContainerRef = React.useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = window.innerWidth * 0.85;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <section id="experience" className="w-full py-20 text-white relative overflow-hidden">
       
@@ -80,32 +106,54 @@ const Experience = () => {
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="mb-12 flex items-center gap-4"
+          className="mb-12 flex flex-wrap items-center justify-between gap-4"
         >
-          <div className="h-1 w-12 bg-cyan-500 rounded-full"></div>
-          <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight">
-            Academic <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Timeline</span>
-          </h2>
+          <div className="flex items-center gap-4">
+            <div className="h-1 w-12 bg-cyan-500 rounded-full"></div>
+            <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight">
+              Academic <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Timeline</span>
+            </h2>
+          </div>
+
+          {/* Mobile Navigation Arrows */}
+          <div className="flex md:hidden gap-3">
+            <button 
+              onClick={() => scroll('left')}
+              className="p-3 rounded-full bg-gray-800/80 border border-gray-700 text-cyan-400 active:scale-95 transition-all hover:bg-gray-700"
+              aria-label="Scroll left"
+            >
+              <FaChevronLeft />
+            </button>
+            <button 
+              onClick={() => scroll('right')}
+              className="p-3 rounded-full bg-gray-800/80 border border-gray-700 text-cyan-400 active:scale-95 transition-all hover:bg-gray-700"
+              aria-label="Scroll right"
+            >
+              <FaChevronRight />
+            </button>
+          </div>
         </motion.div>
 
         {/* Grid Container */}
         <motion.div 
+          ref={scrollContainerRef}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide"
         >
           {experiences.map((exp) => (
             <motion.div
               key={exp.id}
               variants={cardVariants}
-              className="group relative bg-gray-900/40 backdrop-blur-md border border-gray-700/50 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+              className="min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative bg-gray-900/40 backdrop-blur-md border border-gray-700/50 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
             >
               {/* Top Colored Bar */}
               <div className={`h-1 w-full bg-gradient-to-r ${
                 exp.color === 'cyan' ? 'from-cyan-500 to-blue-500' : 
                 exp.color === 'purple' ? 'from-purple-500 to-pink-500' : 
+                exp.color === 'orange' ? 'from-orange-500 to-red-500' :
                 'from-blue-500 to-indigo-500'
               }`} />
 
@@ -115,7 +163,8 @@ const Experience = () => {
                 <div className="flex justify-between items-start mb-6">
                   <div className={`p-3 rounded-xl bg-gray-800 border border-gray-700 text-xl ${
                     exp.color === 'cyan' ? 'text-cyan-400' : 
-                    exp.color === 'purple' ? 'text-purple-400' : 'text-blue-400'
+                    exp.color === 'purple' ? 'text-purple-400' : 
+                    exp.color === 'orange' ? 'text-orange-400' : 'text-blue-400'
                   }`}>
                     {exp.icon}
                   </div>

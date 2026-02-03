@@ -13,6 +13,12 @@ h1, h2 {
   .gradient{
     background: linear-gradient(-45deg, #302b63, #00bf8f, #1cd8d2);
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 /* STARFIELD: many tiny stars using box-shadow trick */
 .starfield {
@@ -110,12 +116,6 @@ h1, h2 {
 /* Canvas sits behind content */
 canvas { display: block; width: 100%; height: 100%; }
 
-/* Nebula rings around avatar */
-.ring { position: absolute; border-radius: 50%; pointer-events: none; }
-.ring-1 { width: 420px; height: 420px; margin-left: -210px; margin-top: -210px; border: 1px solid rgba(124,58,237,0.06); box-shadow: 0 0 60px rgba(124,58,237,0.06); transform: scale(1); animation: ringPulse 8s ease-in-out infinite; }
-.ring-2 { width: 360px; height: 360px; margin-left: -180px; margin-top: -180px; border: 1px solid rgba(14,165,233,0.04); box-shadow: 0 0 40px rgba(14,165,233,0.04); transform: rotate(30deg); animation: ringRotate 18s linear infinite; }
-.ring-3 { width: 300px; height: 300px; margin-left: -150px; margin-top: -150px; border: 1px solid rgba(255,107,203,0.03); box-shadow: 0 0 30px rgba(255,107,203,0.03); transform: rotate(-20deg); animation: ringRotateReverse 22s linear infinite; }
-
 /* subtle overlay gradients to enrich the scene */
 #home::before {
   content: "";
@@ -128,11 +128,6 @@ canvas { display: block; width: 100%; height: 100%; }
   filter: blur(18px);
   pointer-events: none;
 }
-
-/* ring animations */
-@keyframes ringPulse { 0% { transform: scale(0.98); opacity: 0.9; } 50% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(0.98); opacity: 0.9; } }
-@keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes ringRotateReverse { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
 /* reduced motion fallback */
 @media (prefers-reduced-motion: reduce) {

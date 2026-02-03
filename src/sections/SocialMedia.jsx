@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter } from 'react-icons/fa6';
 
 const socialLinks = [
-  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/itssarvjeet', color: '#ffffff', action: 'FOLLOW' },
-  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/itssarvjeet', color: '#0077b5', action: 'CONNECT' },
-  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/itssarvjeet', color: '#e4405f', action: 'FOLLOW' },
-  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@itssarvjeet', color: '#ff0000', action: 'SUBSCRIBE' },
+  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', color: '#ffffff', action: 'FOLLOW' },
+  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/sarvjeetrajverma', color: '#0077b5', action: 'CONNECT' },
+  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/sarvjeetrajverma', color: '#e4405f', action: 'FOLLOW' },
+  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@sarvjeetrajverma', color: '#ff0000', action: 'SUBSCRIBE' },
   { name: 'X', icon: FaXTwitter, url: 'https://twitter.com/itssarvjeet', color: '#ffffff', action: 'FOLLOW' }
 ];
 
