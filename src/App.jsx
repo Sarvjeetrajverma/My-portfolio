@@ -54,11 +54,14 @@ const MainPage = () => {
 };
 
 const AnimatedRoutes = () => {
+  const location = useLocation();
   return (
-    <Routes>
-      <Route path="/" element={<MainPage />} />
-      <Route path="/travel/:tripId" element={<TripDetails />} />
-    </Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/travel/:tripId" element={<TripDetails />} />
+      </Routes>
+    </AnimatePresence>
   );
 };
 

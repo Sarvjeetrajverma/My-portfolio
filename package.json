@@ -13,6 +13,7 @@
     "dev:all": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
+    "@babel/parser": "^7.29.0",
     "@emailjs/browser": "^4.4.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
