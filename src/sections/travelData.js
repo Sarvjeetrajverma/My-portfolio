@@ -255,7 +255,6 @@ caption: "Pure, unadulterated nature at its finest."
 id: 'jharkhand-january-2026',
 title: "Jharkhand, India",
 date: "January 2026",
-coordinates: [86.1285, 23.9556],
 description: "A amazing journey through the snowy peaks and amazing culture of Jharkhand.",
 coverImage: getImage('prs1 (4).jpeg'),
 destinations: [
@@ -401,7 +400,6 @@ caption: "The final ascent: A test of faith and endurance."
 id: 'varanasi-january-2026',
 title: "Uttarpardesh, India",
 date: "june 2024",
-coordinates: [82.9739, 25.3176],
 description: "A amazing journey through the snowy peaks and amazing culture of U.P.",
 coverImage: getImage('var (1).jpeg'),
 destinations: [
