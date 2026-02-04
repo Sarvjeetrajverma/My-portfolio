@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { travelData } from '../sections/travelData';
@@ -36,6 +36,24 @@ const ZoomViewer = ({ photo, onClose, onNext, onPrev }) => {
     e.stopPropagation();
     if (e.deltaY < 0) handleZoomIn();
     else handleZoomOut();
+  };
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(photo.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `photo-${photo.id}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      window.open(photo.url, '_blank');
+    }
   };
 
   // Toggle Window Full Screen
@@ -151,7 +169,7 @@ const ZoomViewer = ({ photo, onClose, onNext, onPrev }) => {
         <button className="tool-btn" onClick={toggleFullScreen} title="Fullscreen">
           {isFullScreen ? <Icons.Minimize /> : <Icons.Maximize />}
         </button>
-        <button className="tool-btn" onClick={() => window.open(photo.url, '_blank')} title="Download"><Icons.Download /></button>
+        <button className="tool-btn" onClick={handleDownload} title="Download"><Icons.Download /></button>
       </div>
 
       {/* 5. BOTTOM CAPTION (Conditionally Visible) */}
@@ -172,12 +190,184 @@ const ZoomViewer = ({ photo, onClose, onNext, onPrev }) => {
   );
 };
 
+// --- MASONRY LAYOUT COMPONENT ---
+const MasonryLayout = ({ photos, onPhotoClick }) => {
+  const [columns, setColumns] = useState(3);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortOption, setSortOption] = useState('default');
+
+  useEffect(() => {
+    const updateColumns = () => {
+      if (window.innerWidth < 700) setColumns(1);
+      else if (window.innerWidth < 1100) setColumns(2);
+      else setColumns(3);
+    };
+    
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  // Reset visible count when photos change (e.g. filtering)
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [photos]);
+
+  const sortedPhotos = useMemo(() => {
+    let sorted = [...photos];
+    if (sortOption === 'date-desc') {
+      sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (sortOption === 'date-asc') {
+      sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (sortOption === 'location') {
+      sorted.sort((a, b) => (a.location || '').localeCompare(b.location || ''));
+    }
+    return sorted;
+  }, [photos, sortOption]);
+
+  const visiblePhotos = useMemo(() => sortedPhotos.slice(0, visibleCount), [sortedPhotos, visibleCount]);
+
+  const cols = useMemo(() => {
+    const c = Array.from({ length: columns }, () => []);
+    visiblePhotos.forEach((photo, i) => c[i % columns].push(photo));
+    return c;
+  }, [visiblePhotos, columns]);
+
+  const handleLoadMore = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 6);
+      setIsLoading(false);
+    }, 800);
+  };
+
+  return (
+    <div className="masonry-wrapper">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '8px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            outline: 'none',
+            cursor: 'pointer',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <option value="default" style={{color: 'black'}}>Default Order</option>
+          <option value="date-desc" style={{color: 'black'}}>Date (Newest)</option>
+          <option value="date-asc" style={{color: 'black'}}>Date (Oldest)</option>
+          <option value="location" style={{color: 'black'}}>Location (A-Z)</option>
+        </select>
+      </div>
+
+      <div style={{ display: 'flex', gap: '20px' }}>
+        {cols.map((col, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
+            {col.map((photo) => (
+              <motion.div 
+                key={photo.id}
+                className="grid-card"
+                whileHover={{ y: -5, scale: 1.02 }}
+                onClick={() => onPhotoClick(photo)}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+                style={{ width: '100%', position: 'relative', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer', marginBottom: 0 }}
+              >
+                <img 
+                  src={photo.url} 
+                  alt={photo.caption} 
+                  loading="lazy" 
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                />
+                <div className="card-overlay">{photo.location}</div>
+              </motion.div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: '40px', marginBottom: '20px', minHeight: '50px' }}>
+        {isLoading ? (
+          <motion.div
+            style={{
+              width: '30px',
+              height: '30px',
+              border: '3px solid rgba(255,255,255,0.3)',
+              borderTop: '3px solid #fff',
+              borderRadius: '50%',
+              display: 'inline-block'
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+        ) : (
+          <>
+            {visibleCount < photos.length && (
+              <motion.button 
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLoadMore}
+                style={{
+                  padding: '12px 32px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '30px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  backdropFilter: 'blur(10px)',
+                  outline: 'none'
+                }}
+              >
+                Load More Photos
+              </motion.button>
+            )}
+            
+            {visibleCount >= photos.length && photos.length > 6 && (
+              <motion.button 
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setVisibleCount(6)}
+                style={{
+                  padding: '12px 32px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '30px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  backdropFilter: 'blur(10px)',
+                  outline: 'none',
+                  marginLeft: '10px'
+                }}
+              >
+                Show Less
+              </motion.button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // --- MAIN COMPONENT ---
 const TripDetails = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
   const trip = travelData.find(t => t.id === tripId);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleNavigate = useCallback((dir) => {
     if (!selectedPhoto || !trip) return;
@@ -203,6 +393,19 @@ const TripDetails = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [selectedPhoto, handleNavigate]);
 
+  // Move useMemo before early return to comply with React Hooks rules
+  const filteredDestinations = useMemo(() => {
+    if (!trip || !searchTerm) return trip?.destinations || [];
+    const lowerTerm = searchTerm.toLowerCase();
+    return trip.destinations.map(dest => ({
+      ...dest,
+      photos: dest.photos.filter(photo => 
+        (photo.caption && photo.caption.toLowerCase().includes(lowerTerm)) ||
+        (photo.location && photo.location.toLowerCase().includes(lowerTerm))
+      )
+    })).filter(dest => dest.photos.length > 0);
+  }, [trip, searchTerm]);
+
   if (!trip) return <div>Loading...</div>;
 
   return (
@@ -221,24 +424,43 @@ const TripDetails = () => {
           <p>{trip.date}</p>
         </header>
 
-        {trip.destinations.map(dest => (
-          <section key={dest.id} className="dest-section">
-            <h2>{dest.name}</h2>
-            <div className="photo-grid">
-              {dest.photos.map(photo => (
-                <motion.div 
-                  key={photo.id}
-                  className="grid-card"
-                  whileHover={{ y: -5 }}
-                  onClick={() => setSelectedPhoto(photo)}
-                >
-                  <img src={photo.url} alt={photo.caption} loading="lazy" />
-                  <div className="card-overlay">{photo.location}</div>
-                </motion.div>
-              ))}
-            </div>
-          </section>
-        ))}
+        {/* Search Bar */}
+        <div className="search-wrapper" style={{ maxWidth: '600px', margin: '0 auto 40px', position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Search photos by caption or location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+            style={{ 
+              width: '100%', 
+              padding: '12px 45px 12px 20px', 
+              borderRadius: '30px', 
+              border: '1px solid rgba(255,255,255,0.1)', 
+              background: 'rgba(255,255,255,0.05)', 
+              color: 'white', 
+              outline: 'none', 
+              backdropFilter: 'blur(10px)',
+              fontSize: '16px'
+            }}
+          />
+          <span style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', opacity: 0.7 }}>
+            🔍
+          </span>
+        </div>
+
+        {filteredDestinations.length > 0 ? (
+          filteredDestinations.map(dest => (
+            <section key={dest.id} className="dest-section">
+              <h2>{dest.name}</h2>
+              <MasonryLayout photos={dest.photos} onPhotoClick={setSelectedPhoto} />
+            </section>
+          ))
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
+            No photos found matching "{searchTerm}"
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
