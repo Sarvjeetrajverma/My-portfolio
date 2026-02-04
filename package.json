@@ -25,7 +25,7 @@
     "react-simple-maps": "^1.0.0"
   },
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
