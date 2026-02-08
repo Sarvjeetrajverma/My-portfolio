@@ -223,7 +223,7 @@ const About = () => {
                             Active participant in autonomous and manual bot competitions.
                         </p>
                         <div className="flex flex-wrap gap-2">
-                            {['Robo War', 'Robo Soccer', 'Robo Race'].map(tag => (
+                            {['Robo Soccer','Hurdle Mainia', 'Bot-A-Maze'].map(tag => (
                                 <span key={tag} className="text-[10px] bg-yellow-400/10 text-yellow-200 px-2 py-1 rounded border border-yellow-400/20">
                                     {tag}
                                 </span>

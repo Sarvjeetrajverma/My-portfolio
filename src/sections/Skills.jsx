@@ -36,16 +36,16 @@ const skillFiles = [
   {
     id: 'frontend',
     filename: 'Frontend.tsx',
-    icon: <FaReact className="text-blue-400" />,
+    icon: <FaReact className="text-blue-400"/>,
     language: 'typescript',
     content: [
       { name: "React.js", level: 90, color: "text-blue-400" },
       { name: "Next.js (App Router)", level: 85, color: "text-white" },
-      { name: "TypeScript", level: 82, color: "text-blue-600" },
-      { name: "Tailwind CSS", level: 95, color: "text-teal-400" },
-      { name: "Framer Motion", level: 75, color: "text-purple-400" },
-      { name: "State (Zustand/Redux)", level: 70, color: "text-purple-300" },
-      { name: "Testing (Jest/Vitest)", level: 60, color: "text-green-300" },
+      { name: "TypeScript", level: 80, color: "text-blue-400" },
+      { name: "Tailwind CSS", level: 80, color: "text-teal-400" },
+      { name: "Framer Motion", level: 75, color: "text-blue-400" },
+      { name: "State (Zustand/Redux)", level: 50, color: "text-white" },
+      { name: "Testing (Jest/Vitest)", level: 30, color: "text-green-400" },
     ]
   },
   {
@@ -54,13 +54,13 @@ const skillFiles = [
     icon: <FaNodeJs className="text-green-500" />,
     language: 'typescript',
     content: [
-      { name: "Node.js Runtime", level: 75, color: "text-green-500" },
-      { name: "Express.js", level: 80, color: "text-gray-400" },
-      { name: "REST API Design", level: 85, color: "text-yellow-400" },
-      { name: "MongoDB & Mongoose", level: 75, color: "text-green-400" },
-      { name: "PostgreSQL & Prisma", level: 65, color: "text-blue-400" },
-      { name: "Auth (JWT/NextAuth)", level: 70, color: "text-orange-400" },
-      { name: "Validation (Zod)", level: 75, color: "text-blue-300" },
+      { name: "Node.js Runtime", level: 10, color: "text-green-500" },
+      { name: "Express.js", level: 10, color: "text-blue-400" },
+      { name: "REST API Design", level: 30, color: "text-white" },
+      { name: "MongoDB & Mongoose", level: 40, color: "text-green-400" },
+      { name: "PostgreSQL & Prisma", level: 10, color: "text-blue-400" },
+      { name: "Auth (JWT/NextAuth)", level: 10, color: "text-white" },
+      { name: "Validation (Zod)", level: 10, color: "text-blue-400" },
     ]
   },
   {
@@ -69,26 +69,26 @@ const skillFiles = [
     icon: <VscTerminalBash className="text-purple-400" />,
     language: 'yaml',
     content: [
-      { name: "Git Version Control", level: 90, color: "text-orange-500" },
-      { name: "GitHub Actions (CI/CD)", level: 65, color: "text-blue-300" },
-      { name: "Docker Basics", level: 60, color: "text-blue-500" },
-      { name: "Linux Command Line", level: 70, color: "text-yellow-200" },
+      { name: "Git Version Control", level: 90, color: "text-white" },
+      { name: "GitHub Actions (CI/CD)", level: 65, color: "text-blue-400" },
+      { name: "Docker Basics", level: 10, color: "text-green-400" },
+      { name: "Linux Command Line", level: 30, color: "text-blue-400" },
       { name: "Deployment (Vercel)", level: 92, color: "text-white" },
-      { name: "Package Mgrs (npm)", level: 85, color: "text-red-400" },
+      { name: "Package Mgrs (npm)", level: 85, color: "text-green-400" },
     ]
   },
   {
     id: 'dsa',
     filename: 'algorithms.cpp',
-    icon: <SiCplusplus className="text-blue-600" />,
+    icon: <SiCplusplus className="text-blue-400" />,
     language: 'cpp',
     content: [
-      { name: "C++ Fundamentals", level: 85, color: "text-blue-600" },
-      { name: "Arrays & Strings", level: 80, color: "text-green-300" },
-      { name: "Linked Lists", level: 75, color: "text-purple-300" },
-      { name: "Trees & Graphs", level: 60, color: "text-yellow-300" },
-      { name: "Sorting & Searching", level: 75, color: "text-orange-300" },
-      { name: "Time Complexity", level: 65, color: "text-gray-300" },
+      { name: "C++ Fundamentals", level: 85, color: "text-blue-400" },
+      { name: "Arrays & Strings", level: 80, color: "text-green-400" },
+      { name: "Linked Lists", level: 75, color: "text-white" },
+      { name: "Trees & Graphs", level: 60, color: "text-green-400" },
+      { name: "Sorting & Searching", level: 75, color: "text-blue-400" },
+      { name: "Time Complexity", level: 65, color: "text-green-400" },
     ]
   }
 ];
@@ -145,7 +145,7 @@ const Skills = () => {
             <div className="w-10" /> 
           </div>
 
-          <div className="flex h-[600px] md:h-[500px]">
+          <div className="flex h-[400px] md:h-[500px]">
             
             {/* Sidebar - Transparent */}
             <div className={`${isSidebarOpen ? 'w-16 md:w-64' : 'w-0'} transition-all duration-300 border-r border-white/10 bg-white/5 flex-shrink-0 overflow-hidden hidden md:flex flex-col`}>
@@ -218,7 +218,7 @@ const Skills = () => {
                     className="flex h-full"
                   >
                     {/* Line Numbers - Semi-Transparent */}
-                    <div className="text-slate-600 text-right select-none py-4 pr-4 pl-2 border-r border-white/10 bg-white/5 w-[50px] flex-shrink-0">
+                    <div className="text-slate-400 text-right select-none py-4 pr-4 pl-2 border-r border-white/10 bg-white/5 w-[50px] flex-shrink-0">
                       {Array.from({ length: totalLines }).map((_, i) => (
                         <div key={i}>{i + 1}</div>
                       ))}
@@ -268,7 +268,7 @@ const Skills = () => {
                             </div>
                             
                             {/* Dotted Line */}
-                             <div className="hidden md:block flex-1 mx-4 border-b border-dashed border-slate-600/30 h-1 opacity-20 group-hover:opacity-50 transition-opacity"></div>
+                             <div className="hidden md:block flex-1 mx-4 border-b border-dashed border-slate-400/30 h-1 opacity-20 group-hover:opacity-50 transition-opacity"></div>
 
                             {/* Progress Bar */}
                             <div className="hidden md:flex items-center gap-2">

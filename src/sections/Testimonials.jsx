@@ -10,7 +10,7 @@ const testimonials = [
     icon: <FaRobot />
   },
   {
-    name: "TechFusion Secretary",
+    name: "TechFusion ",
     role: "Event Organizing Committee",
     feedback: "As a Core Coordinator, he handled the pressure of the 4-day fest amazingly well. A reliable team player who ensured the technical events ran smoothly.",
     icon: <FaUserFriends />

@@ -16,7 +16,7 @@ export const travelData = [
 title: "Sikkim, India",
 date: "March 2025",
 coordinates: [88.6138, 27.3314],
-description: "A amazing journey through the snowy peaks and amazing culture of Sikkim.",
+description: "Frozen lakes, white peaks, and endless adventures.",
 coverImage: getImage('guru2.jpeg') ,
 
 destinations: [
@@ -255,7 +255,7 @@ caption: "Pure, unadulterated nature at its finest."
 id: 'jharkhand-january-2026',
 title: "Jharkhand, India",
 date: "January 2026",
-description: "A amazing journey through the snowy peaks and amazing culture of Jharkhand.",
+description: "Exploring the roof of Jharkhand at Parasnath and the cultural heart at Deoghar.",
 coverImage: getImage('prs1 (4).jpeg'),
 destinations: [
 {
@@ -400,7 +400,7 @@ caption: "The final ascent: A test of faith and endurance."
 id: 'varanasi-january-2026',
 title: "Uttarpardesh, India",
 date: "june 2024",
-description: "A amazing journey through the snowy peaks and amazing culture of U.P.",
+description: "An unforgettable journey through the rich heritage of Uttar Pradesh, right here in the holy city of Banaras.",
 coverImage: getImage('var (1).jpeg'),
 destinations: [
 {

@@ -1,3 +1,4 @@
+
 import TravelGallery from './components/TravelGallery';
 import TripDetails from './components/TripDetails';
 import React, { useState } from "react";
