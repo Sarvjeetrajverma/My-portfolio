@@ -3,10 +3,10 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { FaXTwitter, FaLinkedinIn, FaGithub, FaInstagram } from "react-icons/fa6";
 
 const socials = [
-  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet", color: "#60a5fa" },
+  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet", color: "#aeeea2" },
   { icon: FaLinkedinIn, label: "LinkedIn", link: "https://www.linkedin.com/in/sarvjeetrajverma/", color: "#0ea5e9" },
-  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma", color: "#e5e7eb" },
-  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma", color: "#f97316" }
+  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma", color: "#dfefba" },
+  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma", color: "#e55c87" }
 ];
 
 const sectionVariants = {
@@ -54,6 +54,33 @@ export default function Home() {
   const [subindex, setSubindex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
+  // --- Real Time Clock & Date ---
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   // --- Typewriter Effect ---
   useEffect(() => {
     const current = roles[index];
@@ -73,6 +100,7 @@ export default function Home() {
   }, [subindex, deleting, index, roles]);
 
   const [prefersReducedMotion, setPrm] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -81,6 +109,17 @@ export default function Home() {
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // --- Mouse Movement Logic for Name Animation ---
@@ -115,16 +154,27 @@ export default function Home() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
+    // Reduce DPR on mobile for better performance
     let dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    dpr = Math.min(dpr, 1.75);
+    if (isMobile || prefersReducedMotion) {
+      dpr = Math.min(dpr, 1);
+    } else {
+      dpr = Math.min(dpr, 1.75);
+    }
 
     let width = (canvas.width = canvas.clientWidth * dpr);
     let height = (canvas.height = canvas.clientHeight * dpr);
 
-    const layers = [
-      { count: 35, speed: 0.03, size: [0.7, 1.3], color: "rgba(248,250,252,0.4)" },
-      { count: 20, speed: 0.05, size: [1.0, 2.0], color: "rgba(129,140,248,0.45)" }
-    ];
+    // Reduce star count on mobile for better performance
+    const layers = isMobile || prefersReducedMotion
+      ? [
+          { count: 15, speed: 0.02, size: [0.7, 1.0], color: "rgba(248,250,252,0.3)" },
+          { count: 10, speed: 0.03, size: [1.0, 1.5], color: "rgba(129,140,248,0.3)" }
+        ]
+      : [
+          { count: 35, speed: 0.03, size: [0.7, 1.3], color: "rgba(248,250,252,0.4)" },
+          { count: 20, speed: 0.05, size: [1.0, 2.0], color: "rgba(129,140,248,0.45)" }
+        ];
 
     const stars = [];
 
@@ -218,7 +268,7 @@ export default function Home() {
       window.removeEventListener("resize", onResize);
       canvas.removeEventListener("pointermove", onCanvasMove);
     };
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isMobile]);
 
   return (
     <motion.section
@@ -251,7 +301,7 @@ export default function Home() {
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-4 tracking-tight perspective-[500px]">
             <span className="block text-slate-100 text-lg sm:text-2xl font-light mb-1">
-              Hello, spacefarer. I'm
+              Hello, I'm
             </span>
             {/* ANIMATED NAME COMPONENT */}
             <motion.span
@@ -332,6 +382,29 @@ export default function Home() {
               </motion.a>
             ))}
           </div>
+
+          {/* Real Time Clock & Date */}
+          <motion.div 
+            className="mt-8 inline-flex flex-col items-center lg:items-start"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <div className="flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-900/40 border border-cyan-500/20 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.15)]">
+              <span className="text-lg">🕐</span>
+              <span className="font-mono text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-200 to-indigo-200 tracking-wider">
+                {formatTime(currentTime)}
+              </span>
+            </div>
+            <motion.div 
+              className="mt-2 text-sm sm:text-base text-slate-300/80 font-medium tracking-wide"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              {formatDate(currentTime)}
+            </motion.div>
+          </motion.div>
         </motion.div>
 
         {/* VISUAL SIDE */}
