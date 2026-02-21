@@ -4,6 +4,7 @@ import TripDetails from './components/TripDetails';
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { Analytics } from "@vercel/analytics/react";
 import ParticlesBackground from "./components/ParticlesBackground";
 import CustomCursor from "./components/CustomCursor";
 import Navbar from "./components/Navbar";
@@ -70,6 +71,7 @@ export default function App(){
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <Analytics />
     </BrowserRouter>
   )
 }
