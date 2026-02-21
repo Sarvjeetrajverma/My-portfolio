@@ -1,354 +1,257 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaReact, FaNodeJs, FaGitAlt, FaChevronDown, FaRegFolderOpen
+import { 
+  FaTerminal, FaNetworkWired, FaServer, FaCodeBranch, FaBrain, 
+  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaJava
 } from 'react-icons/fa';
-import {
-  SiJavascript, SiTypescript, SiMongodb, SiTailwindcss, SiNextdotjs,
-  SiExpress, SiPostman, SiCplusplus, SiPrisma, SiRedux
+import { 
+  SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFramer, SiRedux,
+  SiNodedotjs, SiExpress, SiPython, SiGraphql, 
+  SiPostgresql, SiMysql, SiMongodb, SiRedis, SiSupabase,
+  SiGithubactions, SiDocker, SiLinux, SiVercel, SiCplusplus 
 } from 'react-icons/si';
-import { VscCode, VscTerminalBash } from "react-icons/vsc";
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.03, delayChildren: 0.1 }
-  },
-  exit: { opacity: 0, transition: { duration: 0.1 } }
-};
-
-const lineVariants = {
-  hidden: { opacity: 0, x: -10 },
-  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 20 } }
-};
-
-const BlinkingCursor = () => (
-  <motion.span
-    animate={{ opacity: [0, 1, 0] }}
-    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-    className="inline-block w-[2px] h-4 bg-blue-400 ml-1 align-sub"
-  />
-);
-
-const skillFiles = [
+// System Modules with Fixed Imports
+const systemModules = [
   {
     id: 'frontend',
-    filename: 'Frontend.tsx',
-    icon: <FaReact className="text-blue-400"/>,
-    language: 'typescript',
+    title: 'CLIENT_SIDE',
+    color: 'cyan',
+    icon: <FaNetworkWired />,
     content: [
-      { name: "React.js", level: 90, color: "text-blue-400" },
-      { name: "Next.js (App Router)", level: 85, color: "text-white" },
-      { name: "TypeScript", level: 80, color: "text-blue-400" },
-      { name: "Tailwind CSS", level: 80, color: "text-teal-400" },
-      { name: "Framer Motion", level: 75, color: "text-blue-400" },
-      { name: "State (Zustand/Redux)", level: 50, color: "text-white" },
-      { name: "Testing (Jest/Vitest)", level: 30, color: "text-green-400" },
+      { name: "React.js", level: 90, logo: <SiReact />, meta: "SYS_GUI_CORE", brand: "#61DAFB" },
+      { name: "Next.js", level: 85, logo: <SiNextdotjs />, meta: "APP_ROUTER_V14", brand: "#FFFFFF" },
+      { name: "TypeScript", level: 80, logo: <SiTypescript />, meta: "STATIC_TYPING", brand: "#3178C6" },
+      { name: "Tailwind CSS", level: 85, logo: <SiTailwindcss />, meta: "STYLE_ENGINE", brand: "#06B6D4" },
+      { name: "Framer Motion", level: 75, logo: <SiFramer />, meta: "PHYSICS_ANIM", brand: "#0055FF" },
+      { name: "Redux", level: 60, logo: <SiRedux />, meta: "STATE_MGMT", brand: "#764ABC" },
     ]
   },
   {
     id: 'backend',
-    filename: 'Backend.ts',
-    icon: <FaNodeJs className="text-green-500" />,
-    language: 'typescript',
+    title: 'SERVER_OPS',
+    color: 'green',
+    icon: <FaServer />,
     content: [
-      { name: "Node.js Runtime", level: 10, color: "text-green-500" },
-      { name: "Express.js", level: 10, color: "text-blue-400" },
-      { name: "REST API Design", level: 30, color: "text-white" },
-      { name: "MongoDB & Mongoose", level: 40, color: "text-green-400" },
-      { name: "PostgreSQL & Prisma", level: 10, color: "text-blue-400" },
-      { name: "Auth (JWT/NextAuth)", level: 10, color: "text-white" },
-      { name: "Validation (Zod)", level: 10, color: "text-blue-400" },
+      { name: "Node.js", level: 85, logo: <SiNodedotjs />, meta: "V8_RUNTIME", brand: "#339933" },
+      { name: "Express.js", level: 85, logo: <SiExpress />, meta: "HTTP_SERVER", brand: "#FFFFFF" },
+      { name: "Python", level: 75, logo: <SiPython />, meta: "DATA_PROCESS", brand: "#3776AB" },
+      { name: "GraphQL", level: 70, logo: <SiGraphql />, meta: "QUERY_LANG", brand: "#E10098" },
+      { name: "REST APIs", level: 90, logo: <FaServer />, meta: "ENDPOINT_CTRL", brand: "#00FFCC" },
+      { name: "Java", level: 65, logo: <FaJava />, meta: "JVM_RUNTIME", brand: "#ED8B00" },
+    ]
+  },
+  {
+    id: 'database',
+    title: 'DATA_LAYER',
+    color: 'yellow',
+    icon: <FaDatabase />,
+    content: [
+      { name: "PostgreSQL", level: 85, logo: <SiPostgresql />, meta: "RELATIONAL_DB", brand: "#4169E1" },
+      { name: "MySQL", level: 80, logo: <SiMysql />, meta: "STRUCTURED_SQL", brand: "#4479A1" },
+      { name: "SQL Server", level: 70, logo: <FaDatabase />, meta: "T-SQL_ENGINE", brand: "#CC292B" },
+      { name: "MongoDB", level: 85, logo: <SiMongodb />, meta: "NOSQL_DATA", brand: "#47A248" },
+      { name: "Redis", level: 75, logo: <SiRedis />, meta: "IN_MEMORY_CACHE", brand: "#DC382D" },
+      { name: "Supabase", level: 80, logo: <SiSupabase />, meta: "BAAS_PLATFORM", brand: "#3ECF8E" },
     ]
   },
   {
     id: 'devops',
-    filename: 'pipeline.yml',
-    icon: <VscTerminalBash className="text-purple-400" />,
-    language: 'yaml',
+    title: 'PIPELINE',
+    color: 'purple',
+    icon: <FaCodeBranch />,
     content: [
-      { name: "Git Version Control", level: 90, color: "text-white" },
-      { name: "GitHub Actions (CI/CD)", level: 65, color: "text-blue-400" },
-      { name: "Docker Basics", level: 10, color: "text-green-400" },
-      { name: "Linux Command Line", level: 30, color: "text-blue-400" },
-      { name: "Deployment (Vercel)", level: 92, color: "text-white" },
-      { name: "Package Mgrs (npm)", level: 85, color: "text-green-400" },
+      { name: "Git / GitHub", level: 90, logo: <FaGithub />, meta: "VERSION_CTRL", brand: "#FFFFFF" },
+      { name: "Docker", level: 50, logo: <SiDocker />, meta: "CONTAINERS", brand: "#2496ED" },
+      { name: "Linux CLI", level: 70, logo: <SiLinux />, meta: "SYS_ADMIN", brand: "#FCC624" },
+      { name: "AWS", level: 60, logo: <FaAws />, meta: "CLOUD_HOST", brand: "#FF9900" },
+      { name: "CI/CD Actions", level: 65, logo: <SiGithubactions />, meta: "AUTO_DEPLOY", brand: "#2088FF" },
+      { name: "Vercel", level: 92, logo: <SiVercel />, meta: "EDGE_NETWORK", brand: "#FFFFFF" },
     ]
   },
   {
     id: 'dsa',
-    filename: 'algorithms.cpp',
-    icon: <SiCplusplus className="text-blue-400" />,
-    language: 'cpp',
+    title: 'CORE_LOGIC',
+    color: 'blue',
+    icon: <FaBrain />,
     content: [
-      { name: "C++ Fundamentals", level: 85, color: "text-blue-400" },
-      { name: "Arrays & Strings", level: 80, color: "text-green-400" },
-      { name: "Linked Lists", level: 75, color: "text-white" },
-      { name: "Trees & Graphs", level: 60, color: "text-green-400" },
-      { name: "Sorting & Searching", level: 75, color: "text-blue-400" },
-      { name: "Time Complexity", level: 65, color: "text-green-400" },
+      { name: "C++", level: 85, logo: <SiCplusplus />, meta: "LOW_LEVEL_MEM", brand: "#00599C" },
+      { name: "Data Structures", level: 80, logo: <FaBrain />, meta: "MEM_ALLOCATION", brand: "#FF00FF" },
+      { name: "Graph Algos", level: 60, logo: <FaNetworkWired />, meta: "PATHFINDING", brand: "#00FFFF" },
+      { name: "Time Complexity", level: 75, logo: <FaClock />, meta: "BIG_O_OPTIMIZE", brand: "#FFD700" },
+      { name: "Object Oriented", level: 85, logo: <FaCube />, meta: "ENCAPSULATION", brand: "#FF4500" },
+      { name: "Problem Solving", level: 90, logo: <FaLaptopCode />, meta: "LOGIC_GATES", brand: "#00FF00" },
     ]
   }
 ];
 
+// Tailwind safely compiled theme strings
+const themeColors = {
+  cyan: { 
+    text: "text-cyan-400", bg: "bg-cyan-400", glow: "shadow-[0_0_15px_rgba(6,182,212,0.5)]", 
+    border: "border-cyan-500/30", hoverBorder: "hover:border-cyan-500/50", hoverPanel: "hover:bg-cyan-950/30" 
+  },
+  green: { 
+    text: "text-green-400", bg: "bg-green-400", glow: "shadow-[0_0_15px_rgba(34,197,94,0.5)]", 
+    border: "border-green-500/30", hoverBorder: "hover:border-green-500/50", hoverPanel: "hover:bg-green-950/30" 
+  },
+  yellow: { 
+    text: "text-yellow-400", bg: "bg-yellow-400", glow: "shadow-[0_0_15px_rgba(250,204,21,0.5)]", 
+    border: "border-yellow-500/30", hoverBorder: "hover:border-yellow-500/50", hoverPanel: "hover:bg-yellow-950/30" 
+  },
+  purple: { 
+    text: "text-purple-400", bg: "bg-purple-400", glow: "shadow-[0_0_15px_rgba(168,85,247,0.5)]", 
+    border: "border-purple-500/30", hoverBorder: "hover:border-purple-500/50", hoverPanel: "hover:bg-purple-950/30" 
+  },
+  blue: { 
+    text: "text-blue-400", bg: "bg-blue-400", glow: "shadow-[0_0_15px_rgba(59,130,246,0.5)]", 
+    border: "border-blue-500/30", hoverBorder: "hover:border-blue-500/50", hoverPanel: "hover:bg-blue-950/30" 
+  }
+};
+
 const Skills = () => {
-  const [activeTab, setActiveTab] = useState('frontend');
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const activeData = skillFiles.find(f => f.id === activeTab);
-  const totalLines = activeData.content.length + 6;
+  const [activeTab, setActiveTab] = useState(systemModules[0].id);
+  const activeData = systemModules.find(m => m.id === activeTab);
+  const activeTheme = themeColors[activeData.color];
 
   return (
-    // Top-level Section is FULLY TRANSPARENT
-    <section id="skills" className="w-full py-16 bg-transparent text-slate-300 font-mono overflow-hidden relative">
+    <section id="skills" className="w-full py-12 bg-transparent text-white font-mono relative overflow-hidden flex justify-center">
       
-      <div className="max-w-6xl mx-auto px-4 relative z-10">
+      {/* Subtle Background Grid */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+      <div className="max-w-4xl w-full px-6 relative z-10">
         
-        {/* Header */}
-        <div className="text-center mb-10">
-           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-block px-3 py-1 mb-4 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full backdrop-blur-sm"
-          >
-            DEVELOPMENT ENVIRONMENT
-          </motion.div>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-            <span className="text-purple-400">const</span> stack <span className="text-blue-400">=</span> <span className="text-green-400">await</span> <span className="text-yellow-300">fetchSkills</span>();
-          </h2>
-          <p className="text-slate-400 drop-shadow-md">Browse the project files to view technical proficiency.</p>
+        {/* Compact Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <FaTerminal className="text-gray-500 text-sm" />
+            <h2 className="text-2xl font-black uppercase tracking-widest text-gray-200">
+              Tech <span className={`transition-colors duration-500 ${activeTheme.text}`}>Stack</span>
+            </h2>
+          </div>
+          <span className="text-[10px] text-gray-500 tracking-[0.2em] uppercase hidden md:block animate-pulse">
+            System_Optimized
+          </span>
         </div>
 
-        {/* IDE Container - GLASSMORPHISM EFFECT */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="rounded-xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative"
-        >
+        {/* The Main "Data Core" Glass Panel */}
+        <div className={`relative bg-black/40 backdrop-blur-2xl border transition-colors duration-500 rounded-2xl overflow-hidden ${activeTheme.border}`}>
           
-          {/* Title Bar - Transparent */}
-          <div className="h-10 border-b border-white/10 bg-white/5 flex items-center px-4 justify-between select-none">
-            <div className="flex gap-2 items-center">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-              </div>
-            </div>
-            <div className="text-xs text-slate-400 font-sans flex items-center gap-2">
-               <VscCode className="text-blue-400" /> portfolio-v2 [SSH: student-dev]
-            </div>
-            <div className="w-10" /> 
+          {/* Navigation "Ribbon" */}
+          <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-800/50 p-2 relative z-20 bg-black/40">
+            {systemModules.map((module) => {
+              const isActive = activeTab === module.id;
+              return (
+                <button
+                  key={module.id}
+                  onClick={() => setActiveTab(module.id)}
+                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold tracking-widest uppercase transition-colors duration-300 z-10 whitespace-nowrap ${
+                    isActive ? 'text-black' : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  {/* The Buttery Smooth Sliding Pill Animation */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabPill"
+                      className={`absolute inset-0 rounded-xl ${themeColors[module.color].bg} ${themeColors[module.color].glow}`}
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      style={{ zIndex: -1 }}
+                    />
+                  )}
+                  <span className={`text-sm ${isActive ? 'text-black' : 'text-gray-500'}`}>{module.icon}</span>
+                  {module.title}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex h-[400px] md:h-[500px]">
+          {/* Fixed Height Content Area */}
+          <div className="min-h-[320px] p-6 md:p-8 relative">
             
-            {/* Sidebar - Transparent */}
-            <div className={`${isSidebarOpen ? 'w-16 md:w-64' : 'w-0'} transition-all duration-300 border-r border-white/10 bg-white/5 flex-shrink-0 overflow-hidden hidden md:flex flex-col`}>
-              <div className="p-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider flex justify-between items-center">
-                <span>Explorer</span>
-                <button className="hover:text-white">•••</button>
-              </div>
-              <div className="px-2 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
-                <div className="flex items-center gap-1 text-slate-200 mb-1 cursor-pointer p-1 hover:bg-white/10 rounded transition-colors" onClick={() => setSidebarOpen(!isSidebarOpen)}>
-                  <FaChevronDown className="text-[10px]" />
-                  <FaRegFolderOpen className="text-blue-400/80 text-sm" />
-                  <span className="font-bold text-sm truncate">PROJECT-ROOT</span>
-                </div>
-                
-                <div className="pl-3">
-                   <div className="flex items-center gap-1 text-slate-400 p-1 hover:bg-white/10 rounded cursor-pointer transition-colors">
-                      <FaChevronDown className="text-[10px]" />
-                      <FaRegFolderOpen className="text-yellow-400/80 text-sm" />
-                      <span className="text-sm">src</span>
-                   </div>
-                   <div className="pl-4 space-y-0.5 font-sans">
-                    {skillFiles.map((file) => (
+            {/* Faint Background Icon */}
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={`icon-${activeData.id}`}
+                initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                animate={{ opacity: 0.04, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                transition={{ duration: 0.5 }}
+                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[240px] pointer-events-none ${activeTheme.text}`}
+              >
+                {activeData.icon}
+              </motion.div>
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, staggerChildren: 0.05 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 relative z-10"
+              >
+                {activeData.content.map((skill, index) => (
+                  <motion.div 
+                    key={skill.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, type: "spring", stiffness: 300 }}
+                    className={`flex flex-col gap-2 group p-2 rounded-lg border border-transparent ${activeTheme.hoverBorder} ${activeTheme.hoverPanel} transition-all duration-300`}
+                  >
+                    
+                    <div className="flex items-center gap-3">
+                      {/* REAL BRAND COLOR Logo Box */}
                       <div 
-                        key={file.id}
-                        onClick={() => setActiveTab(file.id)}
-                        className={`
-                          flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-[13px] transition-colors group
-                          ${activeTab === file.id ? 'bg-white/10 text-white font-medium' : 'text-slate-500 hover:text-white hover:bg-white/5'}
-                        `}
+                        className={`p-2.5 rounded-md bg-black/60 border border-gray-800 transition-all duration-300 text-lg group-hover:scale-110`}
+                        style={{ 
+                          color: skill.brand, 
+                          boxShadow: `inset 0 0 10px rgba(0,0,0,0.5)`,
+                          filter: `drop-shadow(0 0 6px ${skill.brand}40)` 
+                        }}
                       >
-                        <span className="group-hover:scale-110 transition-transform">{file.icon}</span>
-                        <span className="truncate">{file.filename}</span>
+                        {skill.logo}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Editor - Transparent */}
-            <div className="flex-1 flex flex-col min-w-0 bg-transparent">
-              
-              {/* Tabs */}
-              <div className="flex bg-transparent overflow-x-auto border-b border-white/10 scrollbar-hide">
-                {skillFiles.map((file) => (
-                  <button
-                    key={file.id}
-                    onClick={() => setActiveTab(file.id)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 text-sm border-r border-white/10 min-w-fit transition-all relative
-                      ${activeTab === file.id ? 'bg-white/10 text-white' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}
-                    `}
-                  >
-                    {activeTab === file.id && <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-400"></div>}
-                    {file.icon}
-                    <span>{file.filename}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Code Content Area */}
-              <div className="flex-1 overflow-y-auto font-mono text-[13px] md:text-[14px] leading-7 relative custom-scrollbar bg-transparent">
-                <AnimatePresence mode='wait'>
-                  <motion.div
-                    key={activeTab}
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="flex h-full"
-                  >
-                    {/* Line Numbers - Semi-Transparent */}
-                    <div className="text-slate-400 text-right select-none py-4 pr-4 pl-2 border-r border-white/10 bg-white/5 w-[50px] flex-shrink-0">
-                      {Array.from({ length: totalLines }).map((_, i) => (
-                        <div key={i}>{i + 1}</div>
-                      ))}
+                      
+                      {/* Skill Name & Meta Data */}
+                      <div className="flex-1 flex justify-between items-center">
+                        <div className="flex flex-col">
+                          <span className="text-gray-200 text-sm font-bold tracking-wide group-hover:text-white transition-colors">
+                            {skill.name}
+                          </span>
+                          <span className="text-[9px] text-gray-500 tracking-[0.15em] mt-0.5 group-hover:text-gray-400 transition-colors">
+                            {skill.meta}
+                          </span>
+                        </div>
+                        <span className={`text-xs font-bold ${activeTheme.text} opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all`}>
+                          {skill.level}%
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Ultra-sleek "Data Packet" Progress Line */}
+                    <div className="h-[3px] w-full bg-gray-800/60 rounded-full overflow-hidden relative flex items-center mt-1">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${skill.level}%` }}
+                        transition={{ duration: 1, delay: 0.2 + (index * 0.1), type: "spring", stiffness: 100 }}
+                        className={`absolute left-0 h-full rounded-full ${activeTheme.bg}`}
+                      >
+                        {/* Glowing "Head" of the data line */}
+                        <div className={`absolute right-0 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#fff]`}></div>
+                      </motion.div>
                     </div>
 
-                    {/* Code Text */}
-                    <div className="p-4 w-full overflow-x-auto scrollbar-hide">
-                      
-                      <motion.div variants={lineVariants} className="text-slate-500 italic">
-                        {activeData.language === 'cpp' ? '// Core concepts & logic' : 
-                         activeData.language === 'yaml' ? '# CI/CD pipelines & infrastructure' : 
-                         '// Tech stack proficiency definition'}
-                      </motion.div>
-
-                      <motion.div variants={lineVariants}>
-                        {activeData.language === 'cpp' ? (
-                          <>
-                            <div><span className="text-purple-400">#include</span> <span className="text-orange-300">&lt;iostream&gt;</span></div>
-                            <div className="mt-2"><span className="text-blue-400">int</span> <span className="text-yellow-300">main</span>() {'{'}</div>
-                            <div className="pl-4"><span className="text-green-400">auto</span> skills = {'{'}</div>
-                          </>
-                        ) : activeData.language === 'yaml' ? (
-                           <div><span className="text-blue-400">jobs</span>:</div>
-                        ) : (
-                          <div>
-                            <span className="text-purple-400">export const</span> <span className="text-blue-300">{activeTab}Stack</span> <span className="text-blue-400">=</span> <span className="text-yellow-300">{'['}</span>
-                          </div>
-                        )}
-                      </motion.div>
-
-                      {/* Code Loop */}
-                      <div className={`pl-${activeData.language === 'yaml' ? '2' : '4'} py-1`}>
-                        {activeData.content.map((skill, index) => (
-                          <motion.div 
-                            key={skill.name} 
-                            variants={lineVariants}
-                            className="group flex items-center hover:bg-white/5 rounded px-2 -mx-2 transition-colors relative"
-                          >
-                            <div className="whitespace-nowrap flex-shrink-0">
-                              {activeData.language === 'cpp' ? (
-                                <span>{'{'} <span className="text-orange-300">"{skill.name}"</span>, <span className="text-green-300">{skill.level}</span> {'},'}</span>
-                              ) : activeData.language === 'yaml' ? (
-                                <span>- <span className="text-blue-300">name</span>: <span className="text-green-300">{skill.name}</span></span>
-                              ) : (
-                                <span>{'{'} name: <span className="text-orange-300">'{skill.name}'</span>, level: <span className="text-green-300">{skill.level}</span> {'},'}</span>
-                              )}
-                            </div>
-                            
-                            {/* Dotted Line */}
-                             <div className="hidden md:block flex-1 mx-4 border-b border-dashed border-slate-400/30 h-1 opacity-20 group-hover:opacity-50 transition-opacity"></div>
-
-                            {/* Progress Bar */}
-                            <div className="hidden md:flex items-center gap-2">
-                               <span className="text-xs text-slate-500 pr-2">{skill.level}%</span>
-                                <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden flex-shrink-0">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${skill.level}%` }}
-                                    transition={{ duration: 1, delay: 0.5 + (index * 0.1), type: "spring" }}
-                                    className={`h-full ${skill.color.replace('text-', 'bg-')} opacity-80 group-hover:opacity-100 transition-opacity`} 
-                                  />
-                                </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                       <motion.div variants={lineVariants}>
-                        {activeData.language === 'cpp' ? (
-                           <div className="pl-4">{'};'}</div>
-                        ) : activeData.language === 'yaml' ? (
-                          <br />
-                        ) : (
-                          <div><span className="text-yellow-300">{']'}</span>;</div>
-                        )}
-                      </motion.div>
-                      
-                       {activeData.language === 'cpp' && <motion.div variants={lineVariants}>{'}'}</motion.div>}
-
-                      <motion.div variants={lineVariants} className="mt-2">
-                        <BlinkingCursor />
-                      </motion.div>
-
-                    </div>
                   </motion.div>
-                </AnimatePresence>
-              </div>
-
-            </div>
-          </div>
-          
-          {/* Status Bar - Transparent */}
-          <div className="h-6 border-t border-white/10 bg-white/5 text-slate-400 text-[11px] flex items-center px-3 justify-between select-none relative z-20">
-            <div className="flex gap-4">
-              <span className="flex items-center gap-1 text-blue-400 font-bold px-2 h-full"><FaGitAlt /> main*</span>
-              <span className="flex items-center gap-1"><VscCode /> Ready</span>
-            </div>
-            <div className="flex gap-4 md:pr-4">
-              <span>Ln {totalLines}, Col 1</span>
-              <span>UTF-8</span>
-              <span>{activeData.language.toUpperCase()}</span>
-               <span className="hidden md:inline">Prettier</span>
-            </div>
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-        </motion.div>
+        </div>
       </div>
-      
-      {/* Scrollbar Styles */}
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 10px;
-          height: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 5px;
-          border: 2px solid transparent;
-          background-clip: content-box;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-      `}</style>
     </section>
   );
 };

@@ -64,22 +64,14 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    });
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
+  // Format parts individually for the Indian Tech HUD
+  const hours = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', hour12: true }).split(' ')[0];
+  const minutes = currentTime.toLocaleTimeString('en-US', { minute: '2-digit' });
+  const seconds = currentTime.toLocaleTimeString('en-US', { second: '2-digit' });
+  const ampm = currentTime.toLocaleTimeString('en-US', { hour12: true }).split(' ')[1];
+  
+  // Format Date to Indian Standard: DD MMM YYYY (e.g., 22 FEB 2026)
+  const dateStr = currentTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
 
   // --- Typewriter Effect ---
   useEffect(() => {
@@ -137,7 +129,6 @@ export default function Home() {
   const springX = useSpring(mouseX, springConfig);
   const springY = useSpring(mouseY, springConfig);
 
-  // Map mouse position to transforms
   const nameX = useTransform(springX, [0, 1], [-20, 20]);
   const nameY = useTransform(springY, [0, 1], [-20, 20]);
   const nameRotateX = useTransform(springY, [0, 1], [10, -10]);
@@ -154,7 +145,6 @@ export default function Home() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // Reduce DPR on mobile for better performance
     let dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
     if (isMobile || prefersReducedMotion) {
       dpr = Math.min(dpr, 1);
@@ -165,7 +155,6 @@ export default function Home() {
     let width = (canvas.width = canvas.clientWidth * dpr);
     let height = (canvas.height = canvas.clientHeight * dpr);
 
-    // Reduce star count on mobile for better performance
     const layers = isMobile || prefersReducedMotion
       ? [
           { count: 15, speed: 0.02, size: [0.7, 1.0], color: "rgba(248,250,252,0.3)" },
@@ -206,7 +195,6 @@ export default function Home() {
       pointerRef.current.x = (e.clientX - rect.left) / rect.width;
       pointerRef.current.y = (e.clientY - rect.top) / rect.height;
     };
-    // Reusing the same handler for canvas specific if needed, but we use window mainly now
     canvas.addEventListener("pointermove", onCanvasMove);
 
     let last = performance.now();
@@ -274,7 +262,7 @@ export default function Home() {
     <motion.section
       id="home"
       onMouseMove={onMouseMove}
-      className="relative w-full overflow-hidden bg-transparent text-white flex items-center lg:min-h-screen perspective-[1000px]"
+      className="relative w-full overflow-hidden bg-transparent text-white flex items-center lg:min-h-screen perspective-[1000px] pt-24"
       variants={sectionVariants}
       initial="initial"
       animate="enter"
@@ -284,7 +272,7 @@ export default function Home() {
         className="absolute inset-0 w-full h-full z-0 pointer-events-none"
       />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-20 lg:py-0 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-10 lg:py-0 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16">
         
         {/* TEXT SIDE */}
         <motion.div
@@ -303,7 +291,6 @@ export default function Home() {
             <span className="block text-slate-100 text-lg sm:text-2xl font-light mb-1">
               Hello, I'm
             </span>
-            {/* ANIMATED NAME COMPONENT */}
             <motion.span
               style={{ 
                 x: nameX, 
@@ -358,7 +345,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ 
                   opacity: 1, 
-                  y: [0, -8, 0] // CONTINUOUS FLOATING ANIMATION
+                  y: [0, -8, 0] 
                 }}
                 transition={{ 
                   opacity: { delay: 0.5 + i * 0.1, duration: 0.4 },
@@ -366,15 +353,15 @@ export default function Home() {
                     duration: 3, 
                     repeat: Infinity, 
                     ease: "easeInOut",
-                    delay: i * 0.4 // Staggered floating
+                    delay: i * 0.4 
                   }
                 }}
                 whileHover={{
                   scale: 1.25,
                   color: s.color,
-                  y: -5, // Lift slightly more on hover
+                  y: -5,
                   textShadow: "0 0 14px rgba(248,250,252,0.9)",
-                  transition: { duration: 0.2, y: { duration: 0.2, repeat: 0 } } // Stop floating slightly on hover
+                  transition: { duration: 0.2, y: { duration: 0.2, repeat: 0 } }
                 }}
               >
                 <s.icon />
@@ -383,27 +370,79 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Real Time Clock & Date */}
+          {/* --- MODERN INDIAN TECH CLOCK & DATE --- */}
           <motion.div 
-            className="mt-8 inline-flex flex-col items-center lg:items-start"
+            className="mt-10 inline-flex flex-col lg:items-start w-full select-none"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            <div className="flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-900/40 border border-cyan-500/20 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.15)]">
-              <span className="text-lg">🕐</span>
-              <span className="font-mono text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-200 to-indigo-200 tracking-wider">
-                {formatTime(currentTime)}
-              </span>
+            <div className="relative px-6 py-5 rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden group w-full max-w-md mx-auto lg:mx-0">
+              
+              {/* Subtle Tricolor Top Glow (Saffron, White, Green) */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-slate-100 to-green-500 opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+              
+              {/* Ashoka Chakra Blue Ambient Glow */}
+              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 relative z-10">
+                
+                {/* Greeting & Timezone */}
+                <div className="flex flex-col items-center sm:items-start">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-base font-semibold text-orange-400 drop-shadow-md">नमस्ते</span>
+                    <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">| NAMASTE</span>
+                  </div>
+                  
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-4xl sm:text-5xl font-light text-slate-100 tracking-tight leading-none drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                      {hours}<span className="text-orange-400 animate-pulse">:</span>{minutes}
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-green-400 leading-none drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">{seconds}</span>
+                      <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
+                        {ampm}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vertical Divider (Hidden on Mobile) */}
+                <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-slate-600 to-transparent mt-2"></div>
+                {/* Horizontal Divider (Mobile Only) */}
+                <div className="block sm:hidden w-3/4 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-1"></div>
+
+                {/* Data & Location Readouts */}
+                <div className="flex flex-col justify-center font-mono text-[10px] text-slate-400 tracking-widest space-y-2.5 mt-2 sm:mt-1">
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-500 w-10 text-right sm:text-left">तिथि:</span>
+                    <span className="text-slate-200 font-semibold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">{dateStr}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-500 w-10 text-right sm:text-left">ZONE:</span>
+                    <span className="text-blue-400 font-bold flex items-center gap-2">
+                      IST (UTC+5:30)
+                      {/* Rotating "Chakra" Hologram Effect */}
+                      <motion.div 
+                        animate={{ rotate: 360 }} 
+                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                        className="w-3 h-3 rounded-full border-[1.5px] border-blue-500 border-t-transparent shadow-[0_0_5px_rgba(59,130,246,0.6)]"
+                      />
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-500 w-10 text-right sm:text-left">BASE:</span>
+                    <span className="text-orange-300 font-bold flex items-center gap-1 drop-shadow-[0_0_5px_rgba(253,186,116,0.4)]">
+                      INDIA 🇮🇳
+                    </span>
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <motion.div 
-              className="mt-2 text-sm sm:text-base text-slate-300/80 font-medium tracking-wide"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              {formatDate(currentTime)}
-            </motion.div>
           </motion.div>
         </motion.div>
 
