@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { travelData } from '../sections/travelData';
@@ -89,13 +89,14 @@ const ModernCommandBar = ({ searchTerm, setSearchTerm, selectedYear, setSelected
   );
 };
 
-// --- 4. Responsive Detail-Rich Card ---
-const ModernCard = ({ trip, searchTerm, onClick, onTagClick }) => {
+// --- 4. Responsive Detail-Rich Card (FIXED WITH FORWARDREF) ---
+const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) => {
   const cover = trip.coverImage || trip.destinations?.[0]?.photos?.[0]?.url;
   const totalPhotos = trip.destinations.reduce((acc, d) => acc + (d.photos?.length || 0), 0);
 
   return (
     <motion.div 
+      ref={ref} // <--- Added ref here so Framer Motion can grab it
       layout
       variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
       onClick={onClick}
@@ -151,7 +152,7 @@ const ModernCard = ({ trip, searchTerm, onClick, onTagClick }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 // --- 5. Main Component ---
 const TravelGallery = () => {
