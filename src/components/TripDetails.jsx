@@ -29,7 +29,7 @@ const Icons = {
   Camera: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
 };
 
-// --- REAL-TIME FIREBASE HOOK (BULLETPROOF VERSION) ---
+// --- REAL-TIME FIREBASE HOOK ---
 const usePhotoStats = (photos) => {
   const [stats, setStats] = useState({});
 
@@ -211,9 +211,8 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{ background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(15px)' }}
     >
-      <button className="fixed-close-btn" onClick={onClose} title="Close" style={{ zIndex: 100 }}>
+      <button className="fixed-close-btn" onClick={onClose} title="Close">
         <Icons.Close />
       </button>
 
@@ -225,14 +224,13 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 60px' }}
           >
             <div className="viewer-info">
               <h3 style={{ margin: '0 0 5px', fontSize: '1.5rem', fontWeight: '600' }}>{photo.location}</h3>
               <span style={{ color: '#aaa', fontSize: '0.9rem' }}>{photo.date}</span>
             </div>
             
-            <div style={{ display: 'flex', gap: '15px', color: '#ccc', fontSize: '0.85rem', background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '12px', alignItems: 'center' }}>
+            <div className="viewer-exif">
               <Icons.Camera />
               <span>{photo.exif?.camera || 'Sony A7IV'}</span>
               <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#666' }}></span>
@@ -273,12 +271,12 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
           dragConstraints={containerRef}
           dragElastic={0.2}
           onDoubleClick={handleDoubleClick}
-          style={{ cursor: scale > 1 ? 'grab' : 'zoom-in', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
+          style={{ cursor: scale > 1 ? 'grab' : 'zoom-in' }}
           whileTap={{ cursor: scale > 1 ? 'grabbing' : 'zoom-in' }}
         />
       </div>
 
-      <div className="viewer-toolbar" style={{ right: '20px', background: 'rgba(0,0,0,0.6)', padding: '10px', borderRadius: '16px', backdropFilter: 'blur(10px)' }}>
+      <div className="viewer-toolbar">
         <button 
           className="tool-btn" 
           onClick={() => toggleLike(photo.id)} 
@@ -290,13 +288,13 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
         </button>
         <button className="tool-btn" onClick={handleShare} title="Share"><Icons.Share /></button>
         
-        <div className="tool-divider" style={{ margin: '10px 0', background: 'rgba(255,255,255,0.2)' }}></div>
+        <div className="tool-divider"></div>
         
         <button className="tool-btn" onClick={() => setIsPlaying(!isPlaying)} title={isPlaying ? "Pause Slideshow" : "Play Slideshow"}>
           {isPlaying ? <Icons.Pause /> : <Icons.Play />}
         </button>
 
-        <div className="tool-divider" style={{ margin: '10px 0', background: 'rgba(255,255,255,0.2)' }}></div>
+        <div className="tool-divider"></div>
 
         <button className={`tool-btn info-toggle ${showInfo ? 'active' : ''}`} onClick={() => setShowInfo(!showInfo)} title="Toggle Details">
           <motion.div animate={{ rotate: showInfo ? 360 : 0 }} transition={{ duration: 0.4 }}><Icons.Info /></motion.div>
@@ -318,15 +316,14 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 50, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ bottom: '30px', maxWidth: '800px', textAlign: 'center' }}
           >
-             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '10px', fontSize: '0.9rem', color: '#ccc' }}>
+             <div className="viewer-stats-row">
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Heart filled={photoStats.userLiked} /> {photoStats.likes} Likes</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Eye /> {photoStats.views} Views</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Download /> {photoStats.downloads || 0} Downloads</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Share /> {photoStats.shares || 0} Shares</span>
             </div>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', textShadow: '0 2px 4px rgba(0,0,0,0.8)', margin: 0 }}>{photo.caption}</p>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', margin: 0 }}>{photo.caption}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -390,7 +387,7 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
 
   return (
     <div className="masonry-wrapper">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div className="masonry-controls">
         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
           Showing {visiblePhotos.length} of {photos.length} photos
         </div>
@@ -533,7 +530,6 @@ const TripDetails = () => {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // IMPORTANT FIX: This ensures EVERY photo gets a unique ID so Firebase doesn't crash!
   const safeTrip = useMemo(() => {
     if (!rawTrip) return null;
     return {
@@ -542,7 +538,6 @@ const TripDetails = () => {
         ...dest,
         photos: dest.photos.map((photo, index) => ({
           ...photo,
-          // Generate a permanent, unique string ID if one is missing
           id: photo.id || `photo_${rawTrip.id}_${dest.name.replace(/[^a-zA-Z0-9]/g, '')}_${index}`
         }))
       }))
@@ -554,7 +549,6 @@ const TripDetails = () => {
     return safeTrip.destinations.flatMap(d => d.photos);
   }, [safeTrip]);
 
-  // Hook handles Firebase tracking now
   const { stats, toggleLike, recordView, recordAction } = usePhotoStats(allPhotosInTrip);
 
   const handleNavigate = useCallback((dir) => {
@@ -609,7 +603,7 @@ const TripDetails = () => {
         </button>
         
         <header className="gallery-header" style={{ textAlign: 'center', marginBottom: '50px', marginTop: '30px' }}>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+          <h1 className="trip-title">
             {safeTrip.title}
           </h1>
           <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.7)' }}>{safeTrip.date}</p>
