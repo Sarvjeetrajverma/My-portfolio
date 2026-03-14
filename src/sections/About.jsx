@@ -4,28 +4,20 @@ import { FaTerminal, FaFileDownload, FaEnvelope, FaGlobe, FaRobot, FaBrain, FaCh
 import { SiReact, SiNodedotjs, SiCplusplus, SiLeetcode } from 'react-icons/si';
 
 // Import all profile images
-import pf4 from '../assets/pf4.webp';
 import pf5 from '../assets/pf5.webp';
 import pf from '../assets/pf.jpeg';
 import pf7 from '../assets/pf7.webp';
 import pf8 from '../assets/pf8.webp';
 import srvprofile from '../assets/srvprofile.jpeg';
-import srvprofile2 from '../assets/srvprofile2.png';
-import srvprofile3 from '../assets/srvprofile3.png';
-import srvprofile5 from '../assets/srvprofile5.png';
-
 // Profile images array
 const profileImages = [
-  pf4,
-  pf5,
   pf,
+  pf5,
   pf7,
   pf8,
   srvprofile,
-  srvprofile2,
-  srvprofile3,
-  srvprofile5,
-];
+
+]
 
 // Generate stars once
 const generateStars = () => [...Array(50)].map(() => ({
@@ -52,7 +44,7 @@ const About = () => {
     setDirection(newDirection);
     setCurrentImageIndex((prev) => {
       let nextIndex = prev + newDirection;
-      if (nextIndex < 0) return profileImages.length - 1;
+      if (nextIndex < 1) return profileImages.length - 1;
       if (nextIndex >= profileImages.length) return 0;
       return nextIndex;
     });

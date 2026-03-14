@@ -60,11 +60,11 @@ const Footer = () => {
               <span className="text-neutral-300">India</span>
             </div>
 
-            {/* Portfolio Version */}
+            {/* Portfolio Version *
             <div className="hidden lg:flex items-center gap-1.5 text-neutral-400 border-l border-white/10 pl-6">
               <span className="text-neutral-500">System:</span>
               <span className="font-mono text-neutral-300">v2.0.{new Date().getFullYear().toString().slice(-2)}</span>
-            </div>
+            </div> */}
 
           </div>
         </div>
