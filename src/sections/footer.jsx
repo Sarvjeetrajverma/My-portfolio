@@ -7,7 +7,7 @@ const Footer = () => {
   const handleTrigger = () => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const emojis = ['🌼', '🏵️', '✨', '🚀'];
+    const emojis = ['🌼', '🏵️', '✨', '🌸'];
 
     const newBurst = {
       id: Date.now(),
@@ -37,7 +37,7 @@ const Footer = () => {
           
           {/* Brand Logo & Short Title */}
           <div className="flex items-center gap-3">
-            <span className="text-xl font-bold text-white tracking-tight">SRV.</span>
+            <span className="text-xl font-bold text-white tracking-tight">SARVJEET.</span>
             <span className="w-1.5 h-1.5 rounded-full bg-neutral-700 hidden sm:block"></span>
             <span className="text-neutral-400 text-sm tracking-wide">Creative Developer</span>
           </div>
@@ -100,7 +100,7 @@ const Footer = () => {
               </motion.span>
             </div>
 
-            <span>and caffeine.</span>
+            <span>by srv </span>
           </div>
 
         </div>

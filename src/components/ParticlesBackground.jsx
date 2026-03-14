@@ -13,12 +13,13 @@ class Particle {
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.shadowBlur = 13;
-        ctx.shadowColor = this.color;
+        // ❌ REMOVE THESE TWO LINES:
+        // ctx.shadowBlur = 13;
+        // ctx.shadowColor = this.color;
+        
         ctx.fillStyle = this.color;
-        ctx.fill(); //this paint in the canavas 
+        ctx.fill(); 
     }
-
     update(canvas, ctx, mouse) {
         this.x += this.speedX; // move particle in x direction
         this.y += this.speedY; // move particle in y direction 

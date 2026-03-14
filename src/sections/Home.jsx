@@ -405,11 +405,14 @@ export default function Home() {
   return (
     <motion.section
       id="home"
-      onMouseMove={onMouseMove}
-      className="relative w-full overflow-hidden bg-transparent text-white flex items-center lg:min-h-screen perspective-[1000px] pt-24"
+      // ❌ REMOVED: onMouseMove={onMouseMove}
+      // ✅ ADDED: Only track mouse on desktop
+      onMouseMove={!isMobile ? onMouseMove : undefined}
+      className="relative w-full overflow-hidden bg-transparent text-white flex items-center lg:min-h-screen pt-24"
       variants={sectionVariants}
       initial="initial"
       animate="enter"
+      style={{ perspective: "1000px" }}
     >
       <canvas
         ref={canvasRef}
@@ -483,14 +486,18 @@ export default function Home() {
               Hello, I'm
             </span>
             <motion.span
-              style={{ 
-                x: nameX, 
-                y: nameY,
-                rotateX: nameRotateX,
-                rotateY: nameRotateY,
-                transformStyle: "preserve-3d"
-              }}
-              className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-50 via-cyan-200 to-indigo-200 drop-shadow-[0_0_14px_rgba(34,211,238,0.3)] cursor-default inline-block"
+              style={
+                !isMobile 
+                  ? { 
+                      x: nameX, 
+                      y: nameY,
+                      rotateX: nameRotateX,
+                      rotateY: nameRotateY,
+                      transformStyle: "preserve-3d"
+                    }
+                  : {} // Disable heavy 3D math on mobile
+              }
+              className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-50 via-cyan-200 to-indigo-200 drop-shadow-[0_0_14px_rgba(34,211,238,0.3)] cursor-default inline-block will-change-transform"
             >
               Sarvjeet Raj Verma
             </motion.span>
@@ -703,10 +710,11 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {particleData.map((particle, i) => (
+        {/* ✅ ADDED: Only render these heavy particles on desktop */}
+            {!isMobile && particleData.map((particle, i) => (
               <motion.div
                 key={i}
-                className="absolute h-1.5 w-1.5 rounded-full bg-sky-300/70"
+                className="absolute h-1.5 w-1.5 rounded-full bg-sky-300/70 will-change-transform"
                 style={{
                   top: `${particle.top}%`,
                   left: `${particle.left}%`,
