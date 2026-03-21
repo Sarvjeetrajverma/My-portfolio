@@ -56,7 +56,7 @@ useEffect(() => {
     const ctx= canvas.getContext("2d");
 
     let particles =[];
-    const particlecount=80;
+    const particlecount=20;
     const colors = ["rgba(255, 255, 255, 0.5)", "#1cd8d2", "#00bf8f","#eef69e"];
 
 function createparticles(){ // create all particles and add new particles

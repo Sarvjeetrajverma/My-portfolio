@@ -18,7 +18,7 @@ import SocialMedia from "./sections/SocialMedia";
 import Contact from "./sections/Contact";
 import Footer from "./sections/footer";
 import ScrollToTop from "./components/ScrollToTop";
-
+import IntroAnimation from './components/IntroAnimation';
 // Main page with all sections
 const MainPage = () => {
   return (
@@ -50,6 +50,7 @@ const MainPage = () => {
       <Navbar />
       <ScrollToTop />
       <div className="relative z-10">
+        <IntroAnimation/>
         <Home/>
         <About/>
         <Skills/>
@@ -62,6 +63,7 @@ const MainPage = () => {
         <SocialMedia/>
         <Contact/>
         <Footer/>
+        <Analytics/>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ const experiences = [
     color: "cyan",
     icon: <FaLaptopCode />,
     details: [
-      { label: "Performance", value: "8.03 CGPA (Aggregate)" },
+      { label: "Performance", value: "7.92 CGPA (Aggregate)" },
       { label: "Leadership", value: "Lead Coordinator - TechFusion'26" },
       { label: "Roles", value: "Core Team & Technical Team Lead" },
       { label: "Focus", value: "Full Stack Dev" }

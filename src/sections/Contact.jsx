@@ -79,6 +79,7 @@ const Contact = () => {
                 <div className="w-10 h-10 rounded-full bg-black/20 border border-white/10 flex items-center justify-center text-indigo-400 shrink-0">
                   <FaMapMarkerAlt size={16} />
                 </div>
+                
                 <div>
                   <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">Location</h3>
                   <p className="text-gray-200 text-sm md:text-base font-medium">India</p>
