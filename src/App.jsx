@@ -29,19 +29,19 @@ const MainPage = () => {
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <ParticlesBackground />
         
-        {/* Top Left Blob - Pulsing Scale instead of Opacity */}
+        {/* Top Left Blob - Static on mobile, pulses lightly on desktop, reduced blur */}
         <motion.div 
-          className="absolute -top-32 -left-32 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-20 blur-[100px] md:blur-[150px]"
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          style={{ willChange: "transform" }}
+          className="absolute -top-32 -left-32 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-10 md:opacity-20 blur-3xl md:blur-[100px]"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         
-        {/* Bottom Right Blob - Pulsing Scale with a delay */}
+        {/* Bottom Right Blob - Static on mobile, pulses lightly on desktop */}
         <motion.div 
-          className="absolute bottom-0 right-0 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-20 blur-[100px] md:blur-[150px]"
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          className="absolute bottom-0 right-0 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-10 md:opacity-20 blur-3xl md:blur-[100px]"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+
           style={{ willChange: "transform" }}
         />
       </div>

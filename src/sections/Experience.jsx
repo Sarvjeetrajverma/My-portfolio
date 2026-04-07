@@ -128,7 +128,7 @@ const Experience = () => {
         {/* Terminal Header */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
           className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-800/50 pb-4"

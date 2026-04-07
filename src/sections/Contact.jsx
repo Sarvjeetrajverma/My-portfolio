@@ -43,7 +43,7 @@ const Contact = () => {
         {/* Simple, lightweight animation to prevent mobile lag */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.4 }}
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"

@@ -52,7 +52,11 @@ const canvasRef = useRef(null);
 const mouse = useRef({ x: null, y: null });
 
 useEffect(() => {
+    // Disable completely on mobile to prevent canvas API scroll lag
+    if (window.innerWidth < 768) return;
+
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx= canvas.getContext("2d");
 
     let particles =[];
@@ -68,6 +72,7 @@ function createparticles(){ // create all particles and add new particles
 
 // create function for particles handle resize for every window 
 function handleResize(){
+    if (!canvas) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight; 
     createparticles(); // create particles on resize
@@ -76,6 +81,7 @@ handleResize();
 window.addEventListener("resize",handleResize); // event listener for resize
 
 const handleMouseMove = (event) => {
+    if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
@@ -93,6 +99,7 @@ window.addEventListener("mouseout", handleMouseLeave);
 
 let animationId;
 function animate(){
+    if (!canvas) return;
     ctx.clearRect(0,0,canvas.width,canvas.height); // clear canvas PREVIOUS FRAME
     particles.forEach((p) => p.update(canvas, ctx, mouse.current)); // update all / NEW particles 
     animationId = requestAnimationFrame(animate); // call animate function again
@@ -110,7 +117,7 @@ return () => { // cleanup function
 return (
     <canvas
         ref={canvasRef}
-        className=" absolute top-0 left-0 w-full h-full pointer-events-none z-0"
+        className="hidden md:block absolute top-0 left-0 w-full h-full pointer-events-none z-0"
     ></canvas>
 );
 

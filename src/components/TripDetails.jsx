@@ -21,7 +21,7 @@ const Icons = {
   Info: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>,
   Maximize: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>,
   Minimize: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>,
-  Heart: ({ filled }) => <svg width="20" height="20" viewBox="0 0 24 24" fill={filled ? "#ff4b4b" : "none"} stroke={filled ? "#ff4b4b" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
+  Heart: ({ filled }) => <svg width="20" height="20" viewBox="0 0 24 24" fill={filled ? "#ef4444" : "none"} stroke={filled ? "#ef4444" : "currentColor"} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
   Share: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>,
   Play: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>,
   Pause: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>,
@@ -38,7 +38,7 @@ const usePhotoStats = (photos) => {
 
     const unsubscribes = photos.map(photo => {
       if (!photo.id) {
-        console.error("Missing ID for photo", photo);
+        console.warn("Skipping stats for photo without ID", photo);
         return () => {};
       }
 
@@ -104,7 +104,7 @@ const usePhotoStats = (photos) => {
       const photoRef = doc(db, 'gallery_stats', String(photoId));
       await updateDoc(photoRef, { [actionType]: increment(1) });
     } catch (error) {
-      alert(`Firebase Error (${actionType}): ${error.message}`);
+      console.error(`Firebase Error (${actionType}): ${error.message}`);
     }
   }, []);
 
@@ -129,7 +129,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
   useEffect(() => {
     let interval;
     if (isPlaying) {
-      interval = setInterval(() => onNext(), 3500); 
+      interval = setInterval(() => onNext(), 4000); 
     }
     return () => clearInterval(interval);
   }, [isPlaying, onNext]);
@@ -153,7 +153,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${photo.location || 'photo'}-${photo.id}.jpg`;
+      link.download = `${photo.location?.replace(/\s+/g,'-') || 'photo'}-${photo.id}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -168,9 +168,9 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Beautiful photo from ${photo.location}`,
+          title: `Beautiful photo from ${photo.location || 'my travels'}`,
           text: photo.caption,
-          url: photo.url, 
+          url: window.location.href, 
         });
       } catch (err) {
         console.log("Error sharing", err);
@@ -211,6 +211,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
       <button className="fixed-close-btn" onClick={onClose} title="Close">
         <Icons.Close />
@@ -226,19 +227,17 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
             transition={{ duration: 0.3 }}
           >
             <div className="viewer-info">
-              <h3 style={{ margin: '0 0 5px', fontSize: '1.5rem', fontWeight: '600' }}>{photo.location}</h3>
-              <span style={{ color: '#aaa', fontSize: '0.9rem' }}>{photo.date}</span>
+              <h3 style={{ margin: '0 0 5px', fontSize: '1.5rem', fontWeight: '700', letterSpacing: '0.02em' }}>
+                {photo.location || 'Unknown Location'}
+              </h3>
+              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{photo.date || ''}</span>
             </div>
             
             <div className="viewer-exif">
               <Icons.Camera />
-              <span>{photo.exif?.camera || 'Sony A7IV'}</span>
-              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#666' }}></span>
-              <span>{photo.exif?.lens || '35mm f/1.4'}</span>
-              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#666' }}></span>
-              <span>ISO {photo.exif?.iso || '100'}</span>
-              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#666' }}></span>
-              <span>{photo.exif?.shutter || '1/250s'}</span>
+              <span>Sony A7IV</span>
+              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }}></span>
+              <span>35mm f/1.4</span>
             </div>
           </motion.div>
         )}
@@ -254,7 +253,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
 
         {!isImageLoaded && (
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.2)', borderTop: '3px solid #fff', borderRadius: '50%' }} />
+             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #3b82f6', borderRadius: '50%' }} />
           </div>
         )}
 
@@ -323,7 +322,9 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Download /> {photoStats.downloads || 0} Downloads</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Share /> {photoStats.shares || 0} Shares</span>
             </div>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', margin: 0 }}>{photo.caption}</p>
+            <p style={{ fontSize: '1.2rem', lineHeight: '1.6', margin: 0, color: 'rgba(255,255,255,0.9)' }}>
+              {photo.caption}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -334,15 +335,16 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
 // --- MASONRY LAYOUT COMPONENT ---
 const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
   const [columns, setColumns] = useState(3);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [isLoading, setIsLoading] = useState(false);
   const [sortOption, setSortOption] = useState('default');
 
   useEffect(() => {
     const updateColumns = () => {
-      if (window.innerWidth < 700) setColumns(1);
-      else if (window.innerWidth < 1100) setColumns(2);
-      else setColumns(3);
+      if (window.innerWidth < 600) setColumns(1);
+      else if (window.innerWidth < 1000) setColumns(2);
+      else if (window.innerWidth < 1400) setColumns(3);
+      else setColumns(4);
     };
     updateColumns();
     window.addEventListener('resize', updateColumns);
@@ -350,16 +352,12 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
   }, []);
 
   useEffect(() => {
-    setVisibleCount(6);
+    setVisibleCount(12);
   }, [photos]);
 
   const sortedPhotos = useMemo(() => {
     let sorted = [...photos];
-    if (sortOption === 'date-desc') {
-      sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
-    } else if (sortOption === 'date-asc') {
-      sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
-    } else if (sortOption === 'popularity') { 
+    if (sortOption === 'popularity') { 
        sorted.sort((a, b) => {
          const likesA = stats[a.id]?.likes || 0;
          const likesB = stats[b.id]?.likes || 0;
@@ -380,36 +378,34 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
   const handleLoadMore = () => {
     setIsLoading(true);
     setTimeout(() => {
-      setVisibleCount(prev => prev + 6);
+      setVisibleCount(prev => prev + 8);
       setIsLoading(false);
-    }, 800);
+    }, 600);
   };
 
   return (
     <div className="masonry-wrapper">
       <div className="masonry-controls">
-        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
-          Showing {visiblePhotos.length} of {photos.length} photos
+        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem' }}>
+          Showing <span style={{ color: 'white' }}>{visiblePhotos.length}</span> of {photos.length} photos
         </div>
         <select
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value)}
           style={{
-            padding: '8px 16px',
-            borderRadius: '20px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            padding: '10px 16px',
+            borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             color: 'white',
             outline: 'none',
             cursor: 'pointer',
-            backdropFilter: 'blur(10px)',
-            appearance: 'none'
+            fontSize: '0.9rem',
+            transition: 'all 0.2s ease',
           }}
         >
           <option value="default" style={{color: 'black'}}>Default Order</option>
           <option value="popularity" style={{color: 'black'}}>Most Popular</option>
-          <option value="date-desc" style={{color: 'black'}}>Date (Newest)</option>
-          <option value="date-asc" style={{color: 'black'}}>Date (Oldest)</option>
         </select>
       </div>
 
@@ -422,65 +418,59 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
               return (
                 <motion.div 
                   key={photo.id}
-                  className="grid-card"
-                  whileHover="hover" 
-                  initial={{ opacity: 0, y: 30 }}
+                  className="grid-card group"
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
                   style={{ 
                     position: 'relative', 
-                    borderRadius: '16px', 
+                    borderRadius: '12px', 
                     overflow: 'hidden', 
-                    background: 'rgba(255,255,255,0.05)'
+                    background: 'rgba(255,255,255,0.02)'
                   }}
                 >
-                  <motion.img 
+                  <img 
                     src={photo.url} 
                     alt={photo.caption} 
                     loading="lazy" 
                     onClick={() => onPhotoClick(photo)}
-                    variants={{ hover: { scale: 1.05 } }}
-                    transition={{ duration: 0.4 }}
-                    style={{ width: '100%', height: 'auto', display: 'block', transformOrigin: 'center', cursor: 'zoom-in' }}
+                    className="w-full h-auto block transform origin-center transition-transform duration-700 ease-out group-hover:scale-105 cursor-zoom-in"
                   />
                   
-                  <motion.div 
-                    className="card-overlay"
-                    variants={{
-                      hover: { opacity: 1, y: 0 }
-                    }}
-                    initial={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
+                  <div 
+                    className="card-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                     style={{
                       position: 'absolute',
                       bottom: 0, left: 0, right: 0,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%)',
-                      padding: '30px 20px 20px',
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%)',
+                      padding: '40px 20px 20px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'flex-end',
-                      pointerEvents: 'none'
                     }}
                   >
-                    <h4 style={{ margin: '0 0 8px', color: '#fff', fontSize: '1.1rem', fontWeight: '600' }}>
-                      {photo.location}
-                    </h4>
+                    {photo.location && (
+                      <h4 style={{ margin: '0 0 10px', color: '#fff', fontSize: '1.05rem', fontWeight: '600' }}>
+                        {photo.location}
+                      </h4>
+                    )}
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#ccc', pointerEvents: 'auto' }}>
-                      <span style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', pointerEvents: 'auto' }}>
+                      <span style={{ display: 'flex', gap: '15px' }}>
                         <button 
                           onClick={(e) => { e.stopPropagation(); toggleLike(photo.id); }}
-                          style={{ background: 'none', border: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', padding: 0 }}
+                          style={{ background: 'none', border: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: 0 }}
+                          className="hover:text-white transition-colors"
                         >
                           <Icons.Heart filled={photoStats.userLiked} /> {photoStats.likes}
                         </button>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Icons.Eye /> {photoStats.views >= 1000 ? (photoStats.views / 1000).toFixed(1) + 'k' : photoStats.views}
                         </span>
                       </span>
                     </div>
-                  </motion.div>
+                  </div>
                 </motion.div>
               );
             })}
@@ -488,30 +478,29 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
         ))}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '50px', marginBottom: '30px', minHeight: '50px' }}>
+      <div style={{ textAlign: 'center', marginTop: '60px', marginBottom: '40px', minHeight: '50px' }}>
         {isLoading ? (
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '30px', height: '30px', border: '3px solid rgba(255,255,255,0.3)', borderTop: '3px solid #fff', borderRadius: '50%', display: 'inline-block' }} />
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '30px', height: '30px', border: '3px solid rgba(59,130,246,0.2)', borderTop: '3px solid #3b82f6', borderRadius: '50%', display: 'inline-block' }} />
         ) : (
           <>
             {visibleCount < photos.length && (
               <motion.button 
-                whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleLoadMore}
-                style={{ padding: '14px 40px', background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '30px', color: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', backdropFilter: 'blur(10px)', transition: 'all 0.3s' }}
+                style={{ padding: '12px 36px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '30px', color: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '500', backdropFilter: 'blur(10px)', transition: 'all 0.3s' }}
               >
-                Load More Discoveries
+                Load More
               </motion.button>
             )}
             
-            {visibleCount >= photos.length && photos.length > 6 && (
+            {visibleCount >= photos.length && photos.length > 12 && (
               <motion.button 
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setVisibleCount(6)}
-                style={{ padding: '14px 40px', background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: '30px', color: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '500', marginLeft: '10px' }}
+                whileHover={{ opacity: 1 }}
+                onClick={() => setVisibleCount(12)}
+                style={{ padding: '12px 36px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: '500', opacity: 0.8 }}
               >
-                Show Less
+                Hide Extra Photos
               </motion.button>
             )}
           </>
@@ -525,35 +514,25 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
 const TripDetails = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
-  const rawTrip = travelData.find(t => t.id === tripId);
   
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
+  // Find the trip dynamically
   const safeTrip = useMemo(() => {
+    const rawTrip = travelData.find(t => t.id === tripId);
     if (!rawTrip) return null;
     return {
       ...rawTrip,
-      destinations: rawTrip.destinations.map(dest => ({
-        ...dest,
-        photos: dest.photos.map((photo, index) => ({
-          ...photo,
-          id: photo.id || `photo_${rawTrip.id}_${dest.name.replace(/[^a-zA-Z0-9]/g, '')}_${index}`
-        }))
-      }))
+      photos: rawTrip.photos || []
     };
-  }, [rawTrip]);
+  }, [tripId]);
 
-  const allPhotosInTrip = useMemo(() => {
-    if (!safeTrip) return [];
-    return safeTrip.destinations.flatMap(d => d.photos);
-  }, [safeTrip]);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const { stats, toggleLike, recordView, recordAction } = usePhotoStats(allPhotosInTrip);
+  const { stats, toggleLike, recordView, recordAction } = usePhotoStats(safeTrip?.photos || []);
 
   const handleNavigate = useCallback((dir) => {
     if (!selectedPhoto || !safeTrip) return;
-    const allPhotos = safeTrip.destinations.flatMap(d => d.photos);
+    const allPhotos = safeTrip.photos;
     const idx = allPhotos.findIndex(p => p.id === selectedPhoto.id);
     if (idx === -1) return;
 
@@ -575,84 +554,91 @@ const TripDetails = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [selectedPhoto, handleNavigate]);
 
-  const filteredDestinations = useMemo(() => {
-    if (!safeTrip || !searchTerm) return safeTrip?.destinations || [];
+  const filteredPhotos = useMemo(() => {
+    if (!safeTrip) return [];
+    if (!searchTerm) return safeTrip.photos;
     const lowerTerm = searchTerm.toLowerCase();
-    return safeTrip.destinations.map(dest => ({
-      ...dest,
-      photos: dest.photos.filter(photo => 
-        (photo.caption && photo.caption.toLowerCase().includes(lowerTerm)) ||
-        (photo.location && photo.location.toLowerCase().includes(lowerTerm))
-      )
-    })).filter(dest => dest.photos.length > 0);
+    
+    return safeTrip.photos.filter(photo => 
+      (photo.caption && photo.caption.toLowerCase().includes(lowerTerm)) ||
+      (photo.location && photo.location.toLowerCase().includes(lowerTerm))
+    );
   }, [safeTrip, searchTerm]);
 
-  if (!safeTrip) return <div style={{color:'white', textAlign:'center', marginTop:'20vh', fontSize:'2rem'}}>Loading Trip...</div>;
+  if (!safeTrip) return (
+    <div style={{ color:'white', textAlign:'center', height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#050505', fontSize:'2rem', flexDirection: 'column', gap: '20px' }}>
+      <p>Trip Not Found</p>
+      <button onClick={() => navigate('/travel')} style={{ padding:'10px 20px', fontSize:'1rem', cursor:'pointer', background:'rgba(255,255,255,0.1)', border:'none', color:'white', borderRadius:'8px' }}>Return to Gallery</button>
+    </div>
+  );
 
   return (
     <div className="gallery-root">
-      <div className="starfield"></div>
-      <div className="nebula"></div>
-      <div className="shooting-star"></div>
-
       <Navbar forceHidden={!!selectedPhoto} />
       
-      <div className="gallery-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 20px' }}>
-        <button className="back-link" onClick={() => navigate(-1)} style={{ marginTop: '20px', display: 'inline-block' }}>
-          ← Back to Albums
-        </button>
+      <div className="gallery-container" style={{ maxWidth: '1600px', margin: '0 auto', padding: '0 20px' }}>
         
-        <header className="gallery-header" style={{ textAlign: 'center', marginBottom: '50px', marginTop: '30px' }}>
-          <h1 className="trip-title">
-            {safeTrip.title}
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.7)' }}>{safeTrip.date}</p>
+        <div style={{ paddingTop: '100px' }}>
+          <button className="back-link" onClick={() => navigate(-1)}>
+            ← Back to Journeys
+          </button>
+        </div>
+        
+        <header className="gallery-header" style={{ textAlign: 'center', marginBottom: '60px', marginTop: '40px' }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="trip-title">
+              {safeTrip.title}
+            </h1>
+            <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.5)', marginTop: '8px' }}>{safeTrip.date}</p>
+            {safeTrip.description && (
+              <p style={{ maxWidth: '600px', margin: '20px auto 0', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>
+                {safeTrip.description}
+              </p>
+            )}
+          </motion.div>
         </header>
 
-        <div className="search-wrapper" style={{ maxWidth: '600px', margin: '0 auto 50px', position: 'relative' }}>
-          <input
-            type="text"
-            placeholder="Search moments by location or keywords..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-            style={{ 
-              width: '100%', 
-              padding: '16px 50px 16px 25px', 
-              borderRadius: '40px', 
-              border: '1px solid rgba(255,255,255,0.15)', 
-              background: 'rgba(0,0,0,0.4)', 
-              color: 'white', 
-              outline: 'none', 
-              backdropFilter: 'blur(10px)',
-              fontSize: '1rem',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
-            }}
-          />
-          <span style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6, fontSize: '1.2rem' }}>
-            🔍
-          </span>
-        </div>
-
-        {filteredDestinations.length > 0 ? (
-          filteredDestinations.map(dest => (
-            <section key={dest.name} className="dest-section" style={{ marginBottom: '80px' }}>
-              <h2 style={{ fontSize: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px', marginBottom: '30px' }}>
-                {dest.name}
-              </h2>
-              <MasonryLayout 
-                photos={dest.photos} 
-                stats={stats}
-                toggleLike={toggleLike}
-                onPhotoClick={setSelectedPhoto} 
-              />
-            </section>
-          ))
-        ) : (
-          <div style={{ textAlign: 'center', padding: '80px 20px', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem' }}>
-            No moments found matching "{searchTerm}"
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <div className="search-wrapper" style={{ maxWidth: '600px', margin: '0 auto 60px', position: 'relative' }}>
+            <input
+              type="text"
+              placeholder="Search by location or keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              style={{ 
+                width: '100%', 
+                padding: '16px 50px 16px 25px', 
+                borderRadius: '40px', 
+                border: '1px solid rgba(255,255,255,0.1)', 
+                background: 'rgba(255,255,255,0.03)', 
+                color: 'white', 
+                outline: 'none', 
+                backdropFilter: 'blur(10px)',
+                fontSize: '1rem',
+                transition: 'all 0.3s ease'
+              }}
+            />
+            <span style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, fontSize: '1.2rem' }}>
+              🔍
+            </span>
           </div>
-        )}
+
+          <section className="dest-section" style={{ marginBottom: '80px' }}>
+            {filteredPhotos.length > 0 ? (
+               <MasonryLayout 
+                 photos={filteredPhotos} 
+                 stats={stats}
+                 toggleLike={toggleLike}
+                 onPhotoClick={setSelectedPhoto} 
+               />
+            ) : (
+               <div style={{ textAlign: 'center', padding: '80px 20px', color: 'rgba(255,255,255,0.4)', fontSize: '1.2rem' }}>
+                 No moments found matching "{searchTerm}"
+               </div>
+            )}
+          </section>
+        </motion.div>
       </div>
 
       <AnimatePresence>
