@@ -1,4 +1,4 @@
-import{ useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 class Particle {
     constructor(canvas, colors) {
@@ -16,9 +16,9 @@ class Particle {
         // ❌ REMOVE THESE TWO LINES:
         // ctx.shadowBlur = 13;
         // ctx.shadowColor = this.color;
-        
+
         ctx.fillStyle = this.color;
-        ctx.fill(); 
+        ctx.fill();
     }
     update(canvas, ctx, mouse) {
         this.x += this.speedX; // move particle in x direction
@@ -47,78 +47,78 @@ class Particle {
     }
 }
 
-export default function ParticlesBackground(){
-const canvasRef = useRef(null);
-const mouse = useRef({ x: null, y: null });
+export default function ParticlesBackground() {
+    const canvasRef = useRef(null);
+    const mouse = useRef({ x: null, y: null });
 
-useEffect(() => {
-    // Disable completely on mobile to prevent canvas API scroll lag
-    if (window.innerWidth < 768) return;
+    useEffect(() => {
+        // Disable completely on mobile to prevent canvas API scroll lag
+        if (window.innerWidth < 768) return;
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx= canvas.getContext("2d");
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
 
-    let particles =[];
-    const particlecount=20;
-    const colors = ["rgba(255, 255, 255, 0.5)", "#1cd8d2", "#00bf8f","#eef69e"];
+        let particles = [];
+        const particlecount = 50;
+        const colors = ["rgba(255, 255, 255, 0.5)", "#1cd8d2", "#00bf8f", "#eef69e"];
 
-function createparticles(){ // create all particles and add new particles
-    particles=[];
-    for(let i=0;i<particlecount;i++){
-        particles.push(new Particle(canvas, colors));
-    }
-}
+        function createparticles() { // create all particles and add new particles
+            particles = [];
+            for (let i = 0; i < particlecount; i++) {
+                particles.push(new Particle(canvas, colors));
+            }
+        }
 
-// create function for particles handle resize for every window 
-function handleResize(){
-    if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight; 
-    createparticles(); // create particles on resize
-}
-handleResize();
-window.addEventListener("resize",handleResize); // event listener for resize
+        // create function for particles handle resize for every window 
+        function handleResize() {
+            if (!canvas) return;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createparticles(); // create particles on resize
+        }
+        handleResize();
+        window.addEventListener("resize", handleResize); // event listener for resize
 
-const handleMouseMove = (event) => {
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    mouse.current.x = (event.clientX - rect.left) * scaleX;
-    mouse.current.y = (event.clientY - rect.top) * scaleY;
-};
+        const handleMouseMove = (event) => {
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            mouse.current.x = (event.clientX - rect.left) * scaleX;
+            mouse.current.y = (event.clientY - rect.top) * scaleY;
+        };
 
-const handleMouseLeave = () => {
-    mouse.current.x = null;
-    mouse.current.y = null;
-};
+        const handleMouseLeave = () => {
+            mouse.current.x = null;
+            mouse.current.y = null;
+        };
 
-window.addEventListener("mousemove", handleMouseMove);
-window.addEventListener("mouseout", handleMouseLeave);
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseout", handleMouseLeave);
 
-let animationId;
-function animate(){
-    if (!canvas) return;
-    ctx.clearRect(0,0,canvas.width,canvas.height); // clear canvas PREVIOUS FRAME
-    particles.forEach((p) => p.update(canvas, ctx, mouse.current)); // update all / NEW particles 
-    animationId = requestAnimationFrame(animate); // call animate function again
-}
-animate();
-return () => { // cleanup function
-    cancelAnimationFrame(animationId); // cancel animation frame on unmounting
-    window.removeEventListener("resize",handleResize);
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseout", handleMouseLeave);
-}
+        let animationId;
+        function animate() {
+            if (!canvas) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas PREVIOUS FRAME
+            particles.forEach((p) => p.update(canvas, ctx, mouse.current)); // update all / NEW particles 
+            animationId = requestAnimationFrame(animate); // call animate function again
+        }
+        animate();
+        return () => { // cleanup function
+            cancelAnimationFrame(animationId); // cancel animation frame on unmounting
+            window.removeEventListener("resize", handleResize);
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("mouseout", handleMouseLeave);
+        }
 
-}, []);
+    }, []);
 
-return (
-    <canvas
-        ref={canvasRef}
-        className="hidden md:block absolute top-0 left-0 w-full h-full pointer-events-none z-0"
-    ></canvas>
-);
+    return (
+        <canvas
+            ref={canvasRef}
+            className="hidden md:block absolute top-0 left-0 w-full h-full pointer-events-none z-0"
+        ></canvas>
+    );
 
 }

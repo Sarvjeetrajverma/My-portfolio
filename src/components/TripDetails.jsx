@@ -7,7 +7,7 @@ import './TravelGallery.css';
 
 // --- FIREBASE IMPORTS ---
 import { doc, onSnapshot, setDoc, updateDoc, increment } from 'firebase/firestore';
-import { db } from '../firebase'; 
+import { db } from '../firebase';
 
 // --- ICONS ---
 const Icons = {
@@ -37,70 +37,100 @@ const usePhotoStats = (photos) => {
     if (!photos || photos.length === 0) return;
 
     const unsubscribes = photos.map(photo => {
-      if (!photo.id) {
-        console.warn("Skipping stats for photo without ID", photo);
+      if (!photo.id) return () => {};
+
+      try {
+        if (!db) {
+           console.error("Firebase DB is missing!");
+           return () => {};
+        }
+        
+        const photoRef = doc(db, 'gallery_stats', String(photo.id));
+        return onSnapshot(photoRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const userLikedLocally = localStorage.getItem(`liked_${photo.id}`) === 'true';
+            setStats(prev => ({ ...prev, [photo.id]: { ...data, userLiked: userLikedLocally } }));
+          } else {
+            setDoc(photoRef, { likes: 0, views: 0, downloads: 0, shares: 0 })
+              .catch(err => {
+                console.error("Firebase Create Error:", err);
+                setStats(prev => ({ ...prev, [photo.id]: { likes: 0, views: 0, downloads: 0, shares: 0, userLiked: false } }));
+              });
+          }
+        }, (error) => console.error("Firebase Snapshot Error:", error));
+      } catch (err) {
+        console.error("Critical Firebase Setup Error for photo:", photo.id, err);
         return () => {};
       }
-
-      const photoRef = doc(db, 'gallery_stats', String(photo.id));
-      
-      return onSnapshot(photoRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const userLikedLocally = localStorage.getItem(`liked_${photo.id}`) === 'true';
-          
-          setStats(prev => ({
-            ...prev,
-            [photo.id]: { ...data, userLiked: userLikedLocally }
-          }));
-        } else {
-          setDoc(photoRef, { likes: 0, views: 0, downloads: 0, shares: 0 })
-            .catch(err => console.error("Firebase Create Error:", err));
-        }
-      }, (error) => {
-        console.error("Firebase Snapshot Error:", error);
-      });
     });
 
-    return () => unsubscribes.forEach(unsub => unsub && unsub());
+    return () => unsubscribes.forEach(unsub => unsub && typeof unsub === 'function' && unsub());
   }, [photos]);
 
   const toggleLike = useCallback(async (photoId) => {
-    if (!photoId) return alert("Cannot like: Photo ID is missing!");
-    const photoRef = doc(db, 'gallery_stats', String(photoId));
-    const localLikeKey = `liked_${photoId}`;
-    const isLiked = localStorage.getItem(localLikeKey) === 'true';
-
+    if (!photoId) return;
     try {
+      if (!db) return;
+      
+      const localLikeKey = `liked_${photoId}`;
+      const isLiked = localStorage.getItem(localLikeKey) === 'true';
+
+      // 1. Optimistic Local Sync for Instant UI Response
       if (isLiked) {
-        await updateDoc(photoRef, { likes: increment(-1) });
         localStorage.removeItem(localLikeKey);
+        setStats(prev => {
+          if (!prev[photoId]) return prev;
+          return { ...prev, [photoId]: { ...prev[photoId], likes: Math.max(0, prev[photoId].likes - 1), userLiked: false } };
+        });
       } else {
-        await updateDoc(photoRef, { likes: increment(1) });
         localStorage.setItem(localLikeKey, 'true');
+        setStats(prev => {
+          if (!prev[photoId]) return prev;
+          return { ...prev, [photoId]: { ...prev[photoId], likes: prev[photoId].likes + 1, userLiked: true } };
+        });
+      }
+
+      // 2. Actually update Firebase backend
+      const photoRef = doc(db, 'gallery_stats', String(photoId));
+      if (isLiked) {
+        await updateDoc(photoRef, { likes: increment(-1) }).catch(e => console.error(e));
+      } else {
+        await updateDoc(photoRef, { likes: increment(1) }).catch(async (e) => {
+          if (e.code === 'not-found') {
+             await setDoc(photoRef, { likes: 1, views: 0, downloads: 0, shares: 0 }).catch(console.error);
+          }
+        });
       }
     } catch (error) {
-      alert(`Firebase Error (Like): ${error.message}`);
+      console.error(`Firebase Error (Like): ${error.message}`);
     }
   }, []);
 
   const recordView = useCallback(async (photoId) => {
     if (!photoId) return;
-    const localViewKey = `viewed_${photoId}`;
-    if (localStorage.getItem(localViewKey) !== 'true') {
-      try {
-        const photoRef = doc(db, 'gallery_stats', String(photoId));
-        await updateDoc(photoRef, { views: increment(1) });
-        localStorage.setItem(localViewKey, 'true'); 
-      } catch (error) {
-        console.error("Error recording view:", error);
-      }
+    
+    try {
+      const sessKey = `viewed_session_${photoId}`;
+      if (sessionStorage.getItem(sessKey)) return; 
+      sessionStorage.setItem(sessKey, 'true');
+
+      if (!db) return;
+      const photoRef = doc(db, 'gallery_stats', String(photoId));
+      await updateDoc(photoRef, { views: increment(1) }).catch(async (e) => {
+        if (e.code === 'not-found') {
+          await setDoc(photoRef, { likes: 0, views: 1, downloads: 0, shares: 0 }).catch(console.error);
+        }
+      });
+    } catch (error) {
+      console.error("Error recording view:", error);
     }
   }, []);
 
   const recordAction = useCallback(async (photoId, actionType) => {
     if (!photoId) return;
     try {
+      if (!db) return;
       const photoRef = doc(db, 'gallery_stats', String(photoId));
       await updateDoc(photoRef, { [actionType]: increment(1) });
     } catch (error) {
@@ -111,38 +141,65 @@ const usePhotoStats = (photos) => {
   return { stats, toggleLike, recordView, recordAction };
 };
 
-// --- DRAGGABLE ZOOM VIEWER ---
+// Helper to format large numbers
+const formatCount = (count) => {
+  if (!count) return 0;
+  return count >= 1000 ? (count / 1000).toFixed(1) + 'k' : count;
+};
+
+// --- GOOGLE PHOTOS STYLE VIEWER ---
 const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClose, onNext, onPrev }) => {
   const [scale, setScale] = useState(1);
-  const [showInfo, setShowInfo] = useState(true);
+  const [showUI, setShowUI] = useState(true);
+  const [showInfo, setShowInfo] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [initialDistance, setInitialDistance] = useState(null);
+  
   const containerRef = useRef(null);
 
   useEffect(() => {
     if (photo?.id) recordView(photo.id);
     setScale(1);
     setIsImageLoaded(false);
+    setShowInfo(false);
   }, [photo, recordView]);
-
-  useEffect(() => {
-    let interval;
-    if (isPlaying) {
-      interval = setInterval(() => onNext(), 4000); 
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, onNext]);
 
   const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 4));
   const handleZoomOut = () => setScale(prev => Math.max(prev - 0.5, 1));
-  const handleReset = () => setScale(1);
   const handleDoubleClick = () => setScale(prev => (prev === 1 ? 2.5 : 1));
 
   const handleWheel = (e) => {
     e.stopPropagation();
     if (e.deltaY < 0) handleZoomIn();
     else handleZoomOut();
+  };
+
+  // Pinch to Zoom
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      setInitialDistance(dist);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2 && initialDistance) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const zoomFactor = dist / initialDistance;
+      setScale(prev => Math.min(Math.max(1, prev * zoomFactor), 4));
+      setInitialDistance(dist);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) setInitialDistance(null);
   };
 
   const handleDownload = async () => {
@@ -177,14 +234,16 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
     }
   };
 
   const toggleFullScreen = async () => {
     if (!document.fullscreenElement) {
       try {
-        await document.documentElement.requestFullscreen();
+        const el = document.documentElement;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) await el.msRequestFullscreen();
         setIsFullScreen(true);
       } catch (err) {
         console.error(err);
@@ -192,6 +251,9 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
     } else {
       if (document.exitFullscreen) {
         await document.exitFullscreen();
+        setIsFullScreen(false);
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen();
         setIsFullScreen(false);
       }
     }
@@ -207,125 +269,200 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
 
   return (
     <motion.div 
-      className="viewer-overlay"
+      className="fixed inset-0 z-[100] bg-black text-white flex flex-col overflow-hidden touch-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
     >
-      <button className="fixed-close-btn" onClick={onClose} title="Close">
-        <Icons.Close />
-      </button>
-
+      {/* --- TOP BAR --- */}
       <AnimatePresence>
-        {showInfo && (
-          <motion.div 
-            className="viewer-top-bar"
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="viewer-info">
-              <h3 style={{ margin: '0 0 5px', fontSize: '1.5rem', fontWeight: '700', letterSpacing: '0.02em' }}>
-                {photo.location || 'Unknown Location'}
-              </h3>
-              <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>{photo.date || ''}</span>
-            </div>
-            
-            <div className="viewer-exif">
-              <Icons.Camera />
-              <span>Sony A7IV</span>
-              <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }}></span>
-              <span>35mm f/1.4</span>
-            </div>
-          </motion.div>
+        {showUI && !showInfo && (
+           <motion.div 
+             className="absolute top-0 left-0 w-full p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent z-50 pointer-events-auto"
+             initial={{ y: -70, opacity: 0 }}
+             animate={{ y: 0, opacity: 1 }}
+             exit={{ y: -70, opacity: 0 }}
+             transition={{ duration: 0.2 }}
+           >
+              <div className="flex items-center gap-3">
+                 <button onClick={onClose} className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors">
+                   <Icons.ArrowLeft />
+                 </button>
+                 {photo.location && (
+                    <div className="flex flex-col">
+                       <span className="font-semibold text-sm md:text-[15px]">{photo.location}</span>
+                       <span className="text-xs text-white/70">{photo.date}</span>
+                    </div>
+                 )}
+              </div>
+              <div className="flex items-center gap-1">
+                 <button onClick={(e) => { e.stopPropagation(); toggleLike(photo.id); }} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                    <Icons.Heart filled={photoStats.userLiked} />
+                 </button>
+                 <button onClick={(e) => { e.stopPropagation(); toggleFullScreen(); }} className="p-2 rounded-full hover:bg-white/10 transition-colors">
+                    {isFullScreen ? <Icons.Minimize /> : <Icons.Maximize />}
+                 </button>
+              </div>
+           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="viewer-stage" ref={containerRef} onWheel={handleWheel}>
-        {scale === 1 && (
-          <>
-            <button className="nav-btn prev" onClick={onPrev}><Icons.ArrowLeft /></button>
-            <button className="nav-btn next" onClick={onNext}><Icons.ArrowRight /></button>
-          </>
+      {/* --- MAIN STAGE --- */}
+      <div 
+        className="flex-1 relative flex items-center justify-center overscroll-none" 
+        ref={containerRef}
+        onClick={() => { if(!showInfo) setShowUI(!showUI); else setShowInfo(false); }}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {!isImageLoaded && (
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="absolute w-10 h-10 border-4 border-white/10 border-t-white rounded-full" />
         )}
 
-        {!isImageLoaded && (
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #3b82f6', borderRadius: '50%' }} />
-          </div>
+        {scale === 1 && showUI && !showInfo && window.innerWidth > 768 && (
+           <>
+             <button className="absolute left-6 z-40 p-3 bg-black/40 hover:bg-black/60 rounded-full transition-colors backdrop-blur-sm" onClick={(e) => { e.stopPropagation(); onPrev(); }}>
+               <Icons.ArrowLeft />
+             </button>
+             <button className="absolute right-6 z-40 p-3 bg-black/40 hover:bg-black/60 rounded-full transition-colors backdrop-blur-sm" onClick={(e) => { e.stopPropagation(); onNext(); }}>
+               <Icons.ArrowRight />
+             </button>
+           </>
         )}
 
         <motion.img
           key={photo.id}
           src={photo.url}
           alt={photo.caption}
-          className="viewer-image"
           onLoad={() => setIsImageLoaded(true)}
+          className="max-w-full max-h-full object-contain"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: isImageLoaded ? 1 : 0, scale: scale }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          drag={scale > 1}
-          dragConstraints={containerRef}
-          dragElastic={0.2}
-          onDoubleClick={handleDoubleClick}
-          style={{ cursor: scale > 1 ? 'grab' : 'zoom-in' }}
-          whileTap={{ cursor: scale > 1 ? 'grabbing' : 'zoom-in' }}
+          drag
+          dragConstraints={scale > 1 ? containerRef : { top: 0, bottom: 0, left: 0, right: 0 }}
+          dragElastic={scale === 1 ? 0.6 : 0.2}
+          onDragEnd={(e, info) => {
+            if (scale === 1) {
+              const hThreshold = window.innerWidth * 0.15;
+              const vThreshold = 80;
+              
+              if (info.offset.x > hThreshold) onPrev();
+              else if (info.offset.x < -hThreshold) onNext();
+              else if (info.offset.y > vThreshold) onClose();
+              else if (info.offset.y < -vThreshold) { setShowInfo(true); setShowUI(false); }
+            }
+          }}
+          onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(); }}
+          style={{ cursor: scale > 1 ? 'grab' : 'default', willChange: 'transform' }}
+          whileTap={{ cursor: scale > 1 ? 'grabbing' : 'default' }}
         />
       </div>
 
-      <div className="viewer-toolbar">
-        <button 
-          className="tool-btn" 
-          onClick={() => toggleLike(photo.id)} 
-          title={photoStats.userLiked ? "Unlike" : "Like"}
-        >
-          <motion.div whileTap={{ scale: 0.8 }}>
-            <Icons.Heart filled={photoStats.userLiked} />
-          </motion.div>
-        </button>
-        <button className="tool-btn" onClick={handleShare} title="Share"><Icons.Share /></button>
-        
-        <div className="tool-divider"></div>
-        
-        <button className="tool-btn" onClick={() => setIsPlaying(!isPlaying)} title={isPlaying ? "Pause Slideshow" : "Play Slideshow"}>
-          {isPlaying ? <Icons.Pause /> : <Icons.Play />}
-        </button>
+      {/* --- BOTTOM BAR --- */}
+      <AnimatePresence>
+        {showUI && !showInfo && (
+           <motion.div 
+             className="absolute bottom-0 left-0 w-full p-4 pb-8 flex justify-around items-center bg-gradient-to-t from-black/80 via-black/40 to-transparent z-50 pointer-events-auto"
+             initial={{ y: 80, opacity: 0 }}
+             animate={{ y: 0, opacity: 1 }}
+             exit={{ y: 80, opacity: 0 }}
+             transition={{ duration: 0.2 }}
+           >
+              <button onClick={(e) => { e.stopPropagation(); handleShare(); }} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors">
+                <Icons.Share /> <span className="text-[11px] font-medium tracking-wide">Share</span>
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleDownload(); }} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors">
+                <Icons.Download /> <span className="text-[11px] font-medium tracking-wide">Download</span>
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setShowInfo(true); setShowUI(false); }} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors">
+                <Icons.Info /> <span className="text-[11px] font-medium tracking-wide">Details</span>
+              </button>
+           </motion.div>
+        )}
+      </AnimatePresence>
 
-        <div className="tool-divider"></div>
-
-        <button className={`tool-btn info-toggle ${showInfo ? 'active' : ''}`} onClick={() => setShowInfo(!showInfo)} title="Toggle Details">
-          <motion.div animate={{ rotate: showInfo ? 360 : 0 }} transition={{ duration: 0.4 }}><Icons.Info /></motion.div>
-        </button>
-        <button className="tool-btn" onClick={handleZoomIn} title="Zoom In"><Icons.Plus /></button>
-        <button className="tool-btn" onClick={handleZoomOut} title="Zoom Out"><Icons.Minus /></button>
-        <button className="tool-btn" onClick={handleReset} title="Reset"><Icons.Reset /></button>
-        <button className="tool-btn" onClick={toggleFullScreen} title="Fullscreen">
-          {isFullScreen ? <Icons.Minimize /> : <Icons.Maximize />}
-        </button>
-        <button className="tool-btn" onClick={handleDownload} title="Download high-res"><Icons.Download /></button>
-      </div>
-
+      {/* --- INFO PANEL (DRAG-UP DRAWER) --- */}
       <AnimatePresence>
         {showInfo && (
-          <motion.div 
-            className="viewer-caption"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-             <div className="viewer-stats-row">
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Heart filled={photoStats.userLiked} /> {photoStats.likes} Likes</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Eye /> {photoStats.views} Views</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Download /> {photoStats.downloads || 0} Downloads</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Icons.Share /> {photoStats.shares || 0} Shares</span>
-            </div>
-            <p style={{ fontSize: '1.2rem', lineHeight: '1.6', margin: 0, color: 'rgba(255,255,255,0.9)' }}>
-              {photo.caption}
-            </p>
-          </motion.div>
+           <>
+             {/* Backdrop to close panel when clicking outside */}
+             <motion.div 
+                className="absolute inset-0 bg-transparent z-[55]"
+                onClick={() => setShowInfo(false)}
+             />
+             <motion.div 
+               className="absolute bottom-0 left-0 w-full bg-[#1e1e1e] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-[60] text-gray-200 p-6 pb-12 overscroll-none border-t border-white/10"
+               initial={{ y: "100%" }} 
+               animate={{ y: 0 }} 
+               exit={{ y: "100%" }}
+               transition={{ type: "spring", stiffness: 300, damping: 30 }}
+               drag="y" 
+               dragConstraints={{ top: 0, bottom: 0 }} 
+               dragElastic={0.2}
+               onDragEnd={(e, info) => { if (info.offset.y > 50) setShowInfo(false); }}
+               onClick={(e) => e.stopPropagation()}
+             >
+                <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 shrink-0 cursor-grab active:cursor-grabbing" />
+                
+                <h4 className="text-xl font-semibold mb-1 text-white">Details</h4>
+                <p className="text-sm text-gray-400 mb-6">{photo.date}</p>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                   <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl">
+                      <Icons.Eye />
+                      <div>
+                         <p className="text-xs text-gray-400 uppercase tracking-wide">Views</p>
+                         <p className="text-lg font-bold text-white">{formatCount(photoStats.views)}</p>
+                      </div>
+                   </div>
+                   <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl">
+                      <Icons.Heart filled={photoStats.userLiked} />
+                      <div>
+                         <p className="text-xs text-gray-400 uppercase tracking-wide">Likes</p>
+                         <p className="text-lg font-bold text-white">{formatCount(photoStats.likes)}</p>
+                      </div>
+                   </div>
+                   <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl">
+                      <Icons.Share />
+                      <div>
+                         <p className="text-xs text-gray-400 uppercase tracking-wide">Shares</p>
+                         <p className="text-lg font-bold text-white">{formatCount(photoStats.shares)}</p>
+                      </div>
+                   </div>
+                   <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl">
+                      <Icons.Download />
+                      <div>
+                         <p className="text-xs text-gray-400 uppercase tracking-wide">Downloads</p>
+                         <p className="text-lg font-bold text-white">{formatCount(photoStats.downloads)}</p>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="bg-white/5 p-5 rounded-2xl space-y-4">
+                   <div className="flex items-start gap-4">
+                      <div className="p-3 bg-white/10 rounded-full shrink-0"><Icons.Camera /></div>
+                      <div className="flex-1">
+                         <p className="text-sm font-semibold text-white">Sony A7IV</p>
+                         <p className="text-xs text-gray-400 mt-1">Sony FE 35mm f/1.4 GM</p>
+                      </div>
+                   </div>
+                   <div className="flex gap-4 text-[11px] font-mono text-gray-300 ml-[52px]">
+                      <span>35mm</span><span>f/1.4</span><span>1/1000s</span><span>ISO 100</span>
+                   </div>
+                </div>
+
+                {photo.caption && (
+                  <div className="mt-6">
+                    <h5 className="text-sm font-semibold text-white mb-2">Description</h5>
+                    <p className="text-[15px] text-gray-300 leading-relaxed font-light">{photo.caption}</p>
+                  </div>
+                )}
+             </motion.div>
+           </>
         )}
       </AnimatePresence>
     </motion.div>
@@ -659,4 +796,39 @@ const TripDetails = () => {
   );
 };
 
-export default TripDetails;
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("TripDetails ErrorBoundary caught:", error, errorInfo);
+    this.setState({ errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: 'red', padding: '50px', background: 'black', minHeight: '100vh' }}>
+          <h2>Oops, the gallery crashed!</h2>
+          <p>{this.state.error && this.state.error.toString()}</p>
+          <pre style={{whiteSpace: 'pre-wrap', fontSize: '10px'}}>{this.state.errorInfo && this.state.errorInfo.componentStack}</pre>
+        </div>
+      );
+    }
+    return this.props.children; 
+  }
+}
+
+export default function TripDetailsSafe() {
+  return (
+    <ErrorBoundary>
+      <TripDetails />
+    </ErrorBoundary>
+  );
+}

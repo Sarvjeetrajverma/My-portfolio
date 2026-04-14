@@ -145,47 +145,17 @@ const holidayData = {
 };
 
 const socials = [
-  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet", color: "#aeeea2" },
-  { icon: FaLinkedinIn, label: "LinkedIn", link: "https://www.linkedin.com/in/sarvjeetrajverma/", color: "#0ea5e9" },
-  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma", color: "#dfefba" },
-  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma", color: "#e55c87" }
+  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet" },
+  { icon: FaLinkedinIn, label: "LinkedIn", link: "https://www.linkedin.com/in/sarvjeetrajverma/" },
+  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma" },
+  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma" }
 ];
 
-const sectionVariants = {
-  initial: { opacity: 0, scale: 0.97, y: 24 },
-  enter: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.9, ease: "easeOut" }
-  }
+const Icons = {
+  Close: ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+  ArrowRight: ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"></polyline></svg>,
+  Download: ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 };
-
-const textBlockVariants = {
-  initial: { opacity: 0, x: -40 },
-  enter: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.9, ease: "easeOut", delay: 0.2 }
-  }
-};
-
-const rightSideVariants = {
-  initial: { opacity: 0, x: 40, rotateX: -15, rotateY: 15 },
-  enter: {
-    opacity: 1,
-    x: 0,
-    rotateX: 0,
-    rotateY: 0,
-    transition: { duration: 1.0, ease: "easeOut", delay: 0.3 }
-  }
-};
-
-const particleData = [...Array(8)].map(() => ({
-  top: 25 + Math.random() * 50,
-  left: 25 + Math.random() * 50,
-  duration: 3 + Math.random() * 3
-}));
 
 export default function Home() {
   const roles = useMemo(
@@ -201,9 +171,7 @@ export default function Home() {
   const [showHolidayBanner, setShowHolidayBanner] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -211,7 +179,6 @@ export default function Home() {
   const minutes = currentTime.toLocaleTimeString('en-US', { minute: '2-digit' });
   const seconds = currentTime.toLocaleTimeString('en-US', { second: '2-digit' });
   const ampm = currentTime.toLocaleTimeString('en-US', { hour12: true }).split(' ')[1];
-  
   const dateStr = currentTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
 
   // --- Holiday Checking Logic ---
@@ -236,49 +203,27 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [subindex, deleting, index, roles]);
 
-  const [prefersReducedMotion, setPrm] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
   useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setPrm(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    const check = () => setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      setIsMobile(mobile);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // --- Mouse Movement Logic for Name Animation ---
+  // --- Mouse parallax for name ---
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
-
   const onMouseMove = (e) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    mouseX.set(clientX / innerWidth);
-    mouseY.set(clientY / innerHeight);
+    mouseX.set(e.clientX / window.innerWidth);
+    mouseY.set(e.clientY / window.innerHeight);
   };
+  const springX = useSpring(mouseX, { damping: 20, stiffness: 200 });
+  const springY = useSpring(mouseY, { damping: 20, stiffness: 200 });
+  const nameX = useTransform(springX, [0, 1], [-12, 12]);
+  const nameY = useTransform(springY, [0, 1], [-12, 12]);
 
-  const springConfig = { damping: 20, stiffness: 200 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
-
-  const nameX = useTransform(springX, [0, 1], [-20, 20]);
-  const nameY = useTransform(springY, [0, 1], [-20, 20]);
-  const nameRotateX = useTransform(springY, [0, 1], [10, -10]);
-  const nameRotateY = useTransform(springX, [0, 1], [-10, 10]);
-
-  // --- Canvas Logic ---
+  // --- Canvas starfield ---
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
@@ -288,453 +233,154 @@ export default function Home() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-
-    let dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    if (isMobile || prefersReducedMotion) {
-      dpr = Math.min(dpr, 1);
-    } else {
-      dpr = Math.min(dpr, 1.75);
-    }
-
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.75);
     let width = (canvas.width = canvas.clientWidth * dpr);
     let height = (canvas.height = canvas.clientHeight * dpr);
-
-    const layers = isMobile || prefersReducedMotion
-      ? [
-          { count: 15, speed: 0.02, size: [0.7, 1.0], color: "rgba(248,250,252,0.3)" },
-          { count: 10, speed: 0.03, size: [1.0, 1.5], color: "rgba(129,140,248,0.3)" }
-        ]
-      : [
-          { count: 35, speed: 0.03, size: [0.7, 1.3], color: "rgba(248,250,252,0.4)" },
-          { count: 20, speed: 0.05, size: [1.0, 2.0], color: "rgba(129,140,248,0.45)" }
-        ];
-
+    const layers = isMobile
+      ? [{ count: 15, speed: 0.02, size: [0.7, 1.0], color: "rgba(248,250,252,0.3)" }, { count: 10, speed: 0.03, size: [1.0, 1.5], color: "rgba(129,140,248,0.3)" }]
+      : [{ count: 35, speed: 0.03, size: [0.7, 1.3], color: "rgba(248,250,252,0.4)" }, { count: 20, speed: 0.05, size: [1.0, 2.0], color: "rgba(129,140,248,0.45)" }];
     const stars = [];
-
     layers.forEach((layer, li) => {
       for (let i = 0; i < layer.count; i++) {
-        stars.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          z: Math.random() * 0.6 + 0.4,
-          r: (Math.random() * (layer.size[1] - layer.size[0]) + layer.size[0]) * dpr,
-          baseAlpha: Math.random() * 0.3 + 0.2,
-          twinkle: Math.random() * 0.004 + 0.001,
-          layer: li
-        });
+        stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 0.6 + 0.4, r: (Math.random() * (layer.size[1] - layer.size[0]) + layer.size[0]) * dpr, baseAlpha: Math.random() * 0.3 + 0.2, twinkle: Math.random() * 0.004 + 0.001, layer: li });
       }
     });
-
-    const onResize = () => {
-      let newDpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-      newDpr = Math.min(newDpr, 1.75);
-      dpr = newDpr;
-      width = (canvas.width = canvas.clientWidth * dpr);
-      height = (canvas.height = canvas.clientHeight * dpr);
-    };
+    const onResize = () => { width = (canvas.width = canvas.clientWidth * dpr); height = (canvas.height = canvas.clientHeight * dpr); };
     window.addEventListener("resize", onResize);
-
-    const onCanvasMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      pointerRef.current.x = (e.clientX - rect.left) / rect.width;
-      pointerRef.current.y = (e.clientY - rect.top) / rect.height;
-    };
-    canvas.addEventListener("pointermove", onCanvasMove);
-
+    const onMove = (e) => { const r = canvas.getBoundingClientRect(); pointerRef.current.x = (e.clientX - r.left) / r.width; pointerRef.current.y = (e.clientY - r.top) / r.height; };
+    canvas.addEventListener("pointermove", onMove);
     let last = performance.now();
-
     const render = (now) => {
-      const dt = Math.min(40, now - last);
-      last = now;
-
-      ctx.clearRect(0, 0, width, height);
-      ctx.save();
-      ctx.scale(dpr, dpr);
-
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const warpIntensity = prefersReducedMotion ? 0.06 : 0.22;
-      const pointerShiftX = (pointerRef.current.x - 0.5) * 20 * dpr;
-      const pointerShiftY = (pointerRef.current.y - 0.5) * 20 * dpr;
-
+      const dt = Math.min(40, now - last); last = now;
+      ctx.clearRect(0, 0, width, height); ctx.save(); ctx.scale(dpr, dpr);
+      const cx = width / 2, cy = height / 2;
+      const px = (pointerRef.current.x - 0.5) * 20 * dpr;
+      const py = (pointerRef.current.y - 0.5) * 20 * dpr;
       layers.forEach((layer, li) => {
         ctx.fillStyle = layer.color;
         for (let i = 0; i < stars.length; i++) {
-          const s = stars[i];
-          if (s.layer !== li) continue;
-          const dirX = s.x - centerX;
-          const dirY = s.y - centerY;
-          const dist = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
-          const normX = dirX / dist;
-          const normY = dirY / dist;
-
-          s.x += normX * layer.speed * dt * warpIntensity;
-          s.y += normY * layer.speed * dt * warpIntensity;
-
-          if (s.x < -40 || s.x > width + 40 || s.y < -40 || s.y > height + 40) {
-            s.x = centerX + (Math.random() - 0.5) * 80;
-            s.y = centerY + (Math.random() - 0.5) * 80;
-            s.z = Math.random() * 0.6 + 0.4;
-          }
-
-          const twinkleAlpha = s.baseAlpha + Math.sin(now * s.twinkle + i) * 0.16 * (li + 1);
-          const screenX = (s.x + pointerShiftX * (1 - s.z)) / dpr;
-          const screenY = (s.y + pointerShiftY * (1 - s.z)) / dpr;
-
-          ctx.beginPath();
-          ctx.globalAlpha = Math.max(0.04, Math.min(0.55, twinkleAlpha));
-          ctx.arc(screenX, screenY, (s.r / dpr) * s.z, 0, Math.PI * 2);
-          ctx.fill();
+          const s = stars[i]; if (s.layer !== li) continue;
+          const dx = s.x - cx, dy = s.y - cy, dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          s.x += (dx / dist) * layer.speed * dt * 0.22; s.y += (dy / dist) * layer.speed * dt * 0.22;
+          if (s.x < -40 || s.x > width + 40 || s.y < -40 || s.y > height + 40) { s.x = cx + (Math.random() - 0.5) * 80; s.y = cy + (Math.random() - 0.5) * 80; }
+          ctx.beginPath(); ctx.globalAlpha = Math.max(0.04, Math.min(0.55, s.baseAlpha + Math.sin(now * s.twinkle + i) * 0.16 * (li + 1)));
+          ctx.arc((s.x + px * (1 - s.z)) / dpr, (s.y + py * (1 - s.z)) / dpr, (s.r / dpr) * s.z, 0, Math.PI * 2); ctx.fill();
         }
         ctx.globalAlpha = 1;
       });
-
-      ctx.restore();
-      rafRef.current = requestAnimationFrame(render);
+      ctx.restore(); rafRef.current = requestAnimationFrame(render);
     };
-
     rafRef.current = requestAnimationFrame(render);
-
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("resize", onResize);
-      canvas.removeEventListener("pointermove", onCanvasMove);
-    };
-  }, [prefersReducedMotion, isMobile]);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", onResize); canvas.removeEventListener("pointermove", onMove); };
+  }, [isMobile]);
 
   return (
     <motion.section
       id="home"
-      // ❌ REMOVED: onMouseMove={onMouseMove}
-      // ✅ ADDED: Only track mouse on desktop
       onMouseMove={!isMobile ? onMouseMove : undefined}
-      className="relative w-full overflow-hidden bg-transparent text-white flex items-center lg:min-h-screen pt-24"
-      variants={sectionVariants}
-      initial="initial"
-      animate="enter"
-      style={{ perspective: "1000px" }}
+      className="relative w-full overflow-hidden bg-transparent text-white h-[100dvh]"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, ease: "easeOut" }}
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full z-0 pointer-events-none"
-      />
+      {/* Starfield canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none opacity-40 mix-blend-screen" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-10 lg:py-0 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-16">
-        
-        {/* TEXT SIDE */}
+      {/* Single ambient glow — Apple-style single soft orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(120,119,198,0.15) 0%, rgba(99,80,180,0.06) 50%, transparent 70%)', filter: 'blur(90px)' }} />
+
+      <div className="relative z-10 w-full h-full max-w-[1100px] mx-auto px-6 md:px-10 flex flex-col items-center justify-center text-center" style={{ paddingTop: '76px', paddingBottom: '16px' }}>
+
+        {/* STATUS PILL + TYPEWRITER */}
         <motion.div
-          className="order-2 lg:order-1 flex flex-col justify-center text-center lg:text-left"
-          variants={textBlockVariants}
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }}
+          className="flex flex-row flex-wrap justify-center items-center gap-2.5 mb-4"
         >
-          {/* --- COMPACT RESPONSIVE HOLIDAY BANNER --- */}
-          <AnimatePresence>
-            {activeHoliday && showHolidayBanner && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95, filter: "blur(5px)" }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="mb-5 w-full max-w-sm mx-auto lg:mx-0 rounded-xl relative overflow-hidden shadow-lg border border-white/10 group bg-slate-900/50 backdrop-blur-md"
-              >
-                <div className="flex items-center gap-3 p-3">
-                  
-                  {/* Icon / Logo Area */}
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-sky-400/20 to-indigo-500/20 border border-sky-300/20 shrink-0 text-xl shadow-inner">
-                    <motion.span 
-                      animate={{ rotate: [0, 8, -8, 0] }} 
-                      transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                    >
-                      {activeHoliday.icon}
-                    </motion.span>
-                  </div>
-                  
-                  {/* Text Content */}
-                  <div className="flex-1 min-w-0 text-left">
-                    <p className="text-sm font-semibold text-slate-100 truncate">
-                      {activeHoliday.name}
-                    </p>
-                    <p className="text-[11px] text-slate-300 mt-0.5 leading-snug line-clamp-2 pr-1">
-                      {activeHoliday.note}
-                    </p>
-                  </div>
-
-                  {/* Close Button */}
-                  <button
-                    onClick={() => setShowHolidayBanner(false)}
-                    className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0 self-start"
-                    aria-label="Dismiss banner"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                    </svg>
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="inline-flex items-center justify-center lg:justify-start px-3 py-1 mb-4 rounded-full border border-cyan-400/20 bg-cyan-500/5 backdrop-blur-md gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400/90 animate-pulse" />
-            <span className="text-cyan-100 font-mono text-[11px] tracking-[0.28em]">
-              {roles[index].substring(0, subindex)}
-              <span className="animate-pulse">|</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03]">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="text-xs font-medium tracking-[0.2em] text-slate-400 uppercase">
+              IST {hours}:{minutes} {ampm}
             </span>
           </div>
+          <div className="text-xs tracking-[0.2em] text-slate-600 uppercase">
+            {roles[index].substring(0, subindex)}<span className="animate-pulse">|</span>
+          </div>
+        </motion.div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-4 tracking-tight perspective-[500px]">
-            <span className="block text-slate-100 text-lg sm:text-2xl font-light mb-1">
-              Hello, I'm
-            </span>
-            <motion.span
-              style={
-                !isMobile 
-                  ? { 
-                      x: nameX, 
-                      y: nameY,
-                      rotateX: nameRotateX,
-                      rotateY: nameRotateY,
-                      transformStyle: "preserve-3d"
-                    }
-                  : {} // Disable heavy 3D math on mobile
-              }
-              className="block text-transparent bg-clip-text bg-gradient-to-r from-sky-50 via-cyan-200 to-indigo-200 drop-shadow-[0_0_14px_rgba(34,211,238,0.3)] cursor-default inline-block will-change-transform"
-            >
-              Sarvjeet Raj Verma
-            </motion.span>
+        {/* MASSIVE NAME */}
+        <motion.div
+          className="w-full mb-4"
+          style={!isMobile ? { x: nameX, y: nameY } : {}}
+        >
+          <h1 className="font-medium tracking-tighter text-white">
+            <span className="block text-slate-500 text-xs font-light mb-1.5 tracking-[0.4em] uppercase">I am</span>
+            <span className="block" style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)', lineHeight: '1.0' }}>Sarvjeet Raj</span>
+            <span className="block text-transparent" style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)', lineHeight: '1.02', WebkitTextStroke: '1px rgba(255,255,255,0.22)' }}>Verma</span>
           </h1>
-
-          <p className="text-slate-50/80 text-sm sm:text-base lg:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed mb-6">
-            Crafting immersive web universes where clean engineering meets
-            cinematic experiences. Constellations of components, galaxies
-            of micro‑interactions, and one seamless digital journey.
-          </p>
-
-          <div className="flex flex-wrap gap-4 justify-center lg:justify-start mb-7">
-            <motion.a
-              href="#projects"
-              className="relative inline-flex items-center justify-center px-7 py-3 rounded-full bg-sky-100/85 text-slate-900 text-sm sm:text-base font-semibold shadow-[0_0_14px_rgba(56,189,248,0.35)] overflow-hidden"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <span className="relative z-10">View Projects</span>
-              <span className="pointer-events-none absolute inset-[1px] rounded-full bg-gradient-to-r from-sky-200 via-cyan-100 to-amber-100 opacity-55" />
-            </motion.a>
-
-            <motion.a
-              href="/sarvjeetrajverma_resume.pdf"
-              download="SarvjeetRajVerma_Resume.pdf"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-slate-200/60 text-slate-100 text-sm sm:text-base bg-slate-900/20 hover:bg-slate-900/45 backdrop-blur-md transition-colors"
-              whileHover={{ y: -2 }}
-              whileTap={{ y: 0 }}
-            >
-              <span>Download Resume</span>
-              <span className="text-lg leading-none">↓</span>
-            </motion.a>
-          </div>
-
-          <div className="flex gap-5 justify-center lg:justify-start">
-            {socials.map((s, i) => (
-              <motion.a
-                key={s.label}
-                href={s.link}
-                target="_blank"
-                rel="noreferrer"
-                className="relative text-2xl text-slate-200 hover:text-white transition-colors"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: [0, -8, 0] 
-                }}
-                transition={{ 
-                  opacity: { delay: 0.5 + i * 0.1, duration: 0.4 },
-                  y: { 
-                    duration: 3, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.4 
-                  }
-                }}
-                whileHover={{
-                  scale: 1.25,
-                  color: s.color,
-                  y: -5,
-                  textShadow: "0 0 14px rgba(248,250,252,0.9)",
-                  transition: { duration: 0.2, y: { duration: 0.2, repeat: 0 } }
-                }}
-              >
-                <s.icon />
-                <span className="sr-only">{s.label}</span>
-              </motion.a>
-            ))}
-          </div>
-
-          {/* --- MODERN INDIAN TECH CLOCK & DATE --- */}
-          <motion.div 
-            className="mt-10 inline-flex flex-col lg:items-start w-full select-none"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <div className="relative px-6 py-5 rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden group w-full max-w-md mx-auto lg:mx-0">
-              
-              {/* Subtle Tricolor Top Glow (Saffron, White, Green) */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-slate-100 to-green-500 opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-              
-              {/* Ashoka Chakra Blue Ambient Glow */}
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 relative z-10">
-                
-                {/* Greeting & Timezone */}
-                <div className="flex flex-col items-center sm:items-start">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-base font-semibold text-orange-400 drop-shadow-md">नमस्ते</span>
-                    <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">| NAMASTE</span>
-                  </div>
-                  
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-4xl sm:text-5xl font-light text-slate-100 tracking-tight leading-none drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                      {hours}<span className="text-orange-400 animate-pulse">:</span>{minutes}
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-green-400 leading-none drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">{seconds}</span>
-                      <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
-                        {ampm}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Vertical Divider (Hidden on Mobile) */}
-                <div className="hidden sm:block w-px h-16 bg-gradient-to-b from-transparent via-slate-600 to-transparent mt-2"></div>
-                {/* Horizontal Divider (Mobile Only) */}
-                <div className="block sm:hidden w-3/4 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent my-1"></div>
-
-                {/* Data & Location Readouts */}
-                <div className="flex flex-col justify-center font-mono text-[10px] text-slate-400 tracking-widest space-y-2.5 mt-2 sm:mt-1">
-                  
-                  <div className="flex items-center gap-3">
-                    <span className="text-slate-500 w-10 text-right sm:text-left">तिथि:</span>
-                    <span className="text-slate-200 font-semibold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">{dateStr}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <span className="text-slate-500 w-10 text-right sm:text-left">ZONE:</span>
-                    <span className="text-blue-400 font-bold flex items-center gap-2">
-                      IST (UTC+5:30)
-                      {/* Rotating "Chakra" Hologram Effect */}
-                      <motion.div 
-                        animate={{ rotate: 360 }} 
-                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                        className="w-3 h-3 rounded-full border-[1.5px] border-blue-500 border-t-transparent shadow-[0_0_5px_rgba(59,130,246,0.6)]"
-                      />
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-slate-500 w-10 text-right sm:text-left">BASE:</span>
-                    <span className="text-orange-300 font-bold flex items-center gap-1 drop-shadow-[0_0_5px_rgba(253,186,116,0.4)]">
-                      INDIA 🇮🇳
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </motion.div>
         </motion.div>
 
-        {/* VISUAL SIDE */}
-        <motion.div
-          className="order-1 lg:order-2 relative h-[260px] sm:h-[320px] lg:h-[480px] flex items-center justify-center"
-          variants={rightSideVariants}
+        {/* SUBTITLE */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
+          className="text-slate-400 text-sm sm:text-sm md:text-base max-w-md mx-auto leading-relaxed mb-4 font-light tracking-wide"
         >
-          <div className="relative w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] lg:w-[340px] lg:h-[340px]">
-            <motion.div
-              className="absolute inset-[-10%] rounded-full border border-sky-400/15"
-              style={{ boxShadow: "0 0 16px rgba(56,189,248,0.25)" }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
-            />
+          Crafting immaculate digital experiences. Bridging profound technical architecture with flawless aesthetic design.
+        </motion.p>
 
-            <motion.div
-              className="absolute inset-[4%] rounded-full border border-indigo-400/18 border-dashed"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-            />
-
-            <motion.div
-              className="absolute inset-[20%] rounded-full border border-slate-500/18"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-            >
-              <span className="absolute -left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.7)]" />
-              <span className="absolute -right-1 top-1/3 -translate-y-1/2 h-2 w-2 rounded-full bg-fuchsia-400 shadow-[0_0_6px_rgba(244,114,182,0.7)]" />
-            </motion.div>
-
-            <motion.div
-              className="absolute inset-[24%] rounded-[36%] bg-gradient-to-br from-cyan-400/60 via-sky-300/50 to-indigo-500/60"
-              animate={{
-                borderRadius: [
-                  "40% 60% 55% 45% / 40% 40% 60% 60%",
-                  "70% 30% 50% 50% / 40% 70% 30% 60%",
-                  "45% 55% 40% 60% / 65% 35% 55% 35%"
-                ],
-                rotate: [0, 8, -6, 0],
-                boxShadow: [
-                  "0 0 24px rgba(56,189,248,0.45)",
-                  "0 0 30px rgba(129,140,248,0.55)",
-                  "0 0 26px rgba(56,189,248,0.5)"
-                ]
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(248,250,252,0.5),transparent_55%),radial-gradient(circle_at_70%_80%,rgba(34,211,238,0.6),transparent_60%)] mix-blend-screen" />
-            </motion.div>
-
-            <motion.div
-              className="absolute left-1/2 top-1/2 w-[150px] sm:w-[170px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-slate-950/55 border border-slate-500/30 shadow-[0_12px_26px_rgba(15,23,42,0.75)] flex flex-col items-center justify-center gap-1 py-4 backdrop-blur-xl"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="h-12 w-12 rounded-full bg-slate-900/70 flex items-center justify-center text-3xl shadow-[0_0_12px_rgba(56,189,248,0.6)]">
-                👨‍💻
-              </div>
-              <div className="mt-1 text-center">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-100">
-                  Portfolio
-                </p>
-                <p className="text-sm font-semibold text-sky-100">
-                  Sarvjeet
-                </p>
-              </div>
-            </motion.div>
-
-        {/* ✅ ADDED: Only render these heavy particles on desktop */}
-            {!isMobile && particleData.map((particle, i) => (
-              <motion.div
-                key={i}
-                className="absolute h-1.5 w-1.5 rounded-full bg-sky-300/70 will-change-transform"
-                style={{
-                  top: `${particle.top}%`,
-                  left: `${particle.left}%`,
-                  boxShadow: "0 0 8px rgba(56,189,248,0.75)"
-                }}
-                animate={{
-                  y: [0, -5, 0],
-                  x: [0, i % 2 === 0 ? 6 : -6, 0],
-                  opacity: [0.18, 0.7, 0.18]
-                }}
-                transition={{
-                  duration: particle.duration,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.2
-                }}
-              />
-            ))}
-          </div>
+        {/* ACTION BUTTONS */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.7 }}
+          className="flex flex-row items-center gap-6 sm:gap-9 mb-4"
+        >
+          <motion.a
+            href="#projects"
+            className="flex items-center gap-1.5 text-white border-b border-white/40 pb-0.5 text-base sm:text-base font-medium tracking-wide hover:text-slate-300 hover:border-slate-400 transition-colors"
+            whileHover={{ y: -2 }}
+          >
+            Explore Work <Icons.ArrowRight size={14} />
+          </motion.a>
+          <motion.a
+            href="/sarvjeetrajverma_resume.pdf"
+            download="SarvjeetRajVerma_Resume.pdf"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-200 transition-colors text-base sm:text-base font-medium tracking-wide"
+            whileHover={{ y: -2 }}
+          >
+            Resume <Icons.Download size={13} />
+          </motion.a>
         </motion.div>
+
+        {/* SOCIALS — horizontal row */}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }}
+          className="flex items-center gap-6 sm:gap-7"
+        >
+          {socials.map((s) => (
+            <motion.a
+              key={s.label} href={s.link} target="_blank" rel="noreferrer"
+              className="text-slate-600 hover:text-white transition-colors duration-300"
+              whileHover={{ y: -3 }}
+            >
+              <s.icon size={20} />
+              <span className="sr-only">{s.label}</span>
+            </motion.a>
+          ))}
+        </motion.div>
+
+        {/* HOLIDAY BANNER — bottom of screen */}
+        <AnimatePresence>
+          {activeHoliday && showHolidayBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 text-slate-600 text-[10px] tracking-widest uppercase font-medium"
+            >
+              <span>{activeHoliday.icon}</span>
+              <span className="truncate max-w-[220px] sm:max-w-none">{activeHoliday.name} — {activeHoliday.note}</span>
+              <button onClick={() => setShowHolidayBanner(false)} className="hover:text-slate-300 transition-colors">
+                <Icons.Close size={11} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.section>
   );

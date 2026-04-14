@@ -1,325 +1,317 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTerminal, FaFileDownload, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { SiReact, SiNodedotjs, SiCplusplus, SiLeetcode } from 'react-icons/si';
+import {
+  FaChevronLeft, FaChevronRight, FaCode, FaBolt, FaMagic,
+  FaRocket, FaRobot, FaCamera, FaGraduationCap, FaTrophy, FaRoute,
+  FaTerminal, FaNetworkWired, FaServer, FaCodeBranch, FaBrain,
+  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaJava
+} from 'react-icons/fa';
+import {
+  SiReact, SiNodedotjs, SiCplusplus, SiNextdotjs, SiTailwindcss, SiMongodb,
+  SiTypescript, SiFramer, SiRedux, SiExpress, SiPython, SiGraphql,
+  SiPostgresql, SiMysql, SiRedis, SiSupabase, SiGithubactions,
+  SiDocker, SiLinux, SiVercel
+} from 'react-icons/si';
 
-// Import all profile images
 import pf5 from '../assets/pf5.webp';
 import pf from '../assets/pf.jpeg';
 import pf7 from '../assets/pf7.webp';
 import pf8 from '../assets/pf8.webp';
 import srvprofile from '../assets/srvprofile.jpeg';
-// Profile images array
-const profileImages = [
-  pf,
-  pf5,
-  pf7,
-  pf8,
-  srvprofile,
-]
 
-// Generate stars once
-const generateStars = () => [...Array(50)].map(() => ({
-  top: `${Math.random() * 100}%`,
-  left: `${Math.random() * 100}%`,
-  size: Math.random() * 2 + 1 + 'px',
-  opacity: Math.random(),
-  duration: Math.random() * 3 + 2,
-  delay: Math.random() * 5,
-}));
+const profileImages = [pf, pf5, pf7, pf8, srvprofile];
+
+const systemModules = [
+  {
+    id: 'frontend', title: 'Frontend', color: 'cyan', icon: <FaNetworkWired />,
+    content: [
+      { name: "React.js", level: 60, logo: <SiReact />, meta: "UI Architecture", brand: "#61DAFB" },
+      { name: "Next.js", level: 10, logo: <SiNextdotjs />, meta: "Full-Stack React", brand: "#FFFFFF" },
+      { name: "TypeScript", level: 10, logo: <SiTypescript />, meta: "Static Typing", brand: "#3178C6" },
+      { name: "Tailwind CSS", level: 30, logo: <SiTailwindcss />, meta: "Utility Styling", brand: "#06B6D4" },
+      { name: "Framer Motion", level: 20, logo: <SiFramer />, meta: "Animations", brand: "#0055FF" },
+      { name: "Redux", level: 10, logo: <SiRedux />, meta: "State Control", brand: "#764ABC" },
+    ]
+  },
+  {
+    id: 'backend', title: 'Backend', color: 'green', icon: <FaServer />,
+    content: [
+      { name: "Node.js", level: 10, logo: <SiNodedotjs />, meta: "V8 Runtime", brand: "#339933" },
+      { name: "Express.js", level: 10, logo: <SiExpress />, meta: "Web Framework", brand: "#FFFFFF" },
+      { name: "Python", level: 80, logo: <SiPython />, meta: "Data Processing", brand: "#3776AB" },
+      { name: "GraphQL", level: 10, logo: <SiGraphql />, meta: "Query Language", brand: "#E10098" },
+      { name: "REST APIs", level: 10, logo: <FaServer />, meta: "Architecture", brand: "#00FFCC" },
+      { name: "Java", level: 10, logo: <FaJava />, meta: "OOP Engine", brand: "#ED8B00" },
+    ]
+  },
+  {
+    id: 'database', title: 'Database', color: 'yellow', icon: <FaDatabase />,
+    content: [
+      { name: "PostgreSQL", level: 35, logo: <SiPostgresql />, meta: "Relational DB", brand: "#4169E1" },
+      { name: "MySQL", level: 90, logo: <SiMysql />, meta: "Structured DB", brand: "#4479A1" },
+      { name: "MongoDB", level: 50, logo: <SiMongodb />, meta: "NoSQL DB", brand: "#47A248" },
+      { name: "Redis", level: 10, logo: <SiRedis />, meta: "In-Memory Cache", brand: "#DC382D" },
+      { name: "Supabase", level: 10, logo: <SiSupabase />, meta: "BaaS Platform", brand: "#3ECF8E" },
+      { name: "SQL Server", level: 20, logo: <FaDatabase />, meta: "Enterprise DB", brand: "#CC292B" },
+    ]
+  },
+  {
+    id: 'devops', title: 'DevOps', color: 'purple', icon: <FaCodeBranch />,
+    content: [
+      { name: "Git & GitHub", level: 90, logo: <FaGithub />, meta: "Version Control", brand: "#FFFFFF" },
+      { name: "Docker", level: 10, logo: <SiDocker />, meta: "Containers", brand: "#2496ED" },
+      { name: "Linux CLI", level: 10, logo: <SiLinux />, meta: "Sys Administrations", brand: "#FCC624" },
+      { name: "AWS", level: 10, logo: <FaAws />, meta: "Cloud Services", brand: "#FF9900" },
+      { name: "CI/CD", level: 1, logo: <SiGithubactions />, meta: "Automated Pipelines", brand: "#2088FF" },
+      { name: "Vercel", level: 90, logo: <SiVercel />, meta: "Edge Network", brand: "#FFFFFF" },
+    ]
+  },
+  {
+    id: 'dsa', title: 'Core DSA', color: 'blue', icon: <FaBrain />,
+    content: [
+      { name: "C++", level: 60, logo: <SiCplusplus />, meta: "System Programming", brand: "#00599C" },
+      { name: "Data Strucs", level: 80, logo: <FaBrain />, meta: "Memory Layouts", brand: "#FF00FF" },
+      { name: "Graph Algos", level: 70, logo: <FaNetworkWired />, meta: "Pathfinding", brand: "#00FFFF" },
+      { name: "Complexity", level: 75, logo: <FaClock />, meta: "Operations Limit", brand: "#FFD700" },
+      { name: "OOP", level: 80, logo: <FaCube />, meta: "Software Design", brand: "#FF4500" },
+      { name: "Logic", level: 90, logo: <FaLaptopCode />, meta: "Problem Solving", brand: "#00FF00" },
+    ]
+  }
+];
+
+// Apple easing
+const ease = [0.22, 1, 0.36, 1];
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.85, ease, delay }
+});
 
 const About = () => {
-  const stars = generateStars();
-  
-  // State for profile image carousel
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [direction, setDirection] = useState(0); 
-  const [isSwiping, setIsSwiping] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
+  const [direction, setDirection] = useState(0);
+  const [activeTab, setActiveTab] = useState(systemModules[0].id);
+  const activeData = systemModules.find(m => m.id === activeTab);
 
-  // Helper function to change image
-  const changeImage = (newDirection) => {
-    setDirection(newDirection);
-    setCurrentImageIndex((prev) => {
-      let nextIndex = prev + newDirection;
-      if (nextIndex < 0) return profileImages.length - 1; 
-      if (nextIndex >= profileImages.length) return 0;
-      return nextIndex;
+  const changeImage = (dir) => {
+    setDirection(dir);
+    setCurrentImageIndex(prev => {
+      let n = prev + dir;
+      if (n < 0) return profileImages.length - 1;
+      if (n >= profileImages.length) return 0;
+      return n;
     });
   };
 
-  // Auto-change image every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      changeImage(1);
-    }, 5000);
+    const interval = setInterval(() => changeImage(1), 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Handle click to change image
-  const handleImageClick = () => {
-    changeImage(1);
-  };
-
-  // Handle previous/next buttons
-  const handlePrev = (e) => {
-    e.stopPropagation();
-    changeImage(-1);
-  };
-
-  const handleNext = (e) => {
-    e.stopPropagation();
-    changeImage(1);
-  };
-
-  // Touch handlers
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    setIsSwiping(true);
-  };
-
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    const swipeThreshold = 50;
-    const diff = touchStartX.current - touchEndX.current;
-    
-    if (Math.abs(diff) > swipeThreshold) {
-      if (diff > 0) {
-        changeImage(1);
-      } else {
-        changeImage(-1);
-      }
-    }
-    setIsSwiping(false);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
-  };
-
-  // --- SIMPLE FADE VARIANTS ---
-  const fadeVariants = {
-    enter: {
-      opacity: 0,
-      zIndex: 0,
-    },
-    center: {
-      zIndex: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    },
-    exit: {
-      zIndex: 0,
-      opacity: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    },
+  const slideVariants = {
+    enter: (d) => ({ x: d > 0 ? '60%' : '-60%', opacity: 0 }),
+    center: { x: 0, opacity: 1, transition: { duration: 0.6, ease } },
+    exit: (d) => ({ x: d < 0 ? '60%' : '-60%', opacity: 0, transition: { duration: 0.5, ease } }),
   };
 
   return (
-    // Minimal vertical padding (py-4 md:py-8) for maximum vertical space saving
-    <section id="about" className="w-full py-4 md:py-8 relative overflow-hidden text-white bg-transparent">
-      
-      {/* Background Layers */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent pointer-events-none"></div>
-      
-      {/* Stars */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        {stars.map((star, i) => (
-          <motion.div
-            key={i}
-            className="absolute bg-white rounded-full"
-            style={{ 
-              top: star.top, 
-              left: star.left, 
-              width: star.size, 
-              height: star.size,
-              opacity: star.opacity 
-            }}
-            animate={{ opacity: [star.opacity, 1, star.opacity] }}
-            transition={{ duration: star.duration, repeat: Infinity, delay: star.delay }}
-          />
-        ))}
-      </div>
+    <section id="about" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
 
-      <div className="max-w-[1440px] mx-auto px-4 md:px-12 relative z-10">
-        
-        {/* Main Panel - Ultra-slim vertical padding */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="relative bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-4 md:p-6 lg:px-10 lg:py-6 overflow-hidden shadow-2xl"
+      {/* Single ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+
+      <div className="relative z-10 max-w-[1100px] mx-auto px-6 md:px-10">
+
+        {/* Section label */}
+        <motion.p {...fadeUp()} className="text-xs sm:text-sm tracking-[0.35em] text-slate-600 uppercase font-medium mb-8 md:mb-10">
+          About
+        </motion.p>
+
+        {/* Massive headline */}
+        <motion.h2
+          initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 1, ease }}
+          className="text-[2.8rem] leading-[1.02] sm:text-[5rem] md:text-[7rem] lg:text-[9rem] lg:leading-[0.9] font-medium tracking-tighter text-white mb-6 md:mb-8"
         >
-          {/* Tech Lines */}
-          <div className="absolute top-0 left-10 w-32 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
-          <div className="absolute bottom-0 right-10 w-32 h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50"></div>
+          Developer <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Identity.</span>
+        </motion.h2>
 
-          <div className="flex flex-col md:flex-row items-center gap-6 lg:gap-12">
-            
-            {/* --- LEFT: PROFILE IMAGES (Compact Size) --- */}
-            <motion.div 
-              variants={itemVariants}
-              className="relative flex-shrink-0"
-            >
-                <div className="relative w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] flex items-center justify-center">
-                  
-                  {/* Rotating Rings */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 border border-cyan-500/20 rounded-full border-dashed"
-                  />
-                  <motion.div 
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-3 border border-purple-500/20 rounded-full border-t-2 border-transparent"
-                  />
+        {/* ── Profile + Bio row ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-start mb-10 md:mb-14">
 
-                  {/* Profile Image Container */}
-                  <div 
-                    className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-gray-800/80 shadow-[0_0_30px_rgba(6,182,212,0.1)] z-10 bg-black group cursor-pointer"
-                    onClick={handleImageClick}
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                  >
-                  {/* ANIMATED IMAGE - SIMPLE FADE */}
-                    <AnimatePresence initial={false} mode="sync">
-                      <motion.img
-                        key={currentImageIndex}
-                        variants={fadeVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                        src={profileImages[currentImageIndex]}
-                        alt="Sarvjeet Raj Verma"
-                      />
-                    </AnimatePresence>
-
-                    {/* {/* --- HOLOGRAPHIC SWEEP ANIMATION --- */}
-                   {/* <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-full">
-                      <motion.div
-                        animate={{ x: ['-100%', '200%'] }}
-                        transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-400/25 to-transparent"
-                      />
-                    </div> */}
-                    {/* ------------------------------------------- */}
-
-                    {/* Vertical Scanner Line */}
-                    <motion.div 
-                     animate={{ top: ['0%', '100%', '0%'] }}
-                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                     className="absolute left-0 w-full h-[1.5px] bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] z-20 opacity-40 pointer-events-none"
+          {/* Profile image */}
+          <motion.div {...fadeUp(0.1)}>
+            <div className="relative w-full max-w-[300px] mx-auto lg:mx-0 aspect-square rounded-2xl overflow-hidden" style={{ background: 'rgba(13,5,20,0.7)' }}>
+              <AnimatePresence custom={direction} initial={false}>
+                <motion.img
+                  key={currentImageIndex}
+                  src={profileImages[currentImageIndex]}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter" animate="center" exit="exit"
+                  alt="Sarvjeet Profile"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+              </AnimatePresence>
+              {/* Nav arrows */}
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-3 pb-3 opacity-0 hover:opacity-100 transition-opacity">
+                <button onClick={() => changeImage(-1)} className="w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"><FaChevronLeft size={12} /></button>
+                <div className="flex gap-1.5">
+                  {profileImages.map((_, i) => (
+                    <button key={i} onClick={() => { setDirection(i > currentImageIndex ? 1 : -1); setCurrentImageIndex(i); }}
+                      className="w-1 h-1 rounded-full transition-all duration-300"
+                      style={{ background: i === currentImageIndex ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)', transform: i === currentImageIndex ? 'scale(1.6)' : 'scale(1)' }}
                     />
-                    {/* ------------------------------------------- */}
-                    
-                    {/* Glow Border */}
-                    <motion.div
-                      animate={{ 
-                        boxShadow: [
-                          '0 0 15px rgba(6,182,212,0.2)',
-                          '0 0 30px rgba(168,85,247,0.2)',
-                          '0 0 15px rgba(6,182,212,0.2)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 rounded-full border-2 border-transparent pointer-events-none z-20"
-                    />
-                    
-                    {/* Static Cyan Overlay */}
-                    <div className="absolute inset-0 bg-cyan-500/10 mix-blend-overlay pointer-events-none z-20"></div>
-                  </div>
-
-                  {/* Navigation Arrows */}
-                  <button onClick={handlePrev} className="absolute left-[-15px] md:left-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-gray-900/80 rounded-full text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all md:opacity-0 md:group-hover:opacity-100"><FaChevronLeft size={10} /></button>
-                  <button onClick={handleNext} className="absolute right-[-15px] md:right-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-gray-900/80 rounded-full text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all md:opacity-0 md:group-hover:opacity-100"><FaChevronRight size={10} /></button>
-               </div>
-            </motion.div>
-
-            {/* --- RIGHT: TEXT CONTENT (Horizontal Focus) --- */}
-            <div className="flex-grow w-full flex flex-col justify-center space-y-4">
-              
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between border-b border-gray-700/40 pb-3">
-                <motion.div variants={itemVariants} className="text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-cyan-400 mb-0.5">
-                    <FaTerminal className="text-[10px]" />
-                    <span className="font-mono text-[9px] tracking-[0.2em] uppercase">Identity Card</span>
-                  </div>
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-none">
-                    Sarvjeet <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Raj Verma</span>
-                  </h1>
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="mt-2 lg:mt-0 text-center md:text-left lg:text-right">
-                  <p className="text-gray-400 text-xs md:text-sm font-medium">Full Stack Developer & Tech Enthusiast</p>
-                  <p className="text-gray-500 text-[10px] md:text-xs">Merging logic with creativity for digital excellence.</p>
-                </motion.div>
-              </div>
-
-              {/* Core Systems Row - Spans horizontally */}
-              <div className="flex flex-wrap items-center gap-3">
-                 <motion.div variants={itemVariants} className="flex-1 min-w-[140px] flex items-center gap-3 p-2.5 rounded-2xl bg-gray-800/30 border border-gray-700/50 hover:bg-gray-800/50 transition-all">
-                    <div className="p-2 bg-cyan-500/10 rounded-xl text-cyan-400"><SiReact size={18}/></div>
-                    <div>
-                      <p className="text-[8px] text-gray-500 font-mono uppercase leading-none mb-1">Frontend</p>
-                      <h4 className="text-[11px] font-bold text-white">Next.js / React</h4>
-                    </div>
-                 </motion.div>
-                 
-                 <motion.div variants={itemVariants} className="flex-1 min-w-[140px] flex items-center gap-3 p-2.5 rounded-2xl bg-gray-800/30 border border-gray-700/50 hover:bg-gray-800/50 transition-all">
-                    <div className="p-2 bg-green-500/10 rounded-xl text-green-400"><SiNodedotjs size={18}/></div>
-                    <div>
-                      <p className="text-[8px] text-gray-500 font-mono uppercase leading-none mb-1">Backend</p>
-                      <h4 className="text-[11px] font-bold text-white">Node / Express</h4>
-                    </div>
-                 </motion.div>
-
-                 <motion.div variants={itemVariants} className="flex-1 min-w-[140px] flex items-center gap-3 p-2.5 rounded-2xl bg-gray-800/30 border border-gray-700/50 hover:bg-gray-800/50 transition-all">
-                    <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><SiCplusplus size={18}/></div>
-                    <div>
-                      <p className="text-[8px] text-gray-500 font-mono uppercase leading-none mb-1">Logic</p>
-                      <h4 className="text-[11px] font-bold text-white">DSA Core</h4>
-                    </div>
-                 </motion.div>
-              </div>
-
-              {/* Simple Footer Row */}
-              <motion.div variants={itemVariants} className="flex items-center justify-between pt-2">
-                <a href="/sarvjeetrajverma_resume.pdf" download className="flex items-center gap-2 px-6 py-2 bg-cyan-600/10 border border-cyan-500/40 text-cyan-400 font-bold rounded-xl hover:bg-cyan-500 hover:text-black transition-all text-[10px] group">
-                  <FaFileDownload className="group-hover:animate-bounce" /> DOWNLOAD DATA
-                </a>
-                
-                <div className="hidden md:flex items-center gap-4 text-[9px] font-mono text-gray-600 uppercase tracking-[0.3em]">
-                   <span>System.Status: Active</span>
-                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  ))}
                 </div>
-              </motion.div>
-
+                <button onClick={() => changeImage(1)} className="w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"><FaChevronRight size={12} /></button>
+              </div>
             </div>
+            <div className="mt-5 text-center lg:text-left">
+              <p className="text-white text-lg font-medium tracking-tight">Sarvjeet</p>
+              <p className="text-slate-400 text-base mt-1">Full-Stack Engineer & AI Explorer</p>
+            </div>
+          </motion.div>
+
+          {/* Bio text */}
+          <motion.div {...fadeUp(0.15)} className="flex flex-col justify-center">
+            <div className="space-y-6 text-slate-400 text-lg sm:text-xl md:text-2xl leading-relaxed font-light mb-10">
+              <p>
+                I bridge the gap between heavy-lifting backend logic and pixel-perfect interfaces. As a 3rd-year CS student at <span className="text-white font-normal">Katihar Engineering College</span>, my foundation is built on the MERN stack, Tailwind, and Framer Motion.
+              </p>
+              <p>
+                I am deeply invested in the future of computation — <span className="text-slate-300">Generative & Agentic AI systems</span>.
+              </p>
+              <p className="text-slate-500 text-base sm:text-lg">
+                Beyond the IDE, I thrive in hands-on environments—from leading technical execution for <span className="text-slate-300">TechFusion</span> and designing combat models for Robo War events, to analyzing exposure histograms while photographing the landscapes of Sikkim.
+              </p>
+            </div>
+
+            {/* Tags — minimal pill style */}
+            <div className="flex flex-wrap gap-2.5">
+              {[
+                { icon: <FaCode size={13} />, label: 'MERN Stack' },
+                { icon: <FaBolt size={13} />, label: 'Agentic AI' },
+                { icon: <FaRobot size={13} />, label: 'Combat Robotics' },
+                { icon: <FaCamera size={13} />, label: 'Photography' },
+              ].map(tag => (
+                <span key={tag.label} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-400 border border-white/[0.08] rounded-full tracking-wide hover:text-white hover:border-white/20 transition-colors duration-300 cursor-default">
+                  {tag.icon} {tag.label}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── Tech Skills ── */}
+        <div id="skills" className="mb-10 md:mb-14">
+          <motion.p {...fadeUp()} className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8">
+            Tech Skills
+          </motion.p>
+
+          {/* Tab pills */}
+          <motion.div {...fadeUp(0.05)} className="flex flex-wrap gap-2 mb-8">
+            {systemModules.map(m => (
+              <button
+                key={m.id}
+                onClick={() => setActiveTab(m.id)}
+                className={`px-4 py-2 text-xs font-medium rounded-full border tracking-wide transition-all duration-300 ${activeTab === m.id
+                    ? 'border-white/30 text-white bg-white/[0.06]'
+                    : 'border-white/[0.06] text-slate-500 hover:text-slate-300 hover:border-white/15'
+                  }`}
+              >
+                {m.title}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Skills grid */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
+            >
+              {activeData.content.map((skill, i) => (
+                <div key={skill.name} className="flex flex-col gap-2.5 p-4 border border-white/[0.06] rounded-xl hover:border-white/15 transition-colors duration-300">
+                  <div className="flex items-center gap-2">
+                    <div className="text-base" style={{ color: skill.brand }}>{skill.logo}</div>
+                    <span className="text-sm font-medium text-slate-300 truncate">{skill.name}</span>
+                  </div>
+                  <div className="h-px w-full bg-white/[0.05] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.9, delay: i * 0.05, ease }}
+                      className="h-full origin-left bg-white/20"
+                      style={{ width: `${skill.level}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-slate-500">{skill.level}%</span>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* ── Current Trajectory ── */}
+        <div className="mb-10 md:mb-14">
+          <motion.p {...fadeUp()} className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8">
+            Current Trajectory
+          </motion.p>
+          <div className="space-y-0 divide-y divide-white/[0.05]">
+            {[
+              { icon: <FaGraduationCap />, label: 'Education', title: 'B.Tech CSE (3rd Year)', sub: 'Katihar Engineering College · 7.92 CGPA', year: '2023 — Present' },
+              { icon: <FaTrophy />, label: 'Role', title: 'Tech Team Lead', sub: "Core Coordinator @ TechFusion'26", year: '2025 — 2026' },
+              { icon: <FaRoute />, label: 'Focus', title: 'Agentic AI Mastery', sub: 'Executing a 10-month advanced roadmap', year: 'Ongoing' },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.7, ease, delay: i * 0.08 }}
+                className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-7 -mx-4 px-4 hover:bg-white/[0.02] rounded-xl transition-colors duration-300"
+              >
+                <div className="flex items-start sm:items-center gap-5">
+                  <span className="text-slate-500 mt-0.5 shrink-0 text-lg">{item.icon}</span>
+                  <div>
+                    <h3 className="text-white text-base sm:text-xl font-medium tracking-tight">{item.title}</h3>
+                    <p className="text-slate-400 text-sm sm:text-base mt-1 font-light">{item.sub}</p>
+                  </div>
+                </div>
+                <span className="text-xs tracking-widest text-slate-600 uppercase font-medium pl-10 sm:pl-0 shrink-0">{item.year}</span>
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
+        </div>
+
+        {/* ── Development Workflow ── */}
+        {/* <div>
+          <motion.p {...fadeUp()} className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8">
+            Development Workflow
+          </motion.p>
+          <motion.p {...fadeUp(0.05)} className="text-slate-400 text-base sm:text-lg mb-10">A systematic approach to engineering web applications.</motion.p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.05]">
+            {[
+              { icon: <FaMagic />, step: '01', title: 'Interface Architecture', desc: 'Designing intuitive, motion-rich user experiences with React and Framer Motion.' },
+              { icon: <FaCode />, step: '02', title: 'Full-Stack Implementation', desc: 'Building robust server-side logic and database schemas using Node.js and MongoDB.' },
+              { icon: <FaRocket />, step: '03', title: 'Optimization & Delivery', desc: 'Ensuring cross-device scalability, clean state management, and optimized web vitals.' },
+            ].map((step, i) => (
+              <motion.div
+                key={step.step}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.7, ease, delay: i * 0.1 }}
+                className="card-frosted p-8 md:p-10 hover:bg-white/[0.04] transition-colors duration-300 group"
+              >
+                <div className="text-xs tracking-[0.3em] text-slate-600 uppercase mb-5">{step.step}</div>
+                <div className="text-slate-500 mb-5 group-hover:text-slate-400 transition-colors text-2xl">{step.icon}</div>
+                <h4 className="text-white text-base sm:text-lg font-medium mb-3 tracking-tight">{step.title}</h4>
+                <p className="text-slate-500 text-sm sm:text-base leading-relaxed font-light">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+              */}
       </div>
     </section>
   );

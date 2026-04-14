@@ -49,7 +49,7 @@ const experiences = [
   {
     id: "04",
     role: "High School",
-    institution: "+2 High School,Ghosi",
+    institution: "+2 High School, Ghosi",
     period: "2019 - 2020",
     status: "ARCHIVED",
     color: "blue",
@@ -62,168 +62,101 @@ const experiences = [
   }
 ];
 
-// Tech "Boot-up" Animation Variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  }
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, scale: 0.9, y: 20, filter: "brightness(0) contrast(200%)" },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    y: 0,
-    filter: "brightness(1) contrast(100%)",
-    transition: { type: "spring", stiffness: 200, damping: 15 }
-  }
-};
-
-// Color mapping for dynamic neon glows
-const neonColors = {
-  cyan: "text-cyan-400 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)]",
-  orange: "text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]",
-  purple: "text-purple-400 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.3)]",
-  blue: "text-blue-400 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-};
-
-const hoverGlow = {
-  cyan: "group-hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] group-hover:border-cyan-400",
-  orange: "group-hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] group-hover:border-orange-400",
-  purple: "group-hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] group-hover:border-purple-400",
-  blue: "group-hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] group-hover:border-blue-400"
-};
-
-// Fixed bar heights to avoid re-render issues
-const barHeights = [8, 12, 6, 10];
+const ease = [0.22, 1, 0.36, 1];
 
 const Experience = () => {
   const scrollContainerRef = React.useRef(null);
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = window.innerWidth * 0.85;
       scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        left: direction === 'left' ? -(window.innerWidth * 0.85) : window.innerWidth * 0.85,
         behavior: 'smooth'
       });
     }
   };
 
   return (
-    <section id="experience" className="w-full py-20 bg-transparent text-white relative overflow-hidden font-sans">
-      
-      {/* HUD Dot Matrix Background - Kept the dots for the tech vibe, but no solid background */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#4b5563 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-      
-      {/* REMOVED: The black/30 gradient fade has been entirely removed 
-        so it doesn't darken your custom background. 
-      */}
+    <section id="experience" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10 font-sans">
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        
-        {/* Terminal Header */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.1 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-800/50 pb-4"
+      {/* Ambient glow */}
+      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+
+      <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
+
+        {/* Section label */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 0.7, ease }}
+          className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8 md:mb-10"
         >
-          <div>
-            <div className="flex items-center gap-2 mb-2 text-cyan-500 font-mono text-sm tracking-widest">
-              <span className="w-2 h-2 bg-cyan-500 animate-pulse"></span>
-              <span>// -- ACADEMICS TIMELINES :</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-gray-100 flex items-center gap-3 drop-shadow-md">
-              Data <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Logs</span>
-              <span className="animate-pulse text-cyan-500">_</span>
-            </h2>
-          </div>
+          Academics Timeline
+        </motion.p>
 
-          <div className="flex gap-2">
-            {/* REMOVED: bg-black/50 and backdrop-blur. Now 100% transparent */}
-            <button onClick={() => scroll('left')} className="p-3 bg-transparent border border-gray-700/50 text-gray-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-all font-mono">
-              <FaChevronLeft />
+        {/* Headline */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 1, ease }}
+            className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-10 md:mb-14"
+          >
+            Data <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Logs.</span>
+          </motion.h2>
+
+          {/* Scroll nav */}
+          <div className="flex md:hidden gap-2">
+            <button onClick={() => scroll('left')} className="w-10 h-10 rounded-full border border-white/[0.08] text-slate-500 hover:text-white hover:border-white/20 transition-all flex items-center justify-center">
+              <FaChevronLeft size={12} />
             </button>
-            <button onClick={() => scroll('right')} className="p-3 bg-transparent border border-gray-700/50 text-gray-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-all font-mono">
-              <FaChevronRight />
+            <button onClick={() => scroll('right')} className="w-10 h-10 rounded-full border border-white/[0.08] text-slate-500 hover:text-white hover:border-white/20 transition-all flex items-center justify-center">
+              <FaChevronRight size={12} />
             </button>
           </div>
-        </motion.div>
+        </div>
 
-        {/* HUD Grid Container */}
-        <motion.div 
+        {/* Cards grid */}
+        <motion.div
           ref={scrollContainerRef}
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide"
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide"
         >
-          {experiences.map((exp) => (
+          {experiences.map((exp, i) => (
             <motion.div
               key={exp.id}
-              variants={cardVariants}
-              className={`min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative bg-transparent border ${neonColors[exp.color]} ${hoverGlow[exp.color]} transition-all duration-500 ease-out`}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.7, ease, delay: i * 0.08 }}
+              className="min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative card-frosted p-8 hover:bg-white/[0.05] transition-colors duration-500"
             >
-              {/* HUD Brackets (Corners) */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/30 group-hover:border-white transition-colors"></div>
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/30 group-hover:border-white transition-colors"></div>
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/30 group-hover:border-white transition-colors"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/30 group-hover:border-white transition-colors"></div>
-
-              {/* Top Status Bar */}
-              <div className="flex justify-between items-center px-4 py-2 border-b border-gray-800/50 bg-transparent">
-                <span className="text-[10px] font-mono text-gray-400 tracking-widest">ID: {exp.id}</span>
-                <span className={`text-[10px] font-mono font-bold tracking-widest flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-green-400' : 'text-gray-500'}`}>
-                  {exp.status === 'SYS_ACTIVE' && <span className="w-1.5 h-1.5 bg-green-400 animate-pulse"></span>}
+              {/* ID & Status */}
+              <div className="flex justify-between items-center mb-8">
+                <span className="text-[10px] font-mono text-slate-700 tracking-widest">ID: {exp.id}</span>
+                <span className={`text-[10px] font-mono tracking-widest flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-emerald-500' : 'text-slate-700'}`}>
+                  {exp.status === 'SYS_ACTIVE' && <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />}
                   [{exp.status}]
                 </span>
               </div>
 
-              <div className="p-6">
-                {/* Icon & Title */}
-                <div className="flex items-start gap-4 mb-6">
-                  <div className={`text-3xl ${neonColors[exp.color].split(' ')[0]} drop-shadow-[0_0_8px_currentColor]`}>
-                    {exp.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-100 leading-tight drop-shadow-md">
-                      {exp.role}
-                    </h3>
-                    <p className="text-xs text-gray-400 font-mono mt-1 flex items-center gap-1">
-                      <span className="text-gray-500">@</span> {exp.institution}
-                    </p>
-                  </div>
-                </div>
+              {/* Icon & Title */}
+              <div className="mb-8">
+                <div className="text-slate-500 mb-4 group-hover:text-slate-300 transition-colors text-2xl">{exp.icon}</div>
+                <h3 className="text-white text-2xl font-medium tracking-tight leading-tight mb-2">{exp.role}</h3>
+                <p className="text-slate-400 text-sm font-light">@ {exp.institution}</p>
+              </div>
 
-                {/* Data List (Terminal Style) */}
-                <div className="space-y-3 font-mono text-xs">
-                  {exp.details.map((detail, i) => (
-                    <div key={i} className="flex flex-col gap-1 border-l border-gray-700/50 pl-3 group-hover:border-gray-400 transition-colors">
-                      <span className="text-gray-400 uppercase flex items-center gap-2">
-                        <span className="text-gray-600">{'>'}</span> {detail.label}
-                      </span>
-                      <span className="text-gray-200 font-medium tracking-wide drop-shadow-sm">{detail.value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom Timeline */}
-                <div className="mt-8 flex justify-between items-end">
-                  <div className="flex space-x-1">
-                    {barHeights.map((height, i) => (
-                      <div key={i} className="w-1 bg-gray-700/50 group-hover:bg-cyan-400 transition-all" style={{ height: `${height}px` }}></div>
-                    ))}
+              {/* Details list */}
+              <div className="space-y-5 border-t border-white/[0.05] pt-6">
+                {exp.details.map((detail, j) => (
+                  <div key={j}>
+                    <span className="text-[11px] tracking-widest text-slate-600 uppercase font-medium">{detail.label}</span>
+                    <p className="text-slate-200 text-base font-light mt-1">{detail.value}</p>
                   </div>
-                  <span className={`text-xs font-mono px-2 py-1 bg-transparent border border-gray-700/50 ${neonColors[exp.color].split(' ')[0]}`}>
-                    {exp.period}
-                  </span>
-                </div>
+                ))}
+              </div>
+
+              {/* Period */}
+              <div className="mt-8 pt-6 border-t border-white/[0.05]">
+                <span className="text-sm font-mono text-slate-500">{exp.period}</span>
               </div>
             </motion.div>
           ))}

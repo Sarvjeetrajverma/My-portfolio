@@ -26,108 +26,101 @@ const testimonials = [
   }
 ];
 
+const ease = [0.22, 1, 0.36, 1];
+
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    // Strictly transparent background
-    <section id="testimonials" className="w-full py-12 md:py-24 bg-transparent text-white z-0 overflow-hidden">
-      <div className="max-w-[1000px] mx-auto px-4 sm:px-6">
-        
-        {/* Section Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8 md:mb-16"
-        >
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-3">
-            Peer <span className="text-teal-400 font-light italic">Perspectives.</span>
-          </h2>
-          <div className="w-12 md:w-16 h-[2px] bg-teal-500/50 rounded-full" />
-        </motion.div>
+    <section id="testimonials" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
 
-        {/* Main Interactive Container */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-12">
-          
-          {/* --- MOBILE: Swipeable Pills | DESKTOP: Vertical List --- */}
-          <div className="w-full md:w-1/3 flex md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden touch-pan-x">
-            {testimonials.map((item, index) => {
-              const isActive = activeIndex === index;
+      {/* Ambient glow */}
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.04) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+
+      <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
+
+        {/* Section label */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 0.7, ease }}
+          className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-10 md:mb-14"
+        >
+          Peer Perspectives
+        </motion.p>
+
+        {/* Headline */}
+        <motion.h2
+          initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          transition={{ duration: 1, ease }}
+          className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-16"
+        >
+          Peer <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Perspectives.</span>
+        </motion.h2>
+
+        {/* Selector tabs + quote area */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16">
+
+          {/* Left: selector list */}
+          <div className="w-full md:w-1/3 flex md:flex-col gap-2 md:gap-0 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide divide-y-0 md:divide-y divide-white/[0.05]">
+            {testimonials.map((item, i) => {
+              const isActive = activeIndex === i;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveIndex(index)}
-                  // touch-manipulation ensures fast tap response on mobile
-                  className="relative group flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl text-left transition-colors duration-300 min-w-max md:min-w-0 touch-manipulation"
+                  onClick={() => setActiveIndex(i)}
+                  className="relative group flex items-center gap-4 py-5 px-3 md:px-0 text-left transition-colors duration-300 min-w-max md:min-w-0 shrink-0"
                 >
-                  {/* Fluid Active Background (Adapts perfectly to mobile pill vs desktop card) */}
+                  {/* Active indicator bar */}
                   {isActive && (
-                    <motion.div 
-                      layoutId="activeTabBackground"
-                      className="absolute inset-0 bg-white/[0.04] border border-teal-400/30 rounded-xl md:shadow-[0_0_15px_rgba(20,184,166,0.05)]"
-                      initial={false}
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    <motion.div
+                      layoutId="activeBar"
+                      className="absolute left-0 top-0 bottom-0 w-px bg-white/40 hidden md:block"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     />
                   )}
-                  
-                  {/* Subtle hover background for inactive tabs */}
-                  {!isActive && (
-                    <div className="absolute inset-0 bg-white/[0.02] border border-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  )}
-
-                  <div className={`relative z-10 text-lg md:text-xl transition-colors duration-300 ${isActive ? 'text-teal-400' : 'text-gray-500 group-hover:text-gray-400'}`}>
+                  <div className={`text-base transition-colors duration-300 md:ml-4 ${isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-400'}`}>
                     {item.icon}
                   </div>
-                  
-                  <div className="relative z-10 pr-2 md:pr-0">
-                    <h4 className={`font-semibold text-[15px] md:text-base whitespace-nowrap md:whitespace-normal transition-colors duration-300 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`}>
+                  <div>
+                    <h4 className={`text-base sm:text-lg font-medium whitespace-nowrap md:whitespace-normal transition-colors duration-300 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-400'}`}>
                       {item.name}
                     </h4>
-                    {/* Hidden on mobile to save space, visible on desktop */}
-                    <p className="hidden md:block text-xs text-gray-500 uppercase tracking-wider font-semibold mt-1">
-                      {item.role}
-                    </p>
+                    <p className="text-xs sm:text-sm text-slate-700 uppercase tracking-wider font-medium mt-1">{item.role}</p>
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* --- ACTIVE CONTENT DISPLAY --- */}
-          <div className="w-full md:w-2/3 relative flex flex-col justify-center mt-2 md:mt-0">
-            {/* Large Decorative Quote - Scaled down slightly for mobile */}
-            <FaQuoteLeft className="absolute -top-4 -left-2 md:-top-6 md:-left-4 text-6xl md:text-7xl text-white/[0.03] z-0 pointer-events-none" />
-            
-            <div className="relative z-10 w-full min-h-[160px] md:min-h-[200px] border-l border-white/10 pl-5 md:pl-10 py-2 md:py-4">
+          {/* Right: active quote */}
+          <div className="w-full md:w-2/3 relative flex flex-col justify-center">
+            <FaQuoteLeft className="absolute -top-4 -left-2 text-5xl md:text-6xl text-white/[0.03] pointer-events-none" />
+
+            <div className="relative border-l border-white/[0.08] pl-8 md:pl-12 py-4">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeIndex}
-                  initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                  initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex flex-col h-full justify-center"
+                  transition={{ duration: 0.35, ease }}
                 >
-                  {/* Mobile-only role display (since we hid it from the pills) */}
-                  <div className="md:hidden text-teal-400/80 text-xs tracking-widest uppercase font-semibold mb-3">
+                  <div className="text-teal-500/70 text-[10px] tracking-widest uppercase font-medium mb-4 md:hidden">
                     {testimonials[activeIndex].role}
                   </div>
-
-                  <p className="text-lg md:text-2xl font-light leading-relaxed text-gray-300 mb-6 md:mb-8">
+                  <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed text-slate-300 mb-8">
                     "{testimonials[activeIndex].feedback}"
                   </p>
-                  
-                  <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium tracking-wide">
-                    <FaCheckCircle className="text-teal-500/80 text-sm" />
+                  <div className="flex items-center gap-2 text-slate-600 text-xs font-medium tracking-wide">
+                    <FaCheckCircle className="text-teal-600/80" />
                     <span>Verified Teammate / Peer</span>
                   </div>
                 </motion.div>
               </AnimatePresence>
             </div>
           </div>
-
         </div>
+
       </div>
     </section>
   );

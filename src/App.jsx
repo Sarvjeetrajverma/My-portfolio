@@ -10,7 +10,6 @@ import CustomCursor from "./components/CustomCursor";
 import Navbar from "./components/Navbar";
 import Home from "./sections/Home";
 import About from "./sections/About";
-import Skills from "./sections/Skills";
 import Projects from "./sections/Projects";
 import Experience from "./sections/Experience";
 import Testimonials from "./sections/Testimonials";
@@ -23,47 +22,29 @@ import IntroAnimation from './components/IntroAnimation';
 const MainPage = () => {
   return (
     <div
-      className="relative text-white min-h-screen bg-black overflow-hidden"
+      className="relative text-white min-h-screen bg-transparent overflow-hidden"
     >
-      {/* Global Background */}
+      {/* Global Background — pure black; each section manages its own subtle glow */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <ParticlesBackground />
-        
-        {/* Top Left Blob - Static on mobile, pulses lightly on desktop, reduced blur */}
-        <motion.div 
-          className="absolute -top-32 -left-32 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-10 md:opacity-20 blur-3xl md:blur-[100px]"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        {/* Bottom Right Blob - Static on mobile, pulses lightly on desktop */}
-        <motion.div 
-          className="absolute bottom-0 right-0 w-[70vw] sm:w-[50vw] md:w-[40vw] h-[70vw] sm:h-[50vw] md:h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-gradient-to-r from-[#302b63] via-[#00bf8f] to-[#1cd8d2] opacity-10 md:opacity-20 blur-3xl md:blur-[100px]"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-
-          style={{ willChange: "transform" }}
-        />
       </div>
 
-      <CustomCursor/>
+      <CustomCursor />
       <Navbar />
       <ScrollToTop />
       <div className="relative z-10">
-        <IntroAnimation/>
-        <Home/>
-        <About/>
-        <Skills/>
-        <Projects/>
-        <Experience/>
-        <Testimonials/>
+        <IntroAnimation />
+        <Home />
+        <About />
+        <Projects />
+        <Experience />
+        <Testimonials />
         <section id="travel">
           <TravelGallery />
         </section>
-        <SocialMedia/>
-        <Contact/>
-        <Footer/>
-        <Analytics/>
+        <SocialMedia />
+        <Contact />
+        <Footer />
+        <Analytics />
       </div>
     </div>
   );
@@ -81,7 +62,7 @@ const AnimatedRoutes = () => {
   );
 };
 
-export default function App(){
+export default function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />

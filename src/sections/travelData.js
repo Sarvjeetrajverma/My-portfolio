@@ -118,27 +118,4 @@ export const travelData = [
             p('var (15).jpeg', 'Assi Ghat', 'June 2024', 'Exploring the spiritual heart of Kashi.')
         ]
     },
-    {
-        id: 'barabar',
-        title: "Bihar, India",
-        date: "June 2022",
-        description: "An unforgettable journey through the rich heritage of Bihar, right here in the Barabar caves.",
-        coverImage: getImage('barabar (15).jpeg'),
-        photos: [
-            p('barabar (1).jpeg', 'Barabar caves', 'June 2022', "The timeless soul of Barabar caves."),
-            p('barabar (2).jpeg', 'Barabar caves', 'June 2022', 'Morning serenity: Boats drifting on the Barabar caves.'),
-            p('barabar (3).jpeg', 'Barabar caves', 'June 2022', 'The vibrant colors of the Barabar caves.'),
-            p('barabar (4).jpeg', 'Barabar caves', 'June 2022', 'A walk through the narrow, history-filled lanes.'),
-            p('barabar (5).jpeg', 'Barabar caves', 'June 2022', 'Sadhu on the ghats: A portrait of devotion.'),
-            p('barabar (6).jpeg', 'Barabar caves', 'June 2022', 'The architectural beauty of the Barabar caves.'),
-            p('barabar (7).jpeg', 'Barabar caves', 'June 2022', 'Boats at bank of the Barabar caves.'),
-            p('barabar (8).jpeg', 'Barabar caves', 'June 2022', 'The architectural beauty of the Barabar caves.'),
-            p('barabar (9).jpeg', 'Barabar caves', 'June 2022', 'Morning serenity: Boats drifting on the Barabar caves.'),
-            p('barabar (10).jpeg', 'Barabar caves', 'June 2022', 'The bustling energy of Barabar caves.'),
-            p('barabar (11).jpeg', 'Barabar caves', 'June 2022', 'The majestic view of boats at the Barabar caves.'),
-            p('barabar (12).jpeg', 'Barabar caves', 'June 2022', 'Ganga arti & The bustling energy of Barabar caves.'),
-            p('barabar (13).jpeg', 'Barabar caves', 'June 2022', 'Exploring the spiritual heart of Barabar caves.'),
-            p('barabar (14).jpeg', 'Barabar caves', 'June 2022', 'Exploring the spiritual heart of Barabar caves.')
-        ]
-    }
-];
+]

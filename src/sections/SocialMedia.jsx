@@ -3,105 +3,78 @@ import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter } from 'react-icons/fa6';
 
 const socialLinks = [
-  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', color: '#ffffff', action: 'FOLLOW' },
-  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/sarvjeetrajverma', color: '#0077b5', action: 'CONNECT' },
-  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/sarvjeetrajverma', color: '#e4405f', action: 'FOLLOW' },
-  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@sarvjeetrajverma', color: '#ff0000', action: 'SUBSCRIBE' },
-  { name: 'X', icon: FaXTwitter, url: 'https://twitter.com/itssarvjeet', color: '#ffffff', action: 'FOLLOW' }
+  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', action: 'Follow' },
+  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/sarvjeetrajverma', action: 'Connect' },
+  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/sarvjeetrajverma', action: 'Follow' },
+  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@sarvjeetrajverma', action: 'Subscribe' },
+  { name: 'X', icon: FaXTwitter, url: 'https://twitter.com/itssarvjeet', action: 'Follow' }
 ];
 
-const SocialButton = ({ social, index }) => {
-  return (
-    <motion.a
-      href={social.url}
-      target="_blank"
-      rel="noreferrer"
-      className="relative flex items-center gap-2 px-3 py-1.5 rounded overflow-hidden group"
-      style={{ 
-        backgroundColor: `${social.color}10`,
-        border: `1px solid ${social.color}40`
-      }}
-      initial={{ opacity: 0, x: -20, rotate: -2 }}
-      whileInView={{ opacity: 1, x: 0, rotate: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, type: "spring" }}
-      whileHover={{ 
-        scale: 1.08, 
-        borderColor: social.color,
-        boxShadow: `0 0 15px ${social.color}60`,
-        rotate: 1
-      }}
-      whileTap={{ scale: 0.95 }}
-    >
-      {/* Animated background glow */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ backgroundColor: social.color }}
-        initial={{ scale: 0, opacity: 0 }}
-        whileHover={{ scale: 1.5, opacity: 0.15 }}
-        transition={{ duration: 0.3 }}
-      />
-      
-      {/* Icon */}
-      <motion.div
-        animate={{ 
-          scale: [1, 1.1, 1],
-          rotate: [0, 5, -5, 0]
-        }}
-        transition={{ 
-          scale: { duration: 2, repeat: Infinity },
-          rotate: { duration: 3, repeat: Infinity }
-        }}
-      >
-        <social.icon className="text-sm relative z-10" style={{ color: social.color }} />
-      </motion.div>
-      
-      {/* Action text */}
-      <span className="text-xs font-mono font-bold relative z-10" style={{ color: social.color }}>
-        {social.action}
-      </span>
-      
-      {/* Corner accents */}
-      <motion.div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-current" style={{ color: social.color }} />
-      <motion.div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-current" style={{ color: social.color }} />
-    </motion.a>
-  );
-};
+const ease = [0.22, 1, 0.36, 1];
 
 const SocialMedia = () => {
   return (
-    <section id="social-media" className="w-full py-6 text-white">
+    <section id="social-media" className="relative w-full bg-transparent text-white py-5 md:py-8 border-t border-white/[0.06]">
+      <div className="max-w-[1100px] mx-auto px-6 md:px-10">
 
-      <div className="max-w-sm mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <motion.div className="flex gap-1">
-            {[0, 1, 2].map(i => (
-              <motion.div key={i} className="w-1 h-1 bg-teal-400 rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.5, delay: i * 0.1, repeat: Infinity }} />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
+
+          {/* Left: label + headline */}
+          <div>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.6, ease }}
+              className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-4"
+            >
+              Connect
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.8, ease, delay: 0.05 }}
+              className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tighter text-white leading-tight"
+            >
+              Follow the <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.25)' }}>journey.</span>
+            </motion.h2>
+          </div>
+
+          {/* Right: social links row */}
+          <motion.div
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            transition={{ duration: 0.6, ease, delay: 0.1 }}
+            className="flex flex-wrap gap-3"
+          >
+            {socialLinks.map((social, i) => (
+              <motion.a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + i * 0.06, duration: 0.55, ease }}
+                whileHover={{ y: -3 }}
+                className="group flex items-center gap-3 px-5 py-3.5 border border-white/[0.08] hover:border-white/25 rounded-full transition-all duration-300 hover:bg-white/[0.04]"
+              >
+                <social.icon size={18} className="text-slate-500 group-hover:text-white transition-colors duration-300 shrink-0" />
+                <span className="text-sm sm:text-base font-medium text-slate-400 group-hover:text-white transition-colors duration-300">{social.action}</span>
+                <span className="text-xs text-slate-700 tracking-wider font-light hidden sm:inline">{social.name}</span>
+              </motion.a>
             ))}
           </motion.div>
-          <span className="text-xs font-mono text-teal-400">CONNECT</span>
+
         </div>
 
-        {/* Buttons Row */}
-        <motion.div 
-          className="flex flex-wrap justify-center gap-2"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+        {/* System online indicator */}
+        <motion.div
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex items-center gap-2 mt-10"
         >
-          {socialLinks.map((social, index) => (
-            <SocialButton key={social.name} social={social} index={index} />
-          ))}
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-[10px] tracking-widest text-slate-700 font-mono uppercase">System Online</span>
         </motion.div>
 
-        {/* Status */}
-        <div className="text-center mt-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono text-gray-500">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            SYSTEM_ONLINE
-          </span>
-        </div>
       </div>
     </section>
   );
