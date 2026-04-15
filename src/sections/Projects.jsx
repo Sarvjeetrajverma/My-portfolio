@@ -41,7 +41,7 @@ const Projects = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-18"
         >
-          Project <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Index.</span>
+          Project <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Index.</span>
         </motion.h2>
 
         {/* Grid */}
@@ -53,7 +53,7 @@ const Projects = () => {
               key={i}
               initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.85, ease }}
-              className="group relative card-frosted overflow-hidden hover:bg-white/[0.04] transition-colors duration-500"
+              className="group relative card-frosted overflow-hidden transition-colors duration-500 bg-black"
             >
               {/* Image */}
               <div className="relative h-56 overflow-hidden">
@@ -103,7 +103,7 @@ const Projects = () => {
           <motion.div
             initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.85, ease, delay: 0.1 }}
-            className="group relative card-frosted flex flex-col justify-center items-center text-center p-12 min-h-[420px] hover:bg-white/[0.04] transition-colors duration-500 overflow-hidden"
+            className="group relative card-frosted flex flex-col justify-center items-center text-center p-12 min-h-[420px] transition-colors duration-500 overflow-hidden bg-black"
           >
             {/* Scanning line */}
             <motion.div

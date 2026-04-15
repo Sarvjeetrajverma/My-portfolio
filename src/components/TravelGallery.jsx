@@ -199,7 +199,7 @@ const TravelGallery = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-10 md:mb-14"
         >
-          Visual <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Diaries.</span>
+          Visual <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Diaries.</span>
         </motion.h2>
 
         {/* Stats */}

@@ -100,7 +100,7 @@ const Experience = () => {
             transition={{ duration: 1, ease }}
             className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-10 md:mb-14"
           >
-            Data <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Logs.</span>
+            Data <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Logs.</span>
           </motion.h2>
 
           {/* Scroll nav */}
@@ -126,7 +126,7 @@ const Experience = () => {
               key={exp.id}
               initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.7, ease, delay: i * 0.08 }}
-              className="min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative card-frosted p-8 hover:bg-white/[0.05] transition-colors duration-500"
+              className="min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative card-frosted p-8 transition-colors duration-500 bg-black"
             >
               {/* ID & Status */}
               <div className="flex justify-between items-center mb-8">

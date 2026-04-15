@@ -145,10 +145,10 @@ const holidayData = {
 };
 
 const socials = [
-  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet" },
-  { icon: FaLinkedinIn, label: "LinkedIn", link: "https://www.linkedin.com/in/sarvjeetrajverma/" },
-  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma" },
-  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma" }
+  { icon: FaXTwitter, label: "X", link: "https://twitter.com/itssarvjeet", colorClass: "text-white" },
+  { icon: FaLinkedinIn, label: "LinkedIn", link: "https://www.linkedin.com/in/sarvjeetrajverma/", colorClass: "text-[#0A66C2]" },
+  { icon: FaGithub, label: "GitHub", link: "https://www.github.com/sarvjeetrajverma", colorClass: "text-white" },
+  { icon: FaInstagram, label: "Instagram", link: "https://www.instagram.com/sarvjeetrajverma", colorClass: "text-[#E1306C]" }
 ];
 
 const Icons = {
@@ -315,7 +315,7 @@ export default function Home() {
           <h1 className="font-medium tracking-tighter text-white">
             <span className="block text-slate-500 text-xs font-light mb-1.5 tracking-[0.4em] uppercase">I am</span>
             <span className="block" style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)', lineHeight: '1.0' }}>Sarvjeet Raj</span>
-            <span className="block text-transparent" style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)', lineHeight: '1.02', WebkitTextStroke: '1px rgba(255,255,255,0.22)' }}>Verma</span>
+            <span className="block text-transparent" style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)', lineHeight: '1.02', WebkitTextStroke: '1px var(--theme-stroke)' }}>Verma</span>
           </h1>
         </motion.div>
 
@@ -357,10 +357,10 @@ export default function Home() {
           {socials.map((s) => (
             <motion.a
               key={s.label} href={s.link} target="_blank" rel="noreferrer"
-              className="text-slate-600 hover:text-white transition-colors duration-300"
+              className={`${s.colorClass} hover:scale-110 hover:brightness-125 transition-all duration-300 opacity-90 hover:opacity-100`}
               whileHover={{ y: -3 }}
             >
-              <s.icon size={20} />
+              <s.icon size={26} />
               <span className="sr-only">{s.label}</span>
             </motion.a>
           ))}
