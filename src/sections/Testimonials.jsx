@@ -18,10 +18,10 @@ const testimonials = [
     icon: <FaUserFriends />
   },
   {
-    id: "web-dev",
+    id: "ml-project",
     name: "Project Peer",
-    role: "Web Dev Group",
-    feedback: "Great problem-solving skills! He built the frontend for our group project efficiently and helped us debug issues in the React code. Always ready to learn.",
+    role: "Data Science Group",
+    feedback: "Great analytical skills! He built the data pipeline for our group project efficiently and helped us debug issues in the PyTorch models. Always ready to learn.",
     icon: <FaLaptopCode />
   }
 ];
@@ -54,7 +54,7 @@ const Testimonials = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-16"
         >
-          Peer <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Perspectives.</span>
+          Peer <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Perspectives.</span>
         </motion.h2>
 
         {/* Selector tabs + quote area */}

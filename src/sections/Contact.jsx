@@ -55,7 +55,7 @@ const Contact = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-16"
         >
-          Let's build something <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>great.</span>
+          Let's build something <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>great.</span>
         </motion.h2>
 
         <motion.div

@@ -3,7 +3,7 @@
 @theme {
   --color-white: var(--theme-white);
   --color-black: var(--theme-black);
-  
+
   --color-slate-200: var(--theme-slate-200);
   --color-slate-300: var(--theme-slate-300);
   --color-slate-400: var(--theme-slate-400);
@@ -13,56 +13,343 @@
 
 /* 1. DARK MODE (True Minimalist Dark) */
 :root {
-  --theme-white: #f5f5f7; /* High-end off-white */
+  --theme-white: #f5f5f7;
+  /* High-end off-white */
   --theme-black: #000000;
-  --theme-stroke: rgba(245,245,247,0.15);
-  --bg-gradient: #000000; /* Flat black is strictly minimalist */
-  
-  --theme-slate-200: #d2d2d7; /* Primary secondary */
+  --theme-stroke: rgba(245, 245, 247, 0.15);
+  --bg-gradient: #000000;
+  /* Flat black is strictly minimalist */
+
+  --theme-slate-200: #d2d2d7;
+  /* Primary secondary */
   --theme-slate-300: #a1a1a6;
-  --theme-slate-400: #86868b; /* Core neutral gray */
+  --theme-slate-400: #86868b;
+  /* Core neutral gray */
   --theme-slate-500: #6e6e73;
-  --theme-slate-600: #424245; /* Dark gray for subtle borders */
+  --theme-slate-600: #424245;
+  /* Dark gray for subtle borders */
 }
 
-/* 2. LIGHT MODE (True Minimalist Light) */
+/* 2. LIGHT MODE (Deep Teal) */
 [data-theme="light"] {
-  --theme-white: #1d1d1f; /* High-end charcoal black */
-  --theme-black: #f5f5f7; /* Pristine Apple surface grey */
-  --theme-stroke: rgba(29,29,31,0.15);
-  --bg-gradient: #f5f5f7; /* Flat highly-readable surface */
-  
-  --theme-slate-200: #424245; 
-  --theme-slate-300: #6e6e73; 
-  --theme-slate-400: #86868b; /* Core neutral gray */
-  --theme-slate-500: #a1a1a6; 
-  --theme-slate-600: #d2d2d7; /* Very faint gray */
+  --theme-white: #ffffff;
+  /* Pure white text for max contrast */
+  --theme-black: #0a1628;
+  /* Deep navy — card/surface */
+  --theme-stroke: rgba(255, 255, 255, 0.15);
+  --bg-gradient: linear-gradient(150deg, #4db3d8 0%, #20a6cf 100%);
+
+  --theme-slate-200: #f0f9ff;
+  /* Near white — headlines */
+  --theme-slate-300: #e0f2fe;
+  /* Sky 100 — body text */
+  --theme-slate-400: #bae6fd;
+  /* Sky 200 — secondary text */
+  --theme-slate-500: #7dd3fc;
+  /* Sky 300 — muted/icons */
+  --theme-slate-600: #0e4d64;
+  /* Dark cyan — borders/dividers */
 }
 
-/* 3. READ MODE (Soft Nordic Sand) - Clean pale beige */
+/* Deep Teal: fix hardcoded white/black elements */
+[data-theme="light"] .card-frosted {
+  background: rgba(10, 22, 40, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="light"] a.bg-white {
+  background-color: #0a1628 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] a.hover\:bg-gray-200:hover {
+  background-color: #112d4e !important;
+}
+
+[data-theme="light"] .bg-black\/70 {
+  background-color: rgba(10, 22, 40, 0.85) !important;
+}
+
+[data-theme="light"] .shadow-black\/50 {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="light"] .shadow-2xl {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="light"] .border-t {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="light"] .h-px {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="light"] .bg-white\/\[0\.04\] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="light"] .bg-white\/\[0\.02\] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="light"] .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="light"] .bg-white\/\[0\.05\] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Hide ambient purple glow */
+[data-theme="light"] [style*="rgba(99,102,241"] {
+  opacity: 0 !important;
+}
+
+/* 3. READ MODE (Warm Amber Clarity) */
 [data-theme="read"] {
-  --theme-white: #27231f; 
-  --theme-black: #f8f5f0;
-  --theme-stroke: rgba(39,35,31,0.18);
-  --bg-gradient: linear-gradient(180deg, #f8f5f0 0%, #f2eedb 100%);
-  
-  --theme-slate-200: #3a342e;
-  --theme-slate-300: #524a42;
-  --theme-slate-400: #7a6e62;
-  --theme-slate-500: #a39586;
-  --theme-slate-600: #d1c8bd;
+  --theme-white: #1a1007;
+  /* Near-black espresso — primary text */
+  --theme-black: #fffbeb;
+  /* Warm amber 50 — card/surface */
+  --theme-stroke: rgba(26, 16, 7, 0.12);
+  --bg-gradient: linear-gradient(150deg, #fbbf24 0%, #fcd34d 20%, #fde68a 50%, #fef3c7 80%, #fffbeb 100%);
+
+  --theme-slate-200: #1a1007;
+  /* Near black warm — headlines */
+  --theme-slate-300: #292115;
+  /* Dark espresso — body text */
+  --theme-slate-400: #4a3c28;
+  /* Dark brown — secondary text */
+  --theme-slate-500: #78573a;
+  /* Medium brown — muted/icons */
+  --theme-slate-600: #fcd34d;
+  /* Amber 300 — borders/dividers */
+}
+
+/* Read mode: override hardcoded white text & borders */
+[data-theme="read"] .text-white {
+  color: #1a1007 !important;
+}
+
+[data-theme="read"] .text-white\/90 {
+  color: #292115 !important;
+}
+
+[data-theme="read"] .text-white\/70 {
+  color: #4a3c28 !important;
+}
+
+[data-theme="read"] .border-white\/\[0\.08\] {
+  border-color: rgba(26, 16, 7, 0.12) !important;
+}
+
+[data-theme="read"] .border-white\/\[0\.06\] {
+  border-color: rgba(26, 16, 7, 0.08) !important;
+}
+
+[data-theme="read"] .border-white\/5 {
+  border-color: rgba(26, 16, 7, 0.07) !important;
+}
+
+[data-theme="read"] .border-white\/10 {
+  border-color: rgba(26, 16, 7, 0.1) !important;
+}
+
+[data-theme="read"] .border-white\/25 {
+  border-color: rgba(26, 16, 7, 0.25) !important;
+}
+
+[data-theme="read"] .border-white\/30 {
+  border-color: rgba(26, 16, 7, 0.3) !important;
+}
+
+[data-theme="read"] .bg-white\/\[0\.04\] {
+  background-color: rgba(26, 16, 7, 0.04) !important;
+}
+
+[data-theme="read"] .bg-white\/\[0\.10\] {
+  background-color: rgba(26, 16, 7, 0.06) !important;
+}
+
+[data-theme="read"] .bg-white\/5 {
+  background-color: rgba(26, 16, 7, 0.05) !important;
+}
+
+[data-theme="read"] .bg-white\/10 {
+  background-color: rgba(26, 16, 7, 0.06) !important;
+}
+
+[data-theme="read"] .hover\:text-white:hover {
+  color: #1a1007 !important;
+}
+
+[data-theme="read"] .bg-black {
+  background-color: #fef3c7 !important;
+}
+
+[data-theme="read"] .bg-black\/70 {
+  background-color: rgba(254, 243, 199, 0.9) !important;
+}
+
+[data-theme="read"] .text-black {
+  color: #1a1007 !important;
+}
+
+[data-theme="read"] .shadow-black\/50 {
+  box-shadow: 0 8px 30px rgba(26, 16, 7, 0.1) !important;
+}
+
+/* Fix Let's Talk button in read mode */
+[data-theme="read"] a.bg-white {
+  background-color: #92400e !important;
+  color: #ffffff !important;
+}
+
+[data-theme="read"] a.hover\:bg-gray-200:hover {
+  background-color: #78350f !important;
+}
+
+/* Fix navbar brand name & footer text in read mode */
+[data-theme="read"] .text-white\/80 {
+  color: #292115 !important;
+}
+
+[data-theme="read"] footer .text-white {
+  color: #1a1007 !important;
+}
+
+[data-theme="read"] footer .text-slate-600 {
+  color: #78573a !important;
+}
+
+[data-theme="read"] footer .text-slate-500 {
+  color: #4a3c28 !important;
+}
+
+[data-theme="read"] footer .text-slate-400 {
+  color: #292115 !important;
+}
+
+[data-theme="read"] footer .h-px {
+  background-color: rgba(26, 16, 7, 0.1) !important;
+}
+
+[data-theme="read"] footer .border-white\/\[0\.06\] {
+  border-color: rgba(26, 16, 7, 0.12) !important;
+}
+
+/* Disable white-glow hover effects in read mode */
+[data-theme="read"] .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgba(26, 16, 7, 0.05) !important;
+}
+
+[data-theme="read"] .hover\:bg-white\/10:hover {
+  background-color: rgba(26, 16, 7, 0.06) !important;
+}
+
+[data-theme="read"] .hover\:border-white\/15:hover {
+  border-color: rgba(26, 16, 7, 0.15) !important;
+}
+
+[data-theme="read"] .hover\:border-white\/25:hover {
+  border-color: rgba(26, 16, 7, 0.2) !important;
+}
+
+[data-theme="read"] .group:hover .group-hover\:opacity-100 {
+  opacity: 0.85 !important;
+}
+
+[data-theme="read"] .group:hover .group-hover\:scale-105 {
+  transform: scale(1.02) !important;
+}
+
+[data-theme="read"] .hover\:opacity-100:hover {
+  opacity: 0.85 !important;
+}
+
+/* Projects section: remove white/black hardcoded colors in read mode */
+[data-theme="read"] #projects .bg-white\/\[0\.05\] {
+  background-color: rgba(26, 16, 7, 0.08) !important;
+}
+
+[data-theme="read"] #projects .bg-black {
+  background-color: #fef9e7 !important;
+}
+
+[data-theme="read"] #projects .bg-black\/80 {
+  background-color: rgba(255, 251, 235, 0.95) !important;
+}
+
+[data-theme="read"] #projects .bg-black\/60 {
+  background-color: rgba(254, 243, 199, 0.85) !important;
+}
+
+[data-theme="read"] #projects .from-black {
+  --tw-gradient-from: #fef3c7 !important;
+}
+
+[data-theme="read"] #projects .via-black\/40 {
+  --tw-gradient-via: rgba(253, 230, 138, 0.5) !important;
+}
+
+[data-theme="read"] #projects .bg-white\/\[0\.02\] {
+  background-color: rgba(26, 16, 7, 0.03) !important;
+}
+
+[data-theme="read"] #projects .border-white\/\[0\.08\] {
+  border-color: rgba(26, 16, 7, 0.12) !important;
+}
+
+[data-theme="read"] #projects .border-white\/\[0\.05\] {
+  border-color: rgba(26, 16, 7, 0.08) !important;
+}
+
+[data-theme="read"] #projects .text-slate-200 {
+  color: #292115 !important;
+}
+
+[data-theme="read"] #projects .text-slate-300 {
+  color: #4a3c28 !important;
+}
+
+/* Remove dark image overlays in Projects & Travel in read mode */
+[data-theme="read"] #projects .absolute.inset-0.bg-gradient-to-t,
+[data-theme="read"] #projects .absolute.inset-0.bg-gradient-to-r,
+[data-theme="read"] #projects .absolute.inset-0[class*="from-black"] {
+  opacity: 0 !important;
+}
+
+[data-theme="read"] #travel .absolute.inset-0.bg-gradient-to-t,
+[data-theme="read"] #travel .absolute.inset-0.bg-gradient-to-r,
+[data-theme="read"] #travel .absolute.inset-0[class*="from-black"] {
+  opacity: 0 !important;
+}
+
+[data-theme="read"] #projects .absolute.bottom-0.left-0.right-0.h-12 {
+  opacity: 0 !important;
 }
 
 /* 4. GREEN MODE (Deep Minimalist Forest) */
 [data-theme="green"] {
-  --theme-white: #eef6f0; /* Soft mint off-white */
-  --theme-black: #0a110d; /* Extremely deep forest slate */
-  --theme-stroke: rgba(238,246,240,0.15);
-  --bg-gradient: #0a110d; /* Flat minimalist dark background */
-  
+  --theme-white: #eef6f0;
+  /* Soft mint off-white */
+  --theme-black: #0a110d;
+  /* Extremely deep forest slate */
+  --theme-stroke: rgba(238, 246, 240, 0.15);
+  --bg-gradient: #0a110d;
+  /* Flat minimalist dark background */
+
   --theme-slate-200: #c6dfcd;
   --theme-slate-300: #a4c7af;
-  --theme-slate-400: #819989; /* Muted sage gray */
+  --theme-slate-400: #819989;
+  /* Muted sage gray */
   --theme-slate-500: #556b5c;
   --theme-slate-600: #2d3c32;
 }
@@ -72,7 +359,18 @@ html {
   scroll-behavior: smooth;
 }
 
-body, h1, h2, h3, h4, p, span, div, a, button, section, nav {
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+div,
+a,
+button,
+section,
+nav {
   transition-property: background-color, border-color, color;
   transition-duration: 0.4s;
   transition-timing-function: ease;
@@ -88,7 +386,9 @@ body {
   transition: background 0.8s ease, color 0.8s ease;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: "Inter", "SF Pro Display", "Roboto", sans-serif;
 }
 
@@ -97,25 +397,193 @@ h1, h2, h3 {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
   /* Frosted card — lets gradient show through subtly */
   .card-frosted {
     background: color-mix(in srgb, var(--theme-black) 72%, transparent);
     backdrop-filter: blur(6px);
   }
+
+  /* AI Data Grid Background Pattern */
+  .bg-grid {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, color-mix(in srgb, var(--theme-stroke) 50%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--theme-stroke) 50%, transparent) 1px, transparent 1px);
+  }
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-slate-600);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-slate-400);
 }
 
 /* Canvas sits behind content */
-canvas { display: block; width: 100%; height: 100%; }
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 /* Fix sections not hiding behind fixed navbar when anchor-scrolled */
-section[id], div[id] {
+section[id],
+div[id] {
   scroll-margin-top: 80px;
 }
 
 /* reduced motion fallback */
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ============================================
+   LIGHT MODE (Deep Teal) — Section Enhancements
+   ============================================ */
+
+/* About — cards use dark navy glass */
+[data-theme="light"] #about .card-frosted,
+[data-theme="light"] #about [class*="border-white"] {
+  background: rgba(10, 22, 40, 0.7) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Experience timeline */
+[data-theme="light"] #experience .border-l {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="light"] #experience [class*="border-indigo"],
+[data-theme="light"] #experience [class*="border-violet"] {
+  border-color: #38bdf8 !important;
+}
+
+/* Testimonials */
+[data-theme="light"] #testimonials .border-l {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Contact form — white text, teal accents */
+[data-theme="light"] #contact input,
+[data-theme="light"] #contact textarea {
+  color: #ffffff !important;
+  border-bottom-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="light"] #contact input::placeholder,
+[data-theme="light"] #contact textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="light"] #contact input:focus,
+[data-theme="light"] #contact textarea:focus {
+  border-bottom-color: #38bdf8 !important;
+}
+
+/* Social media buttons — dark glass */
+[data-theme="light"] #social-media .rounded-full {
+  background: rgba(10, 22, 40, 0.6) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Navbar scrolled — frosted dark teal */
+[data-theme="light"] nav.bg-black\/70 {
+  background: rgba(10, 22, 40, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============================================
+   READ MODE — Section Enhancements
+   ============================================ */
+
+/* Card elevation */
+[data-theme="read"] .card-frosted {
+  background: rgba(255, 251, 230, 0.9) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 1px 3px rgba(26, 16, 7, 0.08), 0 8px 32px rgba(26, 16, 7, 0.06) !important;
+}
+
+/* About — pipeline & skill cards */
+[data-theme="read"] #about .card-frosted,
+[data-theme="read"] #about [class*="border-white"] {
+  background: rgba(255, 251, 230, 0.95) !important;
+  box-shadow: 0 2px 12px rgba(26, 16, 7, 0.07) !important;
+}
+
+/* Experience timeline */
+[data-theme="read"] #experience .border-l {
+  border-color: rgba(26, 16, 7, 0.15) !important;
+}
+
+[data-theme="read"] #experience .bg-white {
+  background-color: #fde68a !important;
+}
+
+[data-theme="read"] #experience .bg-black {
+  background-color: #fffbeb !important;
+}
+
+/* Testimonials */
+[data-theme="read"] #testimonials .border-l {
+  border-color: rgba(26, 16, 7, 0.12) !important;
+}
+
+/* Contact form */
+[data-theme="read"] #contact input,
+[data-theme="read"] #contact textarea {
+  color: #1a1007 !important;
+  border-bottom-color: rgba(26, 16, 7, 0.2) !important;
+}
+
+[data-theme="read"] #contact input::placeholder,
+[data-theme="read"] #contact textarea::placeholder {
+  color: #b5a89a !important;
+}
+
+[data-theme="read"] #contact input:focus,
+[data-theme="read"] #contact textarea:focus {
+  border-bottom-color: #92400e !important;
+}
+
+/* Social media buttons */
+[data-theme="read"] #social-media .rounded-full {
+  background: rgba(255, 251, 230, 0.8) !important;
+  box-shadow: 0 1px 6px rgba(26, 16, 7, 0.08) !important;
+}
+
+/* Section border-t dividers */
+[data-theme="read"] .border-t {
+  border-top-color: rgba(26, 16, 7, 0.08) !important;
+}
+
+/* Ambient glow: remove purple */
+[data-theme="read"] [style*="rgba(99,102,241"] {
+  opacity: 0 !important;
+}
+
+/* Navbar scrolled state */
+[data-theme="read"] nav.bg-black\/70 {
+  background: rgba(254, 252, 232, 0.9) !important;
+  border-color: rgba(26, 16, 7, 0.1) !important;
+  box-shadow: 0 4px 24px rgba(26, 16, 7, 0.08) !important;
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 export default function IntroAnimation({ onfinish }) {
   const [visible, setVisible] = useState(true);
-  const greetings = ["Hello", "नमस्ते", "Welcome"];
+  const greetings = ["Initialize", "नमस्ते", "System Ready"];
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(false), 2200);

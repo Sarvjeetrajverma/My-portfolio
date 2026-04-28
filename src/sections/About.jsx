@@ -4,13 +4,14 @@ import {
   FaChevronLeft, FaChevronRight, FaCode, FaBolt, FaMagic,
   FaRocket, FaRobot, FaCamera, FaGraduationCap, FaTrophy, FaRoute,
   FaTerminal, FaNetworkWired, FaServer, FaCodeBranch, FaBrain,
-  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaJava
+  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaJava, FaChartLine
 } from 'react-icons/fa';
 import {
   SiReact, SiNodedotjs, SiCplusplus, SiNextdotjs, SiTailwindcss, SiMongodb,
   SiTypescript, SiFramer, SiRedux, SiExpress, SiPython, SiGraphql,
   SiPostgresql, SiMysql, SiRedis, SiSupabase, SiGithubactions,
-  SiDocker, SiLinux, SiVercel
+  SiDocker, SiLinux, SiVercel, SiScikitlearn, SiPandas, SiNumpy, SiJupyter,
+  SiTensorflow, SiPytorch, SiHuggingface, SiKeras, SiOpencv
 } from 'react-icons/si';
 
 import pf5 from '../assets/pf5.webp';
@@ -23,51 +24,51 @@ const profileImages = [pf, pf5, pf7, pf8, srvprofile];
 
 const systemModules = [
   {
-    id: 'frontend', title: 'Frontend', color: 'cyan', icon: <FaNetworkWired />,
+    id: 'machine-learning', title: 'Machine Learning', color: 'cyan', icon: <FaBrain />,
     content: [
-      { name: "React.js", level: 60, logo: <SiReact />, meta: "UI Architecture", brand: "#61DAFB" },
-      { name: "Next.js", level: 10, logo: <SiNextdotjs />, meta: "Full-Stack React", brand: "#FFFFFF" },
-      { name: "TypeScript", level: 10, logo: <SiTypescript />, meta: "Static Typing", brand: "#3178C6" },
-      { name: "Tailwind CSS", level: 30, logo: <SiTailwindcss />, meta: "Utility Styling", brand: "#06B6D4" },
-      { name: "Framer Motion", level: 20, logo: <SiFramer />, meta: "Animations", brand: "#0055FF" },
-      { name: "Redux", level: 10, logo: <SiRedux />, meta: "State Control", brand: "#764ABC" },
+      { name: "Python", level: 90, logo: <SiPython />, meta: "Core Language", brand: "#3776AB" },
+      { name: "Scikit-Learn", level: 80, logo: <SiScikitlearn />, meta: "Classical ML", brand: "#F7931E" },
+      { name: "Pandas", level: 85, logo: <SiPandas />, meta: "Data Analysis", brand: "#150458" },
+      { name: "NumPy", level: 85, logo: <SiNumpy />, meta: "Numerical Comp", brand: "#013243" },
+      { name: "Jupyter", level: 90, logo: <SiJupyter />, meta: "Notebooks", brand: "#F37626" },
+      { name: "Math & Stats", level: 75, logo: <FaChartLine />, meta: "Probability", brand: "#00FFCC" },
     ]
   },
   {
-    id: 'backend', title: 'Backend', color: 'green', icon: <FaServer />,
+    id: 'deep-learning', title: 'Deep Learning', color: 'purple', icon: <FaRobot />,
     content: [
-      { name: "Node.js", level: 10, logo: <SiNodedotjs />, meta: "V8 Runtime", brand: "#339933" },
-      { name: "Express.js", level: 10, logo: <SiExpress />, meta: "Web Framework", brand: "#FFFFFF" },
-      { name: "Python", level: 80, logo: <SiPython />, meta: "Data Processing", brand: "#3776AB" },
-      { name: "GraphQL", level: 10, logo: <SiGraphql />, meta: "Query Language", brand: "#E10098" },
-      { name: "REST APIs", level: 10, logo: <FaServer />, meta: "Architecture", brand: "#00FFCC" },
-      { name: "Java", level: 10, logo: <FaJava />, meta: "OOP Engine", brand: "#ED8B00" },
+      { name: "TensorFlow", level: 70, logo: <SiTensorflow />, meta: "Neural Nets", brand: "#FF6F00" },
+      { name: "PyTorch", level: 60, logo: <SiPytorch />, meta: "Research DL", brand: "#EE4C2C" },
+      { name: "Keras", level: 75, logo: <SiKeras />, meta: "High-level API", brand: "#D00000" },
+      { name: "HuggingFace", level: 65, logo: <SiHuggingface />, meta: "Transformers", brand: "#FFD21E" },
+      { name: "OpenCV", level: 60, logo: <SiOpencv />, meta: "Computer Vision", brand: "#5C3EE8" },
+      { name: "GenAI", level: 50, logo: <FaMagic />, meta: "LLMs & Diffusion", brand: "#FF00FF" },
     ]
   },
   {
-    id: 'database', title: 'Database', color: 'yellow', icon: <FaDatabase />,
+    id: 'data-engineering', title: 'Data Eng', color: 'yellow', icon: <FaDatabase />,
     content: [
-      { name: "PostgreSQL", level: 35, logo: <SiPostgresql />, meta: "Relational DB", brand: "#4169E1" },
-      { name: "MySQL", level: 90, logo: <SiMysql />, meta: "Structured DB", brand: "#4479A1" },
+      { name: "PostgreSQL", level: 65, logo: <SiPostgresql />, meta: "Relational DB", brand: "#4169E1" },
+      { name: "MySQL", level: 80, logo: <SiMysql />, meta: "Structured DB", brand: "#4479A1" },
       { name: "MongoDB", level: 50, logo: <SiMongodb />, meta: "NoSQL DB", brand: "#47A248" },
-      { name: "Redis", level: 10, logo: <SiRedis />, meta: "In-Memory Cache", brand: "#DC382D" },
-      { name: "Supabase", level: 10, logo: <SiSupabase />, meta: "BaaS Platform", brand: "#3ECF8E" },
-      { name: "SQL Server", level: 20, logo: <FaDatabase />, meta: "Enterprise DB", brand: "#CC292B" },
+      { name: "Web Scraping", level: 70, logo: <FaCode />, meta: "Data Collection", brand: "#FFFFFF" },
+      { name: "ETL Pipelines", level: 50, logo: <FaRoute />, meta: "Data Workflows", brand: "#00FFCC" },
+      { name: "Redis", level: 20, logo: <SiRedis />, meta: "Caching", brand: "#DC382D" },
     ]
   },
   {
-    id: 'devops', title: 'DevOps', color: 'purple', icon: <FaCodeBranch />,
+    id: 'mlops', title: 'MLOps', color: 'green', icon: <FaCodeBranch />,
     content: [
       { name: "Git & GitHub", level: 90, logo: <FaGithub />, meta: "Version Control", brand: "#FFFFFF" },
-      { name: "Docker", level: 10, logo: <SiDocker />, meta: "Containers", brand: "#2496ED" },
-      { name: "Linux CLI", level: 10, logo: <SiLinux />, meta: "Sys Administrations", brand: "#FCC624" },
-      { name: "AWS", level: 10, logo: <FaAws />, meta: "Cloud Services", brand: "#FF9900" },
-      { name: "CI/CD", level: 1, logo: <SiGithubactions />, meta: "Automated Pipelines", brand: "#2088FF" },
-      { name: "Vercel", level: 90, logo: <SiVercel />, meta: "Edge Network", brand: "#FFFFFF" },
+      { name: "Docker", level: 30, logo: <SiDocker />, meta: "Containers", brand: "#2496ED" },
+      { name: "Linux CLI", level: 50, logo: <SiLinux />, meta: "Sys Admin", brand: "#FCC624" },
+      { name: "AWS", level: 20, logo: <FaAws />, meta: "Cloud Services", brand: "#FF9900" },
+      { name: "Web Dashboards", level: 80, logo: <SiReact />, meta: "React / Streamlit", brand: "#61DAFB" },
+      { name: "CI/CD", level: 10, logo: <SiGithubactions />, meta: "Automated Pipes", brand: "#2088FF" },
     ]
   },
   {
-    id: 'dsa', title: 'Core DSA', color: 'blue', icon: <FaBrain />,
+    id: 'dsa', title: 'Core DSA', color: 'blue', icon: <FaTerminal />,
     content: [
       { name: "C++", level: 60, logo: <SiCplusplus />, meta: "System Programming", brand: "#00599C" },
       { name: "Data Strucs", level: 80, logo: <FaBrain />, meta: "Memory Layouts", brand: "#FF00FF" },
@@ -134,7 +135,7 @@ const About = () => {
           transition={{ duration: 1, ease }}
           className="text-[2.8rem] leading-[1.02] sm:text-[5rem] md:text-[7rem] lg:text-[9rem] lg:leading-[0.9] font-medium tracking-tighter text-white mb-6 md:mb-8"
         >
-          Developer <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.2)' }}>Identity.</span>
+          Engineer <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Identity.</span>
         </motion.h2>
 
         {/* ── Profile + Bio row ── */}
@@ -170,7 +171,7 @@ const About = () => {
             </div>
             <div className="mt-5 text-center lg:text-left">
               <p className="text-white text-lg font-medium tracking-tight">Sarvjeet</p>
-              <p className="text-slate-400 text-base mt-1">Full-Stack Engineer & AI Explorer</p>
+              <p className="text-slate-400 text-base mt-1">AI - ML Engineer Learner</p>
             </div>
           </motion.div>
 
@@ -178,20 +179,20 @@ const About = () => {
           <motion.div {...fadeUp(0.15)} className="flex flex-col justify-center">
             <div className="space-y-6 text-slate-400 text-lg sm:text-xl md:text-2xl leading-relaxed font-light mb-10">
               <p>
-                I bridge the gap between heavy-lifting backend logic and pixel-perfect interfaces. As a 3rd-year CS student at <span className="text-white font-normal">Katihar Engineering College</span>, my foundation is built on the MERN stack, Tailwind, and Framer Motion.
+                I engineer intelligent systems that learn, adapt, and scale. As a 3rd-year CS student at <span className="text-white font-normal">Katihar Engineering College</span>, my foundation is deeply rooted in Data Science, Neural Networks, and mathematical optimization.
               </p>
               <p>
-                I am deeply invested in the future of computation — <span className="text-slate-300">Generative & Agentic AI systems</span>.
+                My core research and development focus is on <span className="text-slate-300">Large Language Models, Computer Vision, and Agentic AI workflows</span>. I bridge the gap between raw data and predictive intelligence.
               </p>
               <p className="text-slate-500 text-base sm:text-lg">
-                Beyond the IDE, I thrive in hands-on environments—from leading technical execution for <span className="text-slate-300">TechFusion</span> and designing combat models for Robo War events, to analyzing exposure histograms while photographing the landscapes of Sikkim.
+                Beyond the Jupyter notebook, I thrive in hands-on environments—from leading technical execution for <span className="text-slate-300">TechFusion</span> and writing autonomous algorithms for Robo War events, to analyzing exposure histograms while photographing the landscapes of Sikkim.
               </p>
             </div>
 
             {/* Tags — minimal pill style */}
             <div className="flex flex-wrap gap-2.5">
               {[
-                { icon: <FaCode size={13} />, label: 'MERN Stack' },
+                { icon: <FaCode size={13} />, label: 'Data Science' },
                 { icon: <FaBolt size={13} />, label: 'Agentic AI' },
                 { icon: <FaRobot size={13} />, label: 'Combat Robotics' },
                 { icon: <FaCamera size={13} />, label: 'Photography' },
@@ -255,63 +256,61 @@ const About = () => {
           </AnimatePresence>
         </div>
 
-        {/* ── Current Trajectory ── */}
-        <div className="mb-10 md:mb-14">
-          <motion.p {...fadeUp()} className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8">
-            Current Trajectory
-          </motion.p>
-          <div className="space-y-0 divide-y divide-white/[0.05]">
-            {[
-              { icon: <FaGraduationCap />, label: 'Education', title: 'B.Tech CSE (3rd Year)', sub: 'Katihar Engineering College · 7.92 CGPA', year: '2023 — Present' },
-              { icon: <FaTrophy />, label: 'Role', title: 'Tech Team Lead', sub: "Core Coordinator @ TechFusion'26", year: '2025 — 2026' },
-              { icon: <FaRoute />, label: 'Focus', title: 'Agentic AI Mastery', sub: 'Executing a 10-month advanced roadmap', year: 'Ongoing' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.7, ease, delay: i * 0.08 }}
-                className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-7 -mx-4 px-4 hover:bg-white/[0.02] rounded-xl transition-colors duration-300"
-              >
-                <div className="flex items-start sm:items-center gap-5">
-                  <span className="text-slate-500 mt-0.5 shrink-0 text-lg">{item.icon}</span>
-                  <div>
-                    <h3 className="text-white text-base sm:text-xl font-medium tracking-tight">{item.title}</h3>
-                    <p className="text-slate-400 text-sm sm:text-base mt-1 font-light">{item.sub}</p>
-                  </div>
-                </div>
-                <span className="text-xs tracking-widest text-slate-600 uppercase font-medium pl-10 sm:pl-0 shrink-0">{item.year}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
 
-        {/* ── Development Workflow ── */}
-        {/* <div>
+        {/* ── Machine Learning Pipeline ── */}
+        <div>
           <motion.p {...fadeUp()} className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8">
-            Development Workflow
+            Machine Learning Pipeline
           </motion.p>
-          <motion.p {...fadeUp(0.05)} className="text-slate-400 text-base sm:text-lg mb-10">A systematic approach to engineering web applications.</motion.p>
+          <motion.p {...fadeUp(0.05)} className="text-slate-400 text-base sm:text-lg mb-10">A systematic approach to designing intelligent systems.</motion.p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.05]">
             {[
-              { icon: <FaMagic />, step: '01', title: 'Interface Architecture', desc: 'Designing intuitive, motion-rich user experiences with React and Framer Motion.' },
-              { icon: <FaCode />, step: '02', title: 'Full-Stack Implementation', desc: 'Building robust server-side logic and database schemas using Node.js and MongoDB.' },
-              { icon: <FaRocket />, step: '03', title: 'Optimization & Delivery', desc: 'Ensuring cross-device scalability, clean state management, and optimized web vitals.' },
+              {
+                icon: <FaDatabase />, step: '01', title: 'Data Engineering', 
+                desc: 'Gathering, cleaning, and transforming raw datasets into high-quality features ready for model ingestion.',
+                tools: ['Pandas', 'NumPy', 'SQL']
+              },
+              {
+                icon: <FaBrain />, step: '02', title: 'Model Architecture', 
+                desc: 'Designing neural networks and training machine learning algorithms using state-of-the-art frameworks.',
+                tools: ['PyTorch', 'TensorFlow', 'Scikit-Learn']
+              },
+              {
+                icon: <FaRocket />, step: '03', title: 'Deployment & MLOps', 
+                desc: 'Optimizing hyperparameters, testing model accuracy, and deploying models to scalable cloud environments.',
+                tools: ['Docker', 'AWS', 'FastAPI']
+              },
             ].map((step, i) => (
               <motion.div
                 key={step.step}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.7, ease, delay: i * 0.1 }}
-                className="card-frosted p-8 md:p-10 hover:bg-white/[0.04] transition-colors duration-300 group"
+                className="relative card-frosted p-8 md:p-10 hover:bg-white/[0.04] transition-colors duration-300 group overflow-hidden flex flex-col"
               >
-                <div className="text-xs tracking-[0.3em] text-slate-600 uppercase mb-5">{step.step}</div>
-                <div className="text-slate-500 mb-5 group-hover:text-slate-400 transition-colors text-2xl">{step.icon}</div>
-                <h4 className="text-white text-base sm:text-lg font-medium mb-3 tracking-tight">{step.title}</h4>
-                <p className="text-slate-500 text-sm sm:text-base leading-relaxed font-light">{step.desc}</p>
+                {/* Subtle gradient blob on hover */}
+                <div className="absolute -inset-x-10 -inset-y-10 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-700 pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="text-xs tracking-[0.3em] text-slate-600 uppercase font-medium">{step.step}</div>
+                    <div className="text-slate-500 group-hover:text-white transition-colors duration-500 text-2xl">{step.icon}</div>
+                  </div>
+                  
+                  <h4 className="text-white text-xl sm:text-2xl font-medium mb-4 tracking-tight">{step.title}</h4>
+                  <p className="text-slate-500 text-sm sm:text-base leading-relaxed font-light mb-8 flex-grow">{step.desc}</p>
+                  
+                  <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-white/[0.05]">
+                    {step.tools.map(tool => (
+                      <span key={tool} className="text-[10px] uppercase tracking-widest font-medium text-slate-400 bg-white/[0.02] border border-white/[0.08] px-3 py-1.5 rounded-full group-hover:border-white/[0.15] group-hover:text-slate-200 transition-colors duration-300">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
-              */}
       </div>
     </section>
   );

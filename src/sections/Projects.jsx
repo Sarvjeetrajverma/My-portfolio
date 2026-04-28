@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaCode } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaCode, FaBrain, FaTerminal } from 'react-icons/fa';
 import project1Image from '../assets/project1.png';
 
 const projects = [
   {
     title: "Portfolio Launchpad",
-    description: "My first step into the digital frontier. This site was built to apply my learning of React components, responsive design, and modern CSS animations.",
-    tech: ["React Basics", "Tailwind CSS", "JSX"],
+    description: "A highly optimized digital environment built to showcase my machine learning models and research. Engineered from scratch to ensure a high-performance, seamless user experience.",
+    tech: ["React", "Tailwind CSS", "Framer Motion"],
     github: "#",
     demo: "#",
     image: project1Image,
@@ -32,7 +32,7 @@ const Projects = () => {
           transition={{ duration: 0.7, ease }}
           className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-10 md:mb-14"
         >
-          Student Log: Active
+          Research & Implementations
         </motion.p>
 
         {/* Headline */}
@@ -41,7 +41,7 @@ const Projects = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-18"
         >
-          Project <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Index.</span>
+          Model <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Index.</span>
         </motion.h2>
 
         {/* Grid */}
@@ -99,40 +99,60 @@ const Projects = () => {
             </motion.div>
           ))}
 
-          {/* Coming Soon block */}
+          {/* Model Training block */}
           <motion.div
             initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.85, ease, delay: 0.1 }}
-            className="group relative card-frosted flex flex-col justify-center items-center text-center p-12 min-h-[420px] transition-colors duration-500 overflow-hidden bg-black"
+            className="group relative card-frosted flex flex-col justify-center items-center p-12 min-h-[420px] transition-colors duration-500 overflow-hidden bg-black"
           >
             {/* Scanning line */}
             <motion.div
               animate={{ top: ["0%", "100%"] }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+              className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent pointer-events-none"
             />
 
-            {/* Icon */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="w-16 h-16 border border-white/[0.08] rounded-2xl flex items-center justify-center mb-8 group-hover:border-white/20 transition-colors duration-300"
-            >
-              <FaCode className="text-slate-600 text-xl group-hover:text-slate-400 transition-colors" />
-            </motion.div>
+            {/* Terminal Window Mockup */}
+            <div className="w-full max-w-sm rounded-lg border border-white/[0.08] bg-black/80 overflow-hidden mb-8 shadow-2xl">
+              {/* Terminal Header */}
+              <div className="flex items-center gap-2 px-4 py-2 border-b border-white/[0.05] bg-white/[0.02]">
+                <div className="flex gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                </div>
+                <span className="ml-2 text-[9px] font-mono text-slate-500 uppercase tracking-widest">train_model.py</span>
+              </div>
+              {/* Terminal Body */}
+              <div className="p-4 font-mono text-[10px] sm:text-xs text-slate-400 text-left space-y-1.5 h-[120px] overflow-hidden relative">
+                <p><span className="text-emerald-400">root@ai-cluster:~#</span> python train_model.py</p>
+                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.5 }}>Loading dataset (1.2M rows)... [OK]</motion.p>
+                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 1.2 }}>Initializing Transformer architecture...</motion.p>
+                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 2.0 }} className="text-amber-400">Epoch 1/100: loss=2.4154, val_loss=1.9842</motion.p>
+                <motion.p 
+                  animate={{ opacity: [0, 1, 0] }} 
+                  transition={{ duration: 1.5, repeat: Infinity }} 
+                  className="mt-2 text-emerald-500"
+                >
+                  _
+                </motion.p>
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+              </div>
+            </div>
 
-            <h3 className="text-slate-200 text-2xl sm:text-3xl font-medium tracking-tight mb-4">
-              [ Loading Future Builds ]
+            <h3 className="text-slate-200 text-2xl sm:text-3xl font-medium tracking-tight mb-4 text-center">
+              [ Training Future Models ]
             </h3>
-            <p className="text-slate-600 max-w-xs text-base sm:text-lg leading-relaxed font-light mb-8">
-              I am actively coding behind the scenes. This space is reserved for my upcoming projects as I master{' '}
-              <span className="text-slate-300">Backend Logic</span>,{' '}
-              <span className="text-slate-300">Databases</span>, and{' '}
-              <span className="text-slate-300">Complex Algorithms</span>.
+            <p className="text-slate-600 max-w-xs text-base sm:text-lg leading-relaxed font-light mb-8 text-center">
+              I am actively training behind the scenes. This space is reserved for my upcoming projects as I master{' '}
+              <span className="text-slate-300">Neural Networks</span>,{' '}
+              <span className="text-slate-300">Computer Vision</span>, and{' '}
+              <span className="text-slate-300">Generative AI</span>.
             </p>
 
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-amber-500/70 rounded-full animate-pulse" />
-              <span className="text-[11px] font-mono text-amber-600 tracking-widest">Learning in progress...</span>
+              <span className="w-1.5 h-1.5 bg-emerald-500/70 rounded-full animate-pulse" />
+              <span className="text-[11px] font-mono text-emerald-500 tracking-widest">Model convergence in progress...</span>
             </div>
           </motion.div>
         </div>

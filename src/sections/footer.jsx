@@ -35,7 +35,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <span className="text-white text-lg font-medium tracking-tight">SARVJEET.</span>
-            <p className="text-slate-600 text-xs mt-1 tracking-wide font-light">Creative Developer</p>
+            <p className="text-slate-600 text-xs mt-1 tracking-wide font-light">AI/ML Engineer Learner</p>
           </div>
 
           {/* Availability & location */}

@@ -1,8 +1,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain } from 'react-icons/fa';
 
 const experiences = [
+  {
+    id: "00",
+    role: "ML Researcher",
+    institution: "Kaggle & Open Source",
+    period: "2026 - Present",
+    status: "SYS_ACTIVE",
+    color: "purple",
+    icon: <FaBrain />,
+    details: [
+      { label: "Focus", value: "Computer Vision & NLP" },
+      { label: "Platform", value: "Kaggle Competitions" },
+      { label: "Roles", value: "Data Pipeline Architect" },
+      { label: "Achievements", value: "Top 20% in Image Classification" }
+    ]
+  },
   {
     id: "01",
     role: "B.Tech (CSE)",
@@ -15,7 +30,7 @@ const experiences = [
       { label: "Performance", value: "7.92 CGPA (Aggregate)" },
       { label: "Leadership", value: "Lead Coordinator - TechFusion'26" },
       { label: "Roles", value: "Core Team & Technical Team Lead" },
-      { label: "Focus", value: "Full Stack Dev" }
+      { label: "Focus", value: "AI - ML Engineering" }
     ]
   },
   {
@@ -45,20 +60,6 @@ const experiences = [
       { label: "Focus", value: "Engineering Entrance Prep" },
       { label: "Skills", value: "Analytical Problem Solving" }
     ]
-  },
-  {
-    id: "04",
-    role: "High School",
-    institution: "+2 High School, Ghosi",
-    period: "2019 - 2020",
-    status: "ARCHIVED",
-    color: "blue",
-    icon: <FaSchool />,
-    details: [
-      { label: "Grade", value: "Distinction Achieved" },
-      { label: "Extra", value: "School Sports Captain" },
-      { label: "Events", value: "Science Exhibition Winner" }
-    ]
   }
 ];
 
@@ -79,8 +80,9 @@ const Experience = () => {
   return (
     <section id="experience" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10 font-sans">
 
-      {/* Ambient glow */}
+      {/* Ambient glow & Data Grid */}
       <div className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      <div className="absolute inset-0 w-full h-full bg-grid pointer-events-none opacity-[0.15]" style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
 

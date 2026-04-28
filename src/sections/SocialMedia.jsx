@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter } from 'react-icons/fa6';
 
 const socialLinks = [
-  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', action: 'Follow' },
-  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/sarvjeetrajverma', action: 'Connect' },
-  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/sarvjeetrajverma', action: 'Follow' },
-  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@sarvjeetrajverma', action: 'Subscribe' },
-  { name: 'X', icon: FaXTwitter, url: 'https://twitter.com/itssarvjeet', action: 'Follow' }
+  { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', action: 'Follow', color: 'group-hover:text-white' },
+  { name: 'LinkedIn', icon: FaLinkedin, url: 'https://linkedin.com/in/sarvjeetrajverma', action: 'Connect', color: 'group-hover:text-[#0077b5]' },
+  { name: 'Instagram', icon: FaInstagram, url: 'https://instagram.com/sarvjeetrajverma', action: 'Follow', color: 'group-hover:text-[#e4405f]' },
+  { name: 'YouTube', icon: FaYoutube, url: 'https://youtube.com/@sarvjeetrajverma', action: 'Subscribe', color: 'group-hover:text-[#ff0000]' },
+  { name: 'X', icon: FaXTwitter, url: 'https://twitter.com/itssarvjeet', action: 'Follow', color: 'group-hover:text-white' }
 ];
 
 const ease = [0.22, 1, 0.36, 1];
@@ -33,7 +33,7 @@ const SocialMedia = () => {
               transition={{ duration: 0.8, ease, delay: 0.05 }}
               className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tighter text-white leading-tight"
             >
-              Follow the <span className="text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.25)' }}>journey.</span>
+              Follow the <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>journey.</span>
             </motion.h2>
           </div>
 
@@ -56,8 +56,8 @@ const SocialMedia = () => {
                 whileHover={{ y: -3 }}
                 className="group flex items-center gap-3 px-5 py-3.5 border border-white/[0.08] hover:border-white/25 rounded-full transition-all duration-300 hover:bg-white/[0.04]"
               >
-                <social.icon size={18} className="text-slate-500 group-hover:text-white transition-colors duration-300 shrink-0" />
-                <span className="text-sm sm:text-base font-medium text-slate-400 group-hover:text-white transition-colors duration-300">{social.action}</span>
+                <social.icon size={18} className={`text-slate-500 ${social.color} transition-colors duration-300 shrink-0`} />
+                <span className={`text-sm sm:text-base font-medium text-slate-400 ${social.color} transition-colors duration-300`}>{social.action}</span>
                 <span className="text-xs text-slate-700 tracking-wider font-light hidden sm:inline">{social.name}</span>
               </motion.a>
             ))}

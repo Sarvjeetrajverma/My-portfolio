@@ -159,7 +159,7 @@ const Icons = {
 
 export default function Home() {
   const roles = useMemo(
-    () => ["WEB DEVELOPER", "MERN STACK DEVELOPER", "UI/UX ENTHUSIAST"],
+    () => ["AI - ML ENGINEER LEARNER", "DATA SCIENCE ENTHUSIAST", "TECH EXPLORER"],
     []
   );
   const [index, setIndex] = useState(0);
@@ -236,39 +236,82 @@ export default function Home() {
     const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.75);
     let width = (canvas.width = canvas.clientWidth * dpr);
     let height = (canvas.height = canvas.clientHeight * dpr);
-    const layers = isMobile
-      ? [{ count: 15, speed: 0.02, size: [0.7, 1.0], color: "rgba(248,250,252,0.3)" }, { count: 10, speed: 0.03, size: [1.0, 1.5], color: "rgba(129,140,248,0.3)" }]
-      : [{ count: 35, speed: 0.03, size: [0.7, 1.3], color: "rgba(248,250,252,0.4)" }, { count: 20, speed: 0.05, size: [1.0, 2.0], color: "rgba(129,140,248,0.45)" }];
-    const stars = [];
-    layers.forEach((layer, li) => {
-      for (let i = 0; i < layer.count; i++) {
-        stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 0.6 + 0.4, r: (Math.random() * (layer.size[1] - layer.size[0]) + layer.size[0]) * dpr, baseAlpha: Math.random() * 0.3 + 0.2, twinkle: Math.random() * 0.004 + 0.001, layer: li });
-      }
-    });
+    const particleCount = isMobile ? 35 : 85;
+    const connectionDistance = (isMobile ? 100 : 160) * dpr;
+    const particles = [];
+
+    // Initialize neural nodes
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        r: (Math.random() * 1.5 + 0.5) * dpr,
+        baseAlpha: Math.random() * 0.4 + 0.2
+      });
+    }
+
     const onResize = () => { width = (canvas.width = canvas.clientWidth * dpr); height = (canvas.height = canvas.clientHeight * dpr); };
     window.addEventListener("resize", onResize);
-    const onMove = (e) => { const r = canvas.getBoundingClientRect(); pointerRef.current.x = (e.clientX - r.left) / r.width; pointerRef.current.y = (e.clientY - r.top) / r.height; };
+    const onMove = (e) => { const r = canvas.getBoundingClientRect(); pointerRef.current.x = (e.clientX - r.left) * dpr; pointerRef.current.y = (e.clientY - r.top) * dpr; };
     canvas.addEventListener("pointermove", onMove);
-    let last = performance.now();
+
     const render = (now) => {
-      const dt = Math.min(40, now - last); last = now;
-      ctx.clearRect(0, 0, width, height); ctx.save(); ctx.scale(dpr, dpr);
-      const cx = width / 2, cy = height / 2;
-      const px = (pointerRef.current.x - 0.5) * 20 * dpr;
-      const py = (pointerRef.current.y - 0.5) * 20 * dpr;
-      layers.forEach((layer, li) => {
-        ctx.fillStyle = layer.color;
-        for (let i = 0; i < stars.length; i++) {
-          const s = stars[i]; if (s.layer !== li) continue;
-          const dx = s.x - cx, dy = s.y - cy, dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          s.x += (dx / dist) * layer.speed * dt * 0.22; s.y += (dy / dist) * layer.speed * dt * 0.22;
-          if (s.x < -40 || s.x > width + 40 || s.y < -40 || s.y > height + 40) { s.x = cx + (Math.random() - 0.5) * 80; s.y = cy + (Math.random() - 0.5) * 80; }
-          ctx.beginPath(); ctx.globalAlpha = Math.max(0.04, Math.min(0.55, s.baseAlpha + Math.sin(now * s.twinkle + i) * 0.16 * (li + 1)));
-          ctx.arc((s.x + px * (1 - s.z)) / dpr, (s.y + py * (1 - s.z)) / dpr, (s.r / dpr) * s.z, 0, Math.PI * 2); ctx.fill();
+      ctx.clearRect(0, 0, width, height);
+      
+      const px = pointerRef.current.x || -1000;
+      const py = pointerRef.current.y || -1000;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce off walls
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(129, 140, 248, ${p.baseAlpha})`;
+        ctx.fill();
+
+        // Connect nodes
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < connectionDistance) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            const opacity = 1 - (dist / connectionDistance);
+            ctx.strokeStyle = `rgba(129, 140, 248, ${opacity * 0.25})`;
+            ctx.lineWidth = 0.6 * dpr;
+            ctx.stroke();
+          }
         }
-        ctx.globalAlpha = 1;
-      });
-      ctx.restore(); rafRef.current = requestAnimationFrame(render);
+        
+        // Connect to pointer (interactive AI field)
+        const mouseDx = p.x - px;
+        const mouseDy = p.y - py;
+        const mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+        if (mouseDist < connectionDistance * 1.5) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(px, py);
+          const opacity = 1 - (mouseDist / (connectionDistance * 1.5));
+          ctx.strokeStyle = `rgba(248, 250, 252, ${opacity * 0.35})`;
+          ctx.lineWidth = 1 * dpr;
+          ctx.stroke();
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(render);
     };
     rafRef.current = requestAnimationFrame(render);
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", onResize); canvas.removeEventListener("pointermove", onMove); };
