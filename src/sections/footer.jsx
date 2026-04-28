@@ -1,32 +1,43 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 
 const Footer = () => {
   const [bursts, setBursts] = useState([]);
+  const footerRef = useRef(null);
+  const isInView = useInView(footerRef, { amount: 0.1 });
 
   const handleTrigger = () => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const emojis = ['🌼', '🏵️', '✨', '🌸'];
+    const emojis = ['🌸', '🌺', '🌼']; // Only the three requested emojis
 
     const newBurst = {
       id: Date.now(),
-      flowers: [...Array(25)].map(() => ({
-        x: (Math.random() - 0.5) * (screenWidth * 0.6),
-        y: (Math.random() - 1.2) * (screenHeight * 0.6),
+      flowers: [...Array(35)].map(() => ({
+        // Distribute across the entire screen aspect ratio!
+        x: (Math.random() - 0.5) * screenWidth * 0.9, 
+        y: -((Math.random() * 0.8 + 0.2) * screenHeight), // Shoots high into the screen
         rotate: Math.random() * 360,
-        scale: 0.5 + Math.random() * 1.5,
-        duration: 2 + Math.random() * 1.5,
+        scale: 0.8 + Math.random() * 1.5,
+        duration: 2.5 + Math.random() * 2,
         emoji: emojis[Math.floor(Math.random() * emojis.length)],
       }))
     };
 
     setBursts(prev => [...prev, newBurst]);
-    setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 3500);
+    setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 5000);
   };
 
+  // Automatically trigger on scroll end ONLY for mobile screens
+  useEffect(() => {
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
+    if (isInView && screenWidth < 768) {
+      handleTrigger();
+    }
+  }, [isInView]);
+
   return (
-    <footer className="w-full bg-transparent border-t border-white/[0.06] pt-5 pb-4 px-6 md:px-10 relative overflow-visible">
+    <footer ref={footerRef} className="w-full bg-transparent border-t border-white/[0.06] pt-5 pb-4 px-6 md:px-10 relative overflow-visible">
       <div className="max-w-[1100px] mx-auto flex flex-col gap-8">
 
         {/* Top row */}
