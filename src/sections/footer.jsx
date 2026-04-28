@@ -6,17 +6,22 @@ const Footer = () => {
   const footerRef = useRef(null);
   const isInView = useInView(footerRef, { amount: 0.1 });
 
-  const handleTrigger = () => {
+  const handleTrigger = (isAuto = false) => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const emojis = ['🌸', '🌺', '🌼']; // Only the three requested emojis
+    const emojis = ['🌸', '🌺', '🏵️', '🌼']; // Only the requested emojis
+
+    // Less quantity and height for automatic scroll, Massive burst for manual clicks
+    const flowerCount = isAuto ? 15 : 15;
+    const heightMultiplier = isAuto ? 0.4 : 1.2;
+    const heightBase = isAuto ? 0.1 : 0.2;
 
     const newBurst = {
       id: Date.now(),
-      flowers: [...Array(35)].map(() => ({
+      flowers: [...Array(flowerCount)].map(() => ({
         // Distribute across the entire screen aspect ratio!
-        x: (Math.random() - 0.5) * screenWidth * 0.9, 
-        y: -((Math.random() * 0.8 + 0.2) * screenHeight), // Shoots high into the screen
+        x: (Math.random() - 0.5) * screenWidth * (isAuto ? 0.8 : 1.0),
+        y: -((Math.random() * heightMultiplier + heightBase) * screenHeight), // Dynamic height based on trigger type
         rotate: Math.random() * 360,
         scale: 0.8 + Math.random() * 1.5,
         duration: 2.5 + Math.random() * 2,
@@ -25,14 +30,14 @@ const Footer = () => {
     };
 
     setBursts(prev => [...prev, newBurst]);
-    setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 5000);
+    setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 6000);
   };
 
   // Automatically trigger on scroll end ONLY for mobile screens
   useEffect(() => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     if (isInView && screenWidth < 768) {
-      handleTrigger();
+      handleTrigger(true); // Pass true to indicate this is the auto-trigger
     }
   }, [isInView]);
 
@@ -88,7 +93,7 @@ const Footer = () => {
                 className="cursor-pointer text-base select-none z-20 relative mx-0.5 hover:text-white transition-colors duration-300"
                 whileHover={{ scale: 1.2, rotate: 180 }}
                 whileTap={{ scale: 0.8 }}
-                onClick={handleTrigger}
+                onClick={() => handleTrigger(false)}
               >
                 🏵️
               </motion.span>
