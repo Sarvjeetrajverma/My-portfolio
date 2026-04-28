@@ -235,7 +235,7 @@
   --theme-black: #fffbeb;
   /* Warm amber 50 — card/surface */
   --theme-stroke: rgba(26, 16, 7, 0.12);
-  --bg-gradient: linear-gradient(150deg, #fbbf24 0%, #fcd34d 20%, #fde68a 50%, #fef3c7 80%, #fffbeb 100%);
+  --bg-gradient: linear-gradient(150deg, #f7da91 0%, #ddd1a7 20%, #e0d7b4 50%, #ddd9c5 80%, #e8d68e 100%);
 
   --theme-slate-200: #1a1007;
   /* Near black warm — headlines */
