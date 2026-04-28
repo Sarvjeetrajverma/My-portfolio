@@ -44,7 +44,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
 
           {/* Brand */}
-          <div>
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
             <span className="text-white text-lg font-medium tracking-tight">SARVJEET.</span>
             <p className="text-slate-600 text-xs mt-1 tracking-wide font-light">AI/ML Engineer Learner</p>
           </div>
