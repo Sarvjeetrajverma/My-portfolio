@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt, FaCode, FaBrain, FaTerminal } from 'react-icons/fa';
 import project1Image from '../assets/project1.png';
+import project2Image from '../assets/project2.png';
+import project3Image from '../assets/project3.png';
+import project4Image from '../assets/project4.png';
 
 const projects = [
   {
@@ -10,7 +13,12 @@ const projects = [
     tech: ["React", "Tailwind CSS", "Framer Motion"],
     github: "#",
     demo: "#",
-    image: project1Image,
+    images: {
+      dark: project1Image,
+      light: project2Image,
+      read: project3Image,
+      green: project4Image
+    },
     status: "v1.0 Online"
   }
 ];
@@ -18,6 +26,25 @@ const projects = [
 const ease = [0.22, 1, 0.36, 1];
 
 const Projects = () => {
+  const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
+
+  useEffect(() => {
+    // Initial check
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    if (theme !== currentTheme) setTheme(currentTheme);
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, [theme]);
+
   return (
     <section id="projects" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
 
@@ -58,9 +85,10 @@ const Projects = () => {
               {/* Image */}
               <div className="relative h-56 overflow-hidden">
                 <motion.img
+                  key={theme}
                   whileHover={{ scale: 1.04 }}
                   transition={{ duration: 0.8, ease }}
-                  src={project.image}
+                  src={project.images[theme] || project.images.dark}
                   alt={project.title}
                   className="w-full h-full object-cover"
                 />

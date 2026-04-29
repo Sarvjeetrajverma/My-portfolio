@@ -39,11 +39,11 @@
   --theme-stroke: rgba(15, 23, 42, 0.08);
   --bg-gradient: linear-gradient(135deg, #8abae9 0%, #bad4e4 40%, #93bacf 100%);
 
-  --theme-slate-200: #1e293b;
-  --theme-slate-300: #334155;
-  --theme-slate-400: #475569;
-  --theme-slate-500: #64748b;
-  --theme-slate-600: #94a3b8;
+  --theme-slate-200: #0f172a;
+  --theme-slate-300: #1e293b;
+  --theme-slate-400: #334155;
+  --theme-slate-500: #475569;
+  --theme-slate-600: #64748b;
 }
 
 /* Overrides for text */
@@ -245,8 +245,8 @@
   /* Dark brown — secondary text */
   --theme-slate-500: #78573a;
   /* Medium brown — muted/icons */
-  --theme-slate-600: #fcd34d;
-  /* Amber 300 — borders/dividers */
+  --theme-slate-600: #401d07;
+  /* Dark amber — text/borders */
 }
 
 /* Read mode: override hardcoded white text & borders */
@@ -621,6 +621,19 @@ div[id] {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Fix terminal code text in light mode */
+[data-theme="light"] .text-amber-400 {
+  color: #b45309 !important;
+}
+
+[data-theme="light"] .text-emerald-400 {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .text-emerald-500 {
+  color: #047857 !important;
+}
+
 /* ============================================
    READ MODE — Section Enhancements
    ============================================ */
@@ -695,4 +708,17 @@ div[id] {
   background: rgba(254, 252, 232, 0.9) !important;
   border-color: rgba(26, 16, 7, 0.1) !important;
   box-shadow: 0 4px 24px rgba(26, 16, 7, 0.08) !important;
+}
+
+/* Fix terminal code text in read mode */
+[data-theme="read"] .text-amber-400 {
+  color: #92400e !important;
+}
+
+[data-theme="read"] .text-emerald-400 {
+  color: #065f46 !important;
+}
+
+[data-theme="read"] .text-emerald-500 {
+  color: #064e3b !important;
 }
