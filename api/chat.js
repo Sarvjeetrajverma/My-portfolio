@@ -44,7 +44,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { history, message } = req.body;
+    const { history } = req.body;
+    let { message } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
