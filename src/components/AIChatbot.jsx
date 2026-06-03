@@ -80,6 +80,7 @@ export default function AIChatbot() {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           message: userMessage,
           // Send previous context (excluding the very first greeting if desired, but good for context)
