@@ -19,12 +19,13 @@ let db = null;
 let rtdb = null;
 
 try {
-  if (firebaseConfig.apiKey) {
+  // Check for the most critical keys to prevent Firebase from throwing fatal errors
+  if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.databaseURL) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     rtdb = getDatabase(app);
   } else {
-    console.warn("Firebase config is missing. Please check Vercel Environment Variables.");
+    console.warn("Firebase config is missing or incomplete. Real-time features are disabled. Please check Vercel Environment Variables.");
   }
 } catch (error) {
   console.error("Firebase initialization error:", error);
