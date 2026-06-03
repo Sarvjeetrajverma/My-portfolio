@@ -112,8 +112,8 @@ export default function AIChatbot() {
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { 
-        role: 'model', 
-        text: `Error: ${error.message}. If this says "API key is missing", you must add GEMINI_API_KEY in Vercel Settings -> Environment Variables.` 
+        role: 'model',
+        text: `Error: ${error.message}. If this says "API key is missing", you must add OPENROUTER_API_KEY in Vercel Settings -> Environment Variables.` 
       }]);
     } finally {
       setIsLoading(false);
