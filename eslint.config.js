@@ -14,7 +14,7 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: 'latest',
@@ -24,13 +24,12 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': 'off',
-      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {
     files: ['api/**/*.js', 'backend/**/*.js'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       globals: globals.node,
       parserOptions: {
         ecmaVersion: 'latest',
@@ -42,3 +41,4 @@ export default defineConfig([
     },
   },
 ])
+

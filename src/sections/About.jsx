@@ -152,6 +152,7 @@ const About = () => {
                   variants={slideVariants}
                   initial="enter" animate="center" exit="exit"
                   alt="Sarvjeet Profile"
+                  loading="lazy" decoding="async"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
               </AnimatePresence>

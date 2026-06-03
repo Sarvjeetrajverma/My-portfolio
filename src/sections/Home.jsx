@@ -1,43 +1,33 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import { FaXTwitter, FaLinkedinIn, FaGithub, FaInstagram } from "react-icons/fa6";
 
-// --- EXPANDED HOLIDAY DATA MAP (Name, Icon, and 1-Sentence Note) ---
-const holidayData = {
+// Fixed holidays — always the same calendar date, permanently year-agnostic
+const fixedHolidays = {
   // January
   "01-01": { name: "New Year / Global Family Day", icon: "🎆", note: "Embrace fresh starts and cherish the time spent with your loved ones." },
   "01-04": { name: "World Braille Day", icon: "⠃", note: "Celebrating the brilliant invention that brought literacy to the visually impaired." },
   "01-11": { name: "International Thank-You Day", icon: "🙏", note: "Take a moment today to express gratitude to those who make your life better." },
   "01-14": { name: "Makar Sankranti", icon: "🪁", note: "May your life soar as high as the kites in the harvest sky." },
-  "01-23": { name: "Basant Panchami", icon: "🌼", note: "May Goddess Saraswati bless you with immense knowledge and wisdom." },
   "01-26": { name: "Republic Day", icon: "🇮🇳", note: "Honoring the constitution, diversity, and spirit of our great nation." },
   "01-30": { name: "World Leprosy Day", icon: "🤝", note: "Spreading awareness and compassion to end the stigma surrounding leprosy." },
   // February
-  "02-01": { name: "Sant Ravidas Jayanti", icon: "🕊️", note: "Remembering the teachings of equality and spiritual freedom by Sant Ravidas." },
-  "02-04": { name: "Shab-e-Barat", icon: "🌙", note: "A night of forgiveness, prayer, and seeking blessings for the year ahead." },
   "02-12": { name: "Darwin Day", icon: "🧬", note: "Celebrating science, evolution, and the endless pursuit of human curiosity." },
   "02-14": { name: "Valentine's Day", icon: "💖", note: "Spread love, kindness, and appreciation to everyone who holds a place in your heart." },
-  "02-15": { name: "Mahashivratri", icon: "🔱", note: "May Lord Shiva guide you from darkness into the light of ultimate truth." },
   "02-21": { name: "International Mother Language Day", icon: "🗣️", note: "Celebrate the linguistic and cultural diversity that shapes our identity." },
   "02-22": { name: "World Thinking Day", icon: "💡", note: "Empowering young minds to think globally and create a better tomorrow." },
   // March
   "03-01": { name: "International Day of the Seal", icon: "🦭", note: "Raising awareness to protect marine life and their fragile ecosystems." },
-  "03-02": { name: "Holi", icon: "🎨", note: "May your life be painted with the vibrant colors of joy and prosperity." },
-  "03-03": { name: "Holi", icon: "🎨", note: "May your life be painted with the vibrant colors of joy and prosperity." },
-  "03-04": { name: "Holi", icon: "🎨", note: "May your life be painted with the vibrant colors of joy and prosperity." },
   "03-08": { name: "International Women's Day", icon: "👩🏽‍🚀", note: "Honoring the achievements and resilience of women across the globe." },
   "03-20": { name: "World Frog Day", icon: "🐸", note: "Leap into action to protect amphibians and their critical natural habitats." },
-  "03-21": { name: "Eid-ul-Fitr / Down Syndrome Day", icon: "🕌", note: "Embrace inclusion today, and may your home be filled with peace and blessings." },
   "03-22": { name: "Bihar Diwas / World Water Day", icon: "💧", note: "Conserve every drop today while celebrating the rich heritage of Bihar." },
   "03-23": { name: "World Meteorological Day", icon: "🌤️", note: "Appreciating the science that helps us understand and protect our climate." },
   "03-24": { name: "World TB Day", icon: "🩺", note: "Standing together to raise awareness and put an end to tuberculosis." },
   "03-26": { name: "Samrat Ashok Jayanti", icon: "🦁", note: "Honoring the legacy of peace and dharma left by Emperor Ashoka." },
-  "03-27": { name: "Ram Navami", icon: "🏹", note: "May the divine grace of Lord Rama always be with you and your family." },
   "03-28": { name: "Earth Hour", icon: "🌍", note: "Turn off the lights and spark a commitment to our planet's future." },
-  "03-31": { name: "Mahavir Jayanti", icon: "🌿", note: "Embrace the path of non-violence and truth taught by Lord Mahavira." },
   // April
   "04-02": { name: "Children's Book Day", icon: "📚", note: "Spark a child's imagination today through the magic of a good story." },
-  "04-03": { name: "Good Friday", icon: "✝️", note: "A day of solemn reflection on sacrifice, grace, and ultimate love." },
   "04-07": { name: "World Health Day", icon: "🍏", note: "Prioritize your physical and mental well-being for a happier, healthier life." },
   "04-12": { name: "Yuri's Night", icon: "🚀", note: "Celebrating humanity's first bold steps into the vastness of outer space." },
   "04-13": { name: "Special Librarians Day", icon: "📖", note: "Thank the dedicated knowledge keepers who help us navigate information." },
@@ -48,7 +38,7 @@ const holidayData = {
   "04-25": { name: "World Penguin Day", icon: "🐧", note: "Waddle into action to protect these incredible flightless birds." },
   "04-29": { name: "International Dance Day", icon: "💃", note: "Express yourself and feel the rhythm—dance like nobody's watching!" },
   // May
-  "05-01": { name: "May Day / Buddha Purnima", icon: "🧘‍♂️", note: "Celebrate the dignity of labor and the serene enlightenment of Lord Buddha." },
+  "05-01": { name: "International Workers' Day", icon: "🧰", note: "Celebrate the dignity of labour and the global workers who keep our world moving." },
   "05-03": { name: "World Press Freedom Day", icon: "📰", note: "Defending the truth and honoring the courage of journalists worldwide." },
   "05-05": { name: "International Midwives Day", icon: "🍼", note: "Thanking the skilled hands that safely guide new life into the world." },
   "05-08": { name: "World Red Cross Day", icon: "🚑", note: "Celebrating the spirit of humanitarianism and life-saving volunteer work." },
@@ -63,7 +53,6 @@ const holidayData = {
   "05-23": { name: "World Turtle Day", icon: "🐢", note: "Slow and steady wins the race—let's protect turtles and their habitats." },
   "05-24": { name: "World Schizophrenia Day", icon: "🧠", note: "Breaking the stigma and advocating for better mental health support." },
   "05-25": { name: "Towel Day", icon: "🧣", note: "Don't panic! Always know where your towel is as you explore the galaxy." },
-  "05-28": { name: "Red Nose Day / Bakrid", icon: "🐏", note: "Share a smile, spread charity, and celebrate the spirit of sacrifice." },
   "05-31": { name: "World No-Tobacco Day", icon: "🚭", note: "Choose your health today and commit to a smoke-free future." },
   // June
   "06-01": { name: "World Milk Day", icon: "🥛", note: "Raise a glass to global nutrition and the hardworking dairy industry." },
@@ -83,19 +72,15 @@ const holidayData = {
   "07-28": { name: "World Hepatitis Day", icon: "🎗️", note: "Raise awareness, encourage testing, and take action to eliminate hepatitis." },
   "07-30": { name: "International Friendship Day", icon: "🤝", note: "Reach out to a friend today and celebrate the bonds that tie us together." },
   // August
-  "08-04": { name: "Chehallum", icon: "🕌", note: "A solemn day of remembrance marking the end of the mourning period." },
   "08-08": { name: "International Infinity Day", icon: "♾️", note: "Celebrate limitless possibilities, philosophy, and the concept of forever." },
-  "08-09": { name: "World's Indigenous People", icon: "🪶", note: "Honoring the cultures, wisdom, and rights of indigenous populations." },
+  "08-09": { name: "World's Indigenous People Day", icon: "🪶", note: "Honoring the cultures, wisdom, and rights of indigenous populations." },
   "08-10": { name: "International Biodiesel Day", icon: "⛽", note: "Fueling the future with sustainable and renewable energy alternatives." },
   "08-12": { name: "International Youth Day", icon: "🌟", note: "Empowering the voices and actions of the youth to shape a better future." },
   "08-13": { name: "Lefthanders Day", icon: "✍️", note: "Celebrating the uniqueness and creativity of left-handed people everywhere." },
   "08-14": { name: "World Lizard Day", icon: "🦎", note: "Taking a moment to appreciate the incredible diversity of lizards." },
   "08-15": { name: "Independence Day", icon: "🇮🇳", note: "Proudly unfurl the tricolor and honor the heroes of our freedom struggle." },
   "08-23": { name: "Slave Trade Remembrance Day", icon: "⛓️", note: "Remembering history's dark chapters to ensure freedom for all today." },
-  "08-26": { name: "Hazrat Mohammad Sahab Birthday", icon: "✨", note: "Commemorating the birth and reflecting on the teachings of the Prophet." },
-  "08-28": { name: "Rakshabandhan", icon: "🎀", note: "Celebrating the unbreakable bond of love and protection between siblings." },
   // September
-  "09-04": { name: "Sri Krishna Janmashtami", icon: "🦚", note: "May the melodies of Lord Krishna's flute fill your life with eternal joy." },
   "09-08": { name: "International Literacy Day", icon: "📖", note: "Empowering communities through the profound gift of reading and writing." },
   "09-13": { name: "International Chocolate Day", icon: "🍫", note: "Treat yourself today—life is always a little better with chocolate." },
   "09-15": { name: "Democracy / Software Freedom Day", icon: "🗳️", note: "Advocating for digital rights and the power of the people to choose." },
@@ -112,26 +97,13 @@ const holidayData = {
   "10-05": { name: "World Teacher's Day", icon: "🧑‍🏫", note: "Thank the educators who patiently ignite the spark of knowledge." },
   "10-10": { name: "World Mental Health Day", icon: "🧠", note: "It's okay not to be okay; prioritize your mental well-being today." },
   "10-16": { name: "World Food Day", icon: "🌾", note: "Striving for a world with zero hunger and accessible nutrition for all." },
-  "10-17": { name: "Durga Puja / Poverty Eradication Day", icon: "🌺", note: "May Maa Durga give you strength as we fight to end global poverty." },
-  "10-18": { name: "Durga Puja", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
-  "10-19": { name: "Durga Puja", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
-  "10-20": { name: "Durga Puja", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
   "10-24": { name: "United Nations Day", icon: "🇺🇳", note: "Celebrating international cooperation, peace, and global development." },
   "10-29": { name: "International Internet Day", icon: "🌐", note: "Commemorating the technological revolution that connected the entire world." },
   "10-31": { name: "Halloween", icon: "🎃", note: "Have a spook-tacular day full of treats, tricks, and frightening fun!" },
   // November
-  "11-08": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-09": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-10": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-11": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-12": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-13": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
-  "11-14": { name: "Diwali / World Diabetes Day", icon: "🪔", note: "Celebrate the lights while spreading awareness about diabetic care." },
-  "11-15": { name: "Diwali / Chhath Puja", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
   "11-16": { name: "Day for Tolerance", icon: "🤝", note: "Fostering mutual understanding, respect, and peace among diverse cultures." },
   "11-19": { name: "World Toilet Day", icon: "🚽", note: "Raising awareness to tackle the global sanitation crisis securely." },
   "11-21": { name: "World Television Day", icon: "📺", note: "Celebrating the visual media that informs, entertains, and connects us." },
-  "11-24": { name: "Guru Nanak Jayanti", icon: "ੴ", note: "May the holy teachings of Guru Nanak Dev Ji enlighten your path." },
   "11-25": { name: "Elimination of Violence Against Women", icon: "🛑", note: "Take a stand today to build a safe, respectful world for all women." },
   "11-30": { name: "Computer Security Day", icon: "🔒", note: "Update your passwords and stay safe in the ever-evolving digital world." },
   // December
@@ -141,7 +113,55 @@ const holidayData = {
   "12-07": { name: "International Civil Aviation Day", icon: "✈️", note: "Recognizing the importance of safe and efficient global air travel." },
   "12-10": { name: "Human Rights Day", icon: "📜", note: "Stand up for your rights and the fundamental freedoms of all people." },
   "12-25": { name: "Christmas", icon: "🎄", note: "Wishing you a season of joy, warmth, and beautiful memories." },
-  "12-31": { name: "New Year's Eve", icon: "🥂", note: "Reflect on the past year and get ready to ring in exciting new adventures!" }
+  "12-31": { name: "New Year's Eve", icon: "🥂", note: "Reflect on the past year and get ready to ring in exciting new adventures!" },
+};
+
+// Floating holidays — lunar/religious festivals that move each year.
+// Keyed by YYYY-MM-DD. Add next year's dates here to keep it fresh.
+const floatingHolidays = {
+  // ── 2025 ──────────────────────────────────────────────────────────────
+  "2025-01-29": { name: "Basant Panchami", icon: "🌼", note: "May Goddess Saraswati bless you with immense knowledge and wisdom." },
+  "2025-02-26": { name: "Mahashivratri", icon: "🔱", note: "May Lord Shiva guide you from darkness into the light of ultimate truth." },
+  "2025-03-13": { name: "Holika Dahan", icon: "🔥", note: "Let the sacred fire burn away all evil and negativity from your life." },
+  "2025-03-14": { name: "Holi", icon: "🎨", note: "May your life be painted with the vibrant colors of joy and prosperity." },
+  "2025-03-31": { name: "Eid-ul-Fitr", icon: "🕌", note: "Eid Mubarak! May this joyous occasion bring peace, happiness, and blessings." },
+  "2025-04-06": { name: "Ram Navami", icon: "🏹", note: "May the divine grace of Lord Rama always be with you and your family." },
+  "2025-04-10": { name: "Mahavir Jayanti", icon: "🌿", note: "Embrace the path of non-violence and truth taught by Lord Mahavira." },
+  "2025-04-18": { name: "Good Friday", icon: "✝️", note: "A day of solemn reflection on sacrifice, grace, and ultimate love." },
+  "2025-05-12": { name: "Buddha Purnima", icon: "🧘‍♂️", note: "May the teachings of the Buddha guide you towards enlightenment and peace." },
+  "2025-06-06": { name: "Eid-ul-Adha (Bakrid)", icon: "🐏", note: "Share a smile, spread charity, and celebrate the spirit of sacrifice." },
+  "2025-08-09": { name: "Rakshabandhan", icon: "🎀", note: "Celebrating the unbreakable bond of love and protection between siblings." },
+  "2025-08-16": { name: "Sri Krishna Janmashtami", icon: "🦚", note: "May the melodies of Lord Krishna's flute fill your life with eternal joy." },
+  "2025-09-29": { name: "Durga Puja (Maha Shashthi)", icon: "🌺", note: "May Maa Durga bless you with strength and wisdom on this sacred festival." },
+  "2025-09-30": { name: "Durga Puja (Maha Saptami)", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
+  "2025-10-01": { name: "Durga Puja (Maha Ashtami)", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
+  "2025-10-02": { name: "Gandhi Jayanti & Vijayadashami", icon: "🕊️", note: "Embrace non-violence as truth triumphs over evil on this auspicious day." },
+  "2025-10-20": { name: "Diwali (Lakshmi Puja)", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
+  "2025-10-24": { name: "Govardhan Puja", icon: "🪔", note: "Celebrate gratitude and the abundance that nature blesses us with." },
+  "2025-10-26": { name: "Chhath Puja (Sandhya Arghya)", icon: "🌅", note: "Devotion to the Sun God — may your life be filled with vitality and light." },
+  "2025-10-27": { name: "Chhath Puja (Usha Arghya)", icon: "🌄", note: "The sacred morning offering — may the rising sun bring new hope and joy." },
+  "2025-11-05": { name: "Guru Nanak Jayanti", icon: "ੴ", note: "May the holy teachings of Guru Nanak Dev Ji enlighten your path." },
+  // ── 2026 ──────────────────────────────────────────────────────────────
+  "2026-02-17": { name: "Basant Panchami", icon: "🌼", note: "May Goddess Saraswati bless you with immense knowledge and wisdom." },
+  "2026-03-02": { name: "Holika Dahan", icon: "🔥", note: "Let the sacred fire burn away all evil and negativity from your life." },
+  "2026-03-03": { name: "Holi", icon: "🎨", note: "May your life be painted with the vibrant colors of joy and prosperity." },
+  "2026-03-20": { name: "Eid-ul-Fitr", icon: "🕌", note: "Eid Mubarak! May this joyous occasion bring peace, happiness, and blessings." },
+  "2026-03-27": { name: "Ram Navami", icon: "🏹", note: "May the divine grace of Lord Rama always be with you and your family." },
+  "2026-04-01": { name: "Mahavir Jayanti", icon: "🌿", note: "Embrace the path of non-violence and truth taught by Lord Mahavira." },
+  "2026-04-03": { name: "Good Friday", icon: "✝️", note: "A day of solemn reflection on sacrifice, grace, and ultimate love." },
+  "2026-05-01": { name: "Buddha Purnima / Workers' Day", icon: "🧘‍♂️", note: "Celebrate both spiritual enlightenment and the dignity of every worker." },
+  "2026-05-27": { name: "Eid-ul-Adha (Bakrid)", icon: "🐏", note: "Share a smile, spread charity, and celebrate the spirit of sacrifice." },
+  "2026-08-22": { name: "Sri Krishna Janmashtami", icon: "🦚", note: "May the melodies of Lord Krishna's flute fill your life with eternal joy." },
+  "2026-08-28": { name: "Rakshabandhan", icon: "🎀", note: "Celebrating the unbreakable bond of love and protection between siblings." },
+  "2026-10-18": { name: "Durga Puja (Maha Saptami)", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
+  "2026-10-19": { name: "Durga Puja (Maha Ashtami)", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
+  "2026-10-20": { name: "Durga Puja (Maha Navami)", icon: "🌺", note: "Celebrate the victory of good over evil with devotion and joy." },
+  "2026-10-21": { name: "Vijayadashami / Dussehra", icon: "🏹", note: "May truth and righteousness always triumph on this auspicious day." },
+  "2026-11-08": { name: "Diwali (Lakshmi Puja)", icon: "🪔", note: "May the festival of lights guide you towards happiness and prosperity." },
+  "2026-11-09": { name: "Govardhan Puja", icon: "🪔", note: "Celebrate gratitude and the abundance that nature blesses us with." },
+  "2026-11-12": { name: "Chhath Puja (Sandhya Arghya)", icon: "🌅", note: "Devotion to the Sun God — may your life be filled with vitality and light." },
+  "2026-11-13": { name: "Chhath Puja (Usha Arghya)", icon: "🌄", note: "The sacred morning offering — may the rising sun bring new hope and joy." },
+  "2026-11-25": { name: "Guru Nanak Jayanti", icon: "ੴ", note: "May the holy teachings of Guru Nanak Dev Ji enlighten your path." },
 };
 
 const socials = [
@@ -183,7 +203,8 @@ export default function Home() {
 
   // --- Holiday Checking Logic ---
   const currentMonthDay = `${String(currentTime.getMonth() + 1).padStart(2, '0')}-${String(currentTime.getDate()).padStart(2, '0')}`;
-  const activeHoliday = holidayData[currentMonthDay];
+  const currentFullDate = `${currentTime.getFullYear()}-${currentMonthDay}`;
+  const activeHoliday = floatingHolidays[currentFullDate] || fixedHolidays[currentMonthDay];
 
   // --- Typewriter Effect ---
   useEffect(() => {
@@ -382,14 +403,14 @@ export default function Home() {
           >
             Explore Work <Icons.ArrowRight size={14} />
           </motion.a>
-          <motion.a
-            href="/sarvjeetrajverma_resume.pdf"
-            download="SarvjeetRajVerma_Resume.pdf"
+          <Link
+            to="/resume"
             className="flex items-center gap-1.5 text-slate-500 hover:text-slate-200 transition-colors text-base sm:text-base font-medium tracking-wide"
-            whileHover={{ y: -2 }}
           >
-            Resume <Icons.Download size={13} />
-          </motion.a>
+            <motion.span className="flex items-center gap-1.5" whileHover={{ y: -2 }}>
+              Resume <Icons.ArrowRight size={13} />
+            </motion.span>
+          </Link>
         </motion.div>
 
         {/* SOCIALS — horizontal row */}

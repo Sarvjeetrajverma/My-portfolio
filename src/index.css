@@ -530,6 +530,12 @@ h3 {
     background-image: linear-gradient(to right, color-mix(in srgb, var(--theme-stroke) 50%, transparent) 1px, transparent 1px),
       linear-gradient(to bottom, color-mix(in srgb, var(--theme-stroke) 50%, transparent) 1px, transparent 1px);
   }
+
+  .btn-active {
+    background-color: var(--theme-white) !important;
+    color: var(--theme-black) !important;
+    font-weight: 600;
+  }
 }
 
 /* Custom Sleek Scrollbar */

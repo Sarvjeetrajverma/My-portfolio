@@ -96,7 +96,7 @@ export const travelData = [
         ]
     },
     {
-        id: 'varanasi-january-2026',
+        id: 'varanasi-june-2024',
         title: "Uttar Pradesh, India",
         date: "June 2024",
         description: "An unforgettable journey through the rich heritage of Uttar Pradesh, right here in the holy city of Banaras.",

@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import OverlayMenu from "./OverlayMenu";
 import logo from "../assets/logo.png";
-import { FiMenu, FiMoon, FiSun, FiBook, FiCode } from "react-icons/fi";
+import { FiMenu, FiMoon, FiSun, FiBook, FiCode, FiTerminal } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-
+import ThemeSwitcher from "./ThemeSwitcher";
 export default function Navbar({ forceHidden }) {
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,10 +12,25 @@ export default function Navbar({ forceHidden }) {
 
   const lastscrollY = useRef(0);
   const timerId = useRef(null);
+  const logoClicksRef = useRef(0);
+  const logoClickTimeoutRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          if (theme !== currentTheme) setTheme(currentTheme);
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
   }, [theme]);
 
   const cycleTheme = () => {
@@ -59,8 +74,21 @@ export default function Navbar({ forceHidden }) {
     };
   }, []);
 
-  // Sleek navigation to home
+  // Sleek navigation to home & easter egg click detector
   const handleLogoClick = () => {
+    logoClicksRef.current += 1;
+    
+    if (logoClicksRef.current >= 5) {
+      window.dispatchEvent(new CustomEvent('toggle-analytics-dashboard'));
+      logoClicksRef.current = 0;
+      return; // Do not scroll or navigate if toggling dashboard
+    }
+
+    if (logoClickTimeoutRef.current) clearTimeout(logoClickTimeoutRef.current);
+    logoClickTimeoutRef.current = setTimeout(() => {
+      logoClicksRef.current = 0;
+    }, 3000);
+
     if (window.location.pathname === '/' || window.location.pathname === '') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -110,12 +138,13 @@ export default function Navbar({ forceHidden }) {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
+          <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
           <button
-            onClick={cycleTheme}
+            onClick={() => window.dispatchEvent(new CustomEvent('toggle-command-palette'))}
             className="flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 backdrop-blur-md"
-            aria-label="Toggle Theme"
+            aria-label="Open Command Palette"
           >
-            {getThemeIcon()}
+            <FiTerminal className="text-base" />
           </button>
           {/* Action Button */}
           <a
@@ -128,12 +157,13 @@ export default function Navbar({ forceHidden }) {
 
         {/* MOBILE HAMBURGER MENU */}
         <div className="block lg:hidden flex gap-2">
+          <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
           <button
-            onClick={cycleTheme}
+            onClick={() => window.dispatchEvent(new CustomEvent('toggle-command-palette'))}
             className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-white/80 hover:text-white hover:bg-white/10 focus:outline-none transition-all duration-300"
-            aria-label="Toggle Theme"
+            aria-label="Open Command Palette"
           >
-            {getThemeIcon()}
+            <FiTerminal className="text-base" />
           </button>
           <button
             onClick={() => setMenuOpen(true)}

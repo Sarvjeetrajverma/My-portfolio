@@ -1,13 +1,31 @@
 import nodemailer from 'nodemailer';
 
+// ─── Input sanitiser ────────────────────────────────────────────────────────
+function sanitize(str = '') {
+  return str.replace(/[<>&"'`]/g, '').slice(0, 2000);
+}
+
 export default async function handler(req, res) {
+  // CORS Headers for Vercel Serverless Function
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', 'https://sarvjeet.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   const { name, email, message } = req.body;
 
-  // Basic validation
+  // Validation
   if (!name || !email || !message) {
     return res.status(400).json({ message: 'All fields are required' });
   }
@@ -17,47 +35,53 @@ export default async function handler(req, res) {
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Invalid email format' });
   }
+  
+  if (name.length > 100 || message.length > 2000) {
+    return res.status(400).json({ message: 'Input too long.' });
+  }
+
+  const safeName = sanitize(name);
+  const safeEmail = sanitize(email);
+  const safeMessage = sanitize(message);
 
   try {
     // Email configuration
+    const user = process.env.EMAIL_USER || process.env.GMAIL_USER;
+    const pass = process.env.EMAIL_PASS || process.env.GMAIL_PASS;
+
+    if (!user || !pass) {
+      console.error('[mailer] Missing credentials');
+      return res.status(500).json({ message: 'Server configuration error.' });
+    }
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER || process.env.GMAIL_USER,
-        pass: process.env.EMAIL_PASS || process.env.GMAIL_PASS
-      }
+      auth: { user, pass }
     });
-
-    // Verify transporter configuration
-    await transporter.verify();
-    console.log('Transporter verified successfully');
 
     // Send email
     const mailOptions = {
-      from: process.env.EMAIL_USER || process.env.GMAIL_USER,
-      to: process.env.EMAIL_USER || process.env.GMAIL_USER,
-      replyTo: email,
-      subject: `New Contact Form Message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}\nTimestamp: ${new Date().toISOString()}`,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p><p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>`
+      from: `"Portfolio Contact" <${user}>`,
+      to: user,
+      replyTo: safeEmail,
+      subject: `New Contact Form Message from ${safeName}`,
+      text: `Name: ${safeName}\nEmail: ${safeEmail}\nMessage: ${safeMessage}\nTimestamp: ${new Date().toISOString()}`,
+      html: `<p><strong>Name:</strong> ${safeName}</p><p><strong>Email:</strong> ${safeEmail}</p><p><strong>Message:</strong><br>${safeMessage.replace(/\n/g,'<br>')}</p>`
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    await transporter.sendMail(mailOptions);
+    
+    // Minimal logging for privacy
+    console.log('[mailer] Email sent successfully.');
 
     res.status(200).json({
       message: 'Message sent successfully!'
     });
   } catch (error) {
-    console.error('Error sending email:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      command: error.command
-    });
+    // Generic error logging to prevent SMTP credential leaks
+    console.error('[mailer] Error sending email');
     res.status(500).json({
-      message: 'Failed to send message.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Failed to send message.'
     });
   }
 }

@@ -112,6 +112,7 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       <div className="w-[110px] md:w-auto aspect-square md:aspect-[4/3] overflow-hidden relative flex-shrink-0">
         <img
           src={cover} alt={trip.title}
+          loading="lazy" decoding="async"
           className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-r md:bg-gradient-to-t from-black/80 via-black/10 to-transparent" />

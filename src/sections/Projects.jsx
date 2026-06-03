@@ -11,8 +11,8 @@ const projects = [
     title: "Portfolio Launchpad",
     description: "A highly optimized digital environment built to showcase my machine learning models and research. Engineered from scratch to ensure a high-performance, seamless user experience.",
     tech: ["React", "Tailwind CSS", "Framer Motion"],
-    github: "#",
-    demo: "#",
+    github: "https://github.com/sarvjeetrajverma/My-portfolio-3",
+    demo: "https://my-protfolio.vercel.app",
     images: {
       dark: project1Image,
       light: project2Image,
@@ -90,6 +90,7 @@ const Projects = () => {
                   transition={{ duration: 0.8, ease }}
                   src={project.images[theme] || project.images.dark}
                   alt={project.title}
+                  loading="lazy" decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />

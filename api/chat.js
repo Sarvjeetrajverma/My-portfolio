@@ -1,0 +1,91 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Initialize the Google Generative AI SDK with the API key
+// In Vercel, this will pull from the environment variables (process.env.GEMINI_API_KEY)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+const SYSTEM_PROMPT = `You are Sarvjeet's personal AI assistant, embedded directly into his portfolio website. Your goal is to represent Sarvjeet Raj Verma professionally, answer questions about his skills, experience, and projects, and assist visitors.
+
+Key Information about Sarvjeet:
+- Name: Sarvjeet Raj Verma
+- Title: AI/ML Engineer Learner & Data Science Enthusiast
+- Education: 3rd-year Computer Science Engineering student at Katihar Engineering College, Bihar, India.
+- Email: sarvjeetrajverma@gmail.com
+- Core Skills: Machine Learning, Deep Learning, Python, TensorFlow, PyTorch, Computer Vision, NLP, Agentic AI, Large Language Models (LLMs), React, Data Engineering (PostgreSQL, MongoDB), and C++ (Data Structures & Algorithms).
+- Passions: Beyond coding, Sarvjeet loves photography (using his Sony A7IV) and combat robotics.
+
+Your Personality:
+- Professional, concise, intelligent, and helpful.
+- Speak as a representative of Sarvjeet (e.g., "Sarvjeet is a 3rd-year student..." or "I can help you learn more about Sarvjeet's work"). Do not pretend to BE Sarvjeet, but act as his AI avatar/assistant.
+- Keep responses relatively brief (1-3 paragraphs) as this is a chat interface. Use markdown for formatting (bullet points, bold text).
+- If you don't know the answer to a highly specific personal question, politely state that you only have access to his professional portfolio data and encourage them to contact him via email or the contact form.`;
+
+export default async function handler(req, res) {
+  // CORS configuration to strictly allow only the portfolio domain
+  const allowedOrigins = [
+    'https://my-protfolio.vercel.app',
+    'http://localhost:5173', // Vite dev server
+    'http://localhost:3000'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(500).json({ error: 'AI API key is missing. The developer needs to configure GEMINI_API_KEY in Vercel.' });
+  }
+
+  try {
+    const { history, message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Initialize the model (using Gemini 1.5 Flash for fast chat responses)
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM_PROMPT,
+    });
+
+    // Format history for Gemini API
+    const formattedHistory = (history || []).map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.text }]
+    }));
+
+    // Start chat session with history
+    const chat = model.startChat({
+      history: formattedHistory,
+      generationConfig: {
+        maxOutputTokens: 500, // Keep responses concise
+        temperature: 0.7,     // Creative but grounded
+      },
+    });
+
+    // Send the user's message
+    const result = await chat.sendMessage(message);
+    const response = await result.response;
+    const text = response.text();
+
+    return res.status(200).json({ text });
+
+  } catch (error) {
+    console.error('AI Chat Error:', error);
+    return res.status(500).json({ 
+      error: 'Failed to generate a response. Please try again later.' 
+    });
+  }
+}

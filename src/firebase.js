@@ -1,14 +1,19 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
+// All values loaded from .env.local — never hardcoded in source
+// Add these to Vercel Environment Variables for production
 const firebaseConfig = {
-  apiKey: "AIzaSyBnl7gw4n1lXFnKnEgQA5OwvlNTk473YCI",
-  authDomain: "portfolio-gallery-65de8.firebaseapp.com",
-  projectId: "portfolio-gallery-65de8",
-  storageBucket: "portfolio-gallery-65de8.firebasestorage.app",
-  messagingSenderId: "692940632991",
-  appId: "1:692940632991:web:9feb6ebc6ba67b1babc3aa"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const rtdb = getDatabase(app);

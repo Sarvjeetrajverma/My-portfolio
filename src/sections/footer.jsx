@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { FiActivity } from 'react-icons/fi';
 
 const Footer = () => {
   const [bursts, setBursts] = useState([]);
@@ -77,6 +78,13 @@ const Footer = () => {
         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <p>© {new Date().getFullYear()} Sarvjeet. All rights reserved.</p>
           <div className="flex items-center gap-1.5">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('toggle-analytics-dashboard'))}
+              className="hover:text-emerald-400 transition-colors mr-1 cursor-pointer flex items-center justify-center p-1 rounded-md hover:bg-white/5"
+              title="Site Analytics"
+            >
+              <FiActivity size={14} />
+            </button>
             <span>Built with</span>
             <div className="relative flex items-center justify-center">
               <AnimatePresence>
