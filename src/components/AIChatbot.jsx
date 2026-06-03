@@ -89,7 +89,14 @@ export default function AIChatbot() {
       });
 
       if (!response.ok) {
-        throw new Error('API Error');
+        let errorMsg = 'API Error';
+        try {
+          const errData = await response.json();
+          if (errData.error) errorMsg = errData.error;
+        } catch (e) {
+          errorMsg = `HTTP Error ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
@@ -104,7 +111,7 @@ export default function AIChatbot() {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { 
         role: 'model', 
-        text: 'Sorry, my connection was interrupted. Please check your internet or try again later.' 
+        text: `Error: ${error.message}. If this says "API key is missing", you must add GEMINI_API_KEY in Vercel Settings -> Environment Variables.` 
       }]);
     } finally {
       setIsLoading(false);
