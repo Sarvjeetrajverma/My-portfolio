@@ -51,10 +51,18 @@ export default async function handler(req, res) {
       { role: 'system', content: SYSTEM_PROMPT }
     ];
 
+    let hasSeenUser = false;
     for (const msg of (history || [])) {
       // Groq uses 'assistant' instead of 'model'
       const role = (msg.role === 'model' || msg.role === 'assistant') ? 'assistant' : 'user';
-      messages.push({ role, content: msg.text });
+      
+      // Llama 3 chat templates reject conversations starting with 'assistant'
+      if (role === 'assistant' && !hasSeenUser) continue;
+      if (role === 'user') hasSeenUser = true;
+
+      if (msg.text) {
+        messages.push({ role, content: msg.text });
+      }
     }
 
     // Add the current user message
@@ -78,7 +86,12 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errText = await response.text();
       console.error('Groq Error:', errText);
-      throw new Error(`Groq API responded with ${response.status}`);
+      let parsedError = errText;
+      try {
+        const errJson = JSON.parse(errText);
+        parsedError = errJson.error?.message || errText;
+      } catch(e) {}
+      throw new Error(`Groq API responded with ${response.status}: ${parsedError}`);
     }
 
     const data = await response.json();
