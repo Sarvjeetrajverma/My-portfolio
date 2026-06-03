@@ -70,7 +70,7 @@ export default async function handler(req, res) {
         'X-Title': 'Sarvjeet Portfolio Chatbot', 
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3-8b-instruct:free', // Free high-quality open-source model
+        model: 'meta-llama/llama-3.3-70b-instruct:free', // Free high-quality open-source model
         messages: messages,
         temperature: 0.7,
         max_tokens: 500,
