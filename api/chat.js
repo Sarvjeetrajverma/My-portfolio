@@ -50,9 +50,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Initialize the model (using Gemini 1.5 Flash for fast chat responses)
+    // Initialize the model (using Gemini 1.5 Flash latest for regional compatibility)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-latest',
       systemInstruction: SYSTEM_PROMPT,
     });
 
