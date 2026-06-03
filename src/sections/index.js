@@ -3,10 +3,5 @@ export { default as Contact } from './Contact';
 export { default as Experience } from './Experience';
 export { default as Home } from './Home';
 export { default as Projects } from './Projects';
-export { default as Skills } from './Skills';
 export { default as SocialMedia } from './SocialMedia';
 export { default as Testimonials } from './Testimonials';
-export { default as TravelPhotos } from './TravelPhotos';
-export { default as Certifications } from './Certifications';
-
-
