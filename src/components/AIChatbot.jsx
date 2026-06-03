@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaRobot, FaTimes, FaPaperPlane, FaMagic } from 'react-icons/fa';
+import { FaTimes, FaPaperPlane } from 'react-icons/fa';
+import { BsRobot } from 'react-icons/bs';
+import { HiSparkles } from 'react-icons/hi';
 import ReactMarkdown from 'react-markdown';
 import { collection, addDoc, serverTimestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -127,9 +129,9 @@ export default function AIChatbot() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 p-4 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all duration-300 hover:shadow-emerald-500/50 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 p-4 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-500/40 flex items-center justify-center transition-all duration-300 hover:shadow-emerald-500/60 hover:-translate-y-1 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
-        <FaRobot className="text-2xl" />
+        <BsRobot className="text-2xl drop-shadow-md" />
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
@@ -144,20 +146,20 @@ export default function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 w-[350px] md:w-[400px] lg:w-[450px] max-w-[calc(100vw-3rem)] h-[550px] md:h-[650px] max-h-[calc(100vh-6rem)] bg-black border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl"
+            className="fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 w-[350px] md:w-[400px] lg:w-[450px] max-w-[calc(100vw-3rem)] h-[550px] md:h-[650px] max-h-[calc(100vh-6rem)] bg-black/95 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl md:resize"
           >
             {/* Header */}
-            <div className="flex justify-between items-center px-5 py-4 border-b border-white/10 bg-white/5">
+            <div className="flex justify-between items-center px-5 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                    <FaRobot />
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500/20 to-teal-400/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
+                    <BsRobot className="text-lg" />
                   </div>
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#0f0f13]"></div>
                 </div>
                 <div>
-                  <h3 className="text-white font-medium text-sm flex items-center gap-2">
-                    Lee AI <FaMagic className="text-emerald-400 text-xs animate-pulse" />
+                  <h3 className="text-white font-medium text-sm flex items-center gap-1.5">
+                    Lee AI <HiSparkles className="text-emerald-400 text-sm animate-pulse drop-shadow-sm" />
                   </h3>
                   <p className="text-emerald-500/70 text-[10px] uppercase tracking-wider font-mono">Online & Learning</p>
                 </div>

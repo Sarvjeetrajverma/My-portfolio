@@ -32,7 +32,7 @@ const ScrollToTop = () => {
   return (
     <>
       {isVisible && (
-        <div className="fixed bottom-8 right-8 z-50">
+        <div className="fixed bottom-24 right-6 md:right-8 lg:right-10 z-40">
           <button
             onClick={scrollToTop}
             className="bg-transparent border border-white text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:bg-white hover:text-black hover:scale-110"
