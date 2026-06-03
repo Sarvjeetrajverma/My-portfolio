@@ -34,6 +34,8 @@ export function usePresence() {
   const sessionIdRef = useRef(generateSessionId());
 
   useEffect(() => {
+    if (!rtdb) return; // Prevent crash if Firebase is not configured
+
     const sessionId = sessionIdRef.current;
     const presenceRef = ref(rtdb, `presence/${sessionId}`);
     const allPresenceRef = ref(rtdb, 'presence');

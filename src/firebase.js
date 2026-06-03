@@ -14,6 +14,20 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const rtdb = getDatabase(app);
+let app = null;
+let db = null;
+let rtdb = null;
+
+try {
+  if (firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    rtdb = getDatabase(app);
+  } else {
+    console.warn("Firebase config is missing. Please check Vercel Environment Variables.");
+  }
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+}
+
+export { db, rtdb };
