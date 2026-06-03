@@ -21,16 +21,12 @@ Your Personality:
 - If you don't know the answer to a highly specific personal question, politely state that you only have access to his professional portfolio data and encourage them to contact him via email or the contact form.`;
 
 export default async function handler(req, res) {
-  // CORS configuration to strictly allow only the portfolio domain
-  const allowedOrigins = [
-    'https://my-protfolio.vercel.app',
-    'http://localhost:5173', // Vite dev server
-    'http://localhost:3000'
-  ];
-  
+  // CORS configuration to allow the main domain and any Vercel preview domains
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+  if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -60,11 +56,23 @@ export default async function handler(req, res) {
       systemInstruction: SYSTEM_PROMPT,
     });
 
-    // Format history for Gemini API
-    const formattedHistory = (history || []).map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }]
-    }));
+    // Format history for Gemini API (must start with 'user' and alternate strictly)
+    let formattedHistory = [];
+    let lastRole = null;
+    
+    for (const msg of (history || [])) {
+      const role = msg.role === 'user' ? 'user' : 'model';
+      // Gemini requires the first message to be from a user
+      if (formattedHistory.length === 0 && role !== 'user') continue;
+      
+      if (role === lastRole) {
+        // Combine consecutive messages from the same role
+        formattedHistory[formattedHistory.length - 1].parts[0].text += '\n\n' + msg.text;
+      } else {
+        formattedHistory.push({ role, parts: [{ text: msg.text }] });
+        lastRole = role;
+      }
+    }
 
     // Start chat session with history
     const chat = model.startChat({
