@@ -9,7 +9,7 @@ export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([{ 
     role: 'model', 
-    text: "Hello! I'm Sarvjeet's AI Assistant. How can I help you explore his portfolio today?" 
+    text: "Hello! I'm Lee, Sarvjeet's AI Assistant. How can I help you explore his portfolio today?" 
   }]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +127,7 @@ export default function AIChatbot() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 p-4 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 p-4 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all duration-300 hover:shadow-emerald-500/50 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
         <FaRobot className="text-2xl" />
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -144,7 +144,7 @@ export default function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed bottom-6 right-6 z-50 w-[350px] max-w-[calc(100vw-3rem)] h-[500px] max-h-[calc(100vh-6rem)] bg-[#0f0f13] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl"
+            className="fixed bottom-6 right-6 md:right-8 lg:right-10 z-50 w-[350px] md:w-[400px] lg:w-[450px] max-w-[calc(100vw-3rem)] h-[550px] md:h-[650px] max-h-[calc(100vh-6rem)] bg-black border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl"
           >
             {/* Header */}
             <div className="flex justify-between items-center px-5 py-4 border-b border-white/10 bg-white/5">
@@ -157,7 +157,7 @@ export default function AIChatbot() {
                 </div>
                 <div>
                   <h3 className="text-white font-medium text-sm flex items-center gap-2">
-                    Sarvjeet AI <FaMagic className="text-emerald-400 text-xs" />
+                    Lee AI <FaMagic className="text-emerald-400 text-xs animate-pulse" />
                   </h3>
                   <p className="text-emerald-500/70 text-[10px] uppercase tracking-wider font-mono">Online & Learning</p>
                 </div>
@@ -180,18 +180,18 @@ export default function AIChatbot() {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm transition-colors ${
                       msg.role === 'user' 
-                        ? 'bg-emerald-500 text-white rounded-br-sm' 
-                        : 'bg-white/10 text-slate-200 rounded-bl-sm border border-white/5'
+                        ? 'bg-emerald-500 text-white rounded-br-sm shadow-emerald-500/20' 
+                        : 'bg-white/10 text-white/90 rounded-bl-sm border border-white/5 backdrop-blur-md'
                     }`}
                   >
                     {msg.role === 'model' ? (
-                      <div className="prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 prose-p:my-1 text-sm">
+                      <div className="prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 prose-p:my-1 text-sm text-white/90">
                         <ReactMarkdown>{msg.text}</ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="leading-relaxed">{msg.text}</p>
+                      <p className="leading-relaxed text-white">{msg.text}</p>
                     )}
                   </div>
                 </motion.div>
@@ -219,8 +219,8 @@ export default function AIChatbot() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask me anything..."
-                  className="w-full bg-black/50 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                  placeholder="Message Lee..."
+                  className="w-full bg-black/40 hover:bg-black/60 focus:bg-black/80 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/70 transition-all shadow-inner"
                   disabled={isLoading}
                 />
                 <button

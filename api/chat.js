@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // In Vercel, this will pull from the environment variables (process.env.GEMINI_API_KEY)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-const SYSTEM_PROMPT = `You are Sarvjeet's advanced AI assistant, embedded directly into his portfolio website. You are continuously learning day by day, acting as a state-of-art AI/ML model that trains on real-world interactions and data.
+const SYSTEM_PROMPT = `You are Lee, Sarvjeet's advanced AI assistant, embedded directly into his portfolio website. You are continuously learning day by day, acting as a state-of-art AI/ML model that trains on real-world interactions and data.
 
 Key Information about Sarvjeet:
 - Name: Sarvjeet Raj Verma
