@@ -93,7 +93,7 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('AI Chat Error:', error);
     return res.status(500).json({ 
-      error: 'Failed to generate a response. Please try again later.' 
+      error: error.message || 'Failed to generate a response. Please try again later.' 
     });
   }
 }
