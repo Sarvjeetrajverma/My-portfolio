@@ -51,9 +51,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Initialize the model (fallback to universally available Gemini 1.0 Pro)
+    // Initialize the model (using Gemini 1.5 Flash for fast chat responses)
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro'
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM_PROMPT,
     });
 
     // Format history for Gemini API (must start with 'user' and alternate strictly)
@@ -62,26 +63,17 @@ export default async function handler(req, res) {
     
     for (const msg of (history || [])) {
       const role = msg.role === 'user' ? 'user' : 'model';
+      // Gemini requires the first message to be from a user
       if (formattedHistory.length === 0 && role !== 'user') continue;
       
       if (role === lastRole) {
+        // Combine consecutive messages from the same role
         formattedHistory[formattedHistory.length - 1].parts[0].text += '\n\n' + msg.text;
       } else {
         formattedHistory.push({ role, parts: [{ text: msg.text }] });
         lastRole = role;
       }
     }
-
-    // Since gemini-pro does not officially support systemInstruction, 
-    // we inject the system prompt into the very first user message.
-    if (formattedHistory.length > 0) {
-      formattedHistory[0].parts[0].text = `[SYSTEM INSTRUCTIONS]:\n${SYSTEM_PROMPT}\n\n[USER MESSAGE]:\n${formattedHistory[0].parts[0].text}`;
-    } else {
-      // If history is empty, inject it into the current message
-      message = `[SYSTEM INSTRUCTIONS]:\n${SYSTEM_PROMPT}\n\n[USER MESSAGE]:\n${message}`;
-    }
-    
-
 
     // Start chat session with history
     const chat = model.startChat({
