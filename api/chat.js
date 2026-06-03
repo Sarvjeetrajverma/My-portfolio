@@ -33,8 +33,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!process.env.OPENROUTER_API_KEY) {
-    return res.status(500).json({ error: 'OpenRouter API key is missing. Please add OPENROUTER_API_KEY in Vercel Settings.' });
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ error: 'Groq API key is missing. Please add GROQ_API_KEY in Vercel Settings.' });
   }
 
   try {
@@ -45,32 +45,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Format history for OpenRouter / OpenAI standard API
+    // Format history for Groq (OpenAI standard API)
     // history array from client has { role: 'user' | 'model', text: '...' }
     const messages = [
       { role: 'system', content: SYSTEM_PROMPT }
     ];
 
     for (const msg of (history || [])) {
-      // OpenRouter uses 'assistant' instead of 'model'
-      const role = msg.role === 'model' ? 'assistant' : 'user';
+      // Groq uses 'assistant' instead of 'model'
+      const role = (msg.role === 'model' || msg.role === 'assistant') ? 'assistant' : 'user';
       messages.push({ role, content: msg.text });
     }
 
     // Add the current user message
     messages.push({ role: 'user', content: message });
 
-    // Call OpenRouter API using native fetch
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Call Groq API using native fetch
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://sarvjeetrajverma.in', // Used for OpenRouter rankings
-        'X-Title': 'Sarvjeet Portfolio Chatbot', 
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.2-3b-instruct:free', // Ultra-fast model to prevent Vercel 10s timeout
+        model: 'llama3-8b-8192', // Groq's lightning-fast Llama 3 8B model
         messages: messages,
         temperature: 0.7,
         max_tokens: 500,
@@ -79,8 +77,8 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('OpenRouter Error:', errText);
-      throw new Error(`OpenRouter API responded with ${response.status}`);
+      console.error('Groq Error:', errText);
+      throw new Error(`Groq API responded with ${response.status}`);
     }
 
     const data = await response.json();

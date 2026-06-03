@@ -113,7 +113,7 @@ export default function AIChatbot() {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { 
         role: 'model',
-        text: `Error: ${error.message}. If this says "API key is missing", you must add OPENROUTER_API_KEY in Vercel Settings -> Environment Variables.` 
+        text: `Error: ${error.message}. If this says "API key is missing", you must add GROQ_API_KEY in Vercel Settings -> Environment Variables.` 
       }]);
     } finally {
       setIsLoading(false);
