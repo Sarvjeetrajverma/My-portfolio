@@ -103,7 +103,7 @@ export default function TripEditor({ trip, onBack }) {
       e.target.value = '';
     } catch (error) {
       console.error("Error uploading photos:", error);
-      alert("Failed to upload photos: " + error.message);
+      alert("Network Error: Could not reach Cloudinary to upload photos. If you are using an ad-blocker (like Brave Shields or uBlock Origin), please disable it for this site and try again. Detailed error: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -160,7 +160,7 @@ export default function TripEditor({ trip, onBack }) {
       onBack();
     } catch (error) {
       console.error("Error saving trip:", error);
-      alert("Error saving trip: " + error.message);
+      alert("Error saving trip. If it failed to upload the cover image, please check your network or ad-blocker. Detailed error: " + error.message);
     } finally {
       setLoading(false);
     }
