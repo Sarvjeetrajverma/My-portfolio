@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter } from 'react-icons/fa6';
+import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter, FaArrowRight } from 'react-icons/fa6';
 import { db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { InstagramEmbed, XEmbed } from 'react-social-media-embed';
@@ -106,6 +106,24 @@ const SocialMedia = () => {
             </motion.h3>
             
             <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:none]">
+              
+              {/* Mobile Swipe Hint */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: [0, 1, 1, 1, 0], x: [20, 0, 0, 0, 10] }}
+                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                transition={{ duration: 4, times: [0, 0.1, 0.7, 0.9, 1] }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 md:hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl pointer-events-none"
+              >
+                <span className="text-white/80 text-[11px] font-bold tracking-widest uppercase">Swipe</span>
+                <motion.div
+                  animate={{ x: [0, 6, 0] }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                >
+                  <FaArrowRight size={14} className="text-white" />
+                </motion.div>
+              </motion.div>
+
               <div className="flex overflow-x-auto gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {highlights.map((post, i) => (
                   <motion.div 

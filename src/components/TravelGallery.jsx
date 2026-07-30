@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { FiImage } from 'react-icons/fi';
+import { FaArrowRight } from 'react-icons/fa';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -269,6 +270,24 @@ const TravelGallery = () => {
 
         {/* Cards grid wrapper for cinematic edge masking on mobile */}
         <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] sm:[mask-image:none]">
+            
+            {/* Mobile Swipe Hint */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: [0, 1, 1, 1, 0], x: [20, 0, 0, 0, 10] }}
+              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+              transition={{ duration: 4, times: [0, 0.1, 0.7, 0.9, 1] }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 sm:hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl pointer-events-none"
+            >
+              <span className="text-white/80 text-[11px] font-bold tracking-widest uppercase">Swipe</span>
+              <motion.div
+                animate={{ x: [0, 6, 0] }}
+                transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+              >
+                <FaArrowRight size={14} className="text-white" />
+              </motion.div>
+            </motion.div>
+
           {loading ? (
             <div className="flex justify-center py-20">
               <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
