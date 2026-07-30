@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import OverlayMenu from "./OverlayMenu";
 import logo from "../assets/logo.png";
-import { FiMenu, FiMoon, FiSun, FiBook, FiCode, FiTerminal } from "react-icons/fi";
+import { FiMenu, FiMoon, FiSun, FiBook, FiCode } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeSwitcher from "./ThemeSwitcher";
 export default function Navbar({ forceHidden }) {
@@ -139,13 +139,6 @@ export default function Navbar({ forceHidden }) {
 
         <div className="hidden lg:flex items-center gap-3">
           <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('toggle-command-palette'))}
-            className="flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 backdrop-blur-md"
-            aria-label="Open Command Palette"
-          >
-            <FiTerminal className="text-base" />
-          </button>
           {/* Action Button */}
           <a
             href="#contact"
@@ -158,13 +151,6 @@ export default function Navbar({ forceHidden }) {
         {/* MOBILE HAMBURGER MENU */}
         <div className="block lg:hidden flex gap-2">
           <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('toggle-command-palette'))}
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-white/80 hover:text-white hover:bg-white/10 focus:outline-none transition-all duration-300"
-            aria-label="Open Command Palette"
-          >
-            <FiTerminal className="text-base" />
-          </button>
           <button
             onClick={() => setMenuOpen(true)}
             className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-white/80 hover:text-white hover:bg-white/10 focus:outline-none transition-all duration-300"

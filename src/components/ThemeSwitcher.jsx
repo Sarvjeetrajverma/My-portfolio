@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FiMoon, FiSun, FiBook, FiCode } from 'react-icons/fi';
 
 const themes = [
@@ -9,24 +9,47 @@ const themes = [
 ];
 
 export default function ThemeSwitcher({ currentTheme, onThemeChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
   const activeTheme = themes.find(t => t.id === currentTheme) || themes[0];
   const ActiveIcon = activeTheme.icon;
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="group relative flex items-center bg-white/5 border border-white/10 backdrop-blur-md rounded-full h-9 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden w-9 hover:w-[136px] cursor-pointer cursor-default">
+    <div 
+      ref={containerRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onClick={() => setIsOpen(!isOpen)}
+      className={`relative flex items-center bg-white/5 border border-white/10 backdrop-blur-md rounded-full h-9 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden cursor-pointer ${isOpen ? 'w-[136px]' : 'w-9'}`}
+    >
       {/* Current Theme Icon */}
-      <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-white/70 group-hover:text-white transition-colors duration-300 cursor-pointer pointer-events-none">
+      <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-white/70 hover:text-white transition-colors duration-300 pointer-events-none">
         <ActiveIcon className="text-lg" />
       </div>
 
       {/* Swatches Container */}
-      <div className="flex items-center gap-2.5 pr-3 pl-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+      <div className={`flex items-center gap-2.5 pr-3 pl-1 transition-opacity duration-300 ${isOpen ? 'opacity-100 delay-100' : 'opacity-0'}`}>
         {themes.map((theme) => (
           <button
             key={theme.id}
             onClick={(e) => {
               e.stopPropagation();
               onThemeChange(theme.id);
+              setIsOpen(false);
             }}
             title={theme.name}
             aria-label={`Switch to ${theme.name} theme`}

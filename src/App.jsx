@@ -25,9 +25,9 @@ const Footer = lazy(() => import("./sections/footer"));
 // Modals and Routes (Lazy loaded)
 const TripDetails = lazy(() => import('./components/TripDetails'));
 const Resume = lazy(() => import('./components/Resume'));
-const CommandPalette = lazy(() => import('./components/CommandPalette'));
+
 const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
-const AIChatbot = lazy(() => import('./components/AIChatbot'));
+
 
 // Thin component that registers the visitor — rendered at root so it's always active
 function PresenceTracker() {
@@ -105,9 +105,9 @@ export default function App() {
       <PresenceTracker />
       
       <Suspense fallback={null}>
-        <CommandPalette />
+
         <AnalyticsDashboard />
-        <AIChatbot />
+
       </Suspense>
       
       <AnimatedRoutes />
