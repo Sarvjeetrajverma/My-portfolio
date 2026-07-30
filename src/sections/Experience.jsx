@@ -116,14 +116,15 @@ const Experience = () => {
           </div>
         </div>
 
-        {/* Cards grid */}
-        <motion.div
-          ref={scrollContainerRef}
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide"
-        >
-          {experiences.map((exp, i) => (
+        {/* Cards grid wrapper for cinematic edge masking on mobile */}
+        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:none]">
+          <motion.div
+            ref={scrollContainerRef}
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] overflow-x-auto md:overflow-visible pb-8 pt-4 px-6 -mx-6 md:px-0 md:mx-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+          >
+            {experiences.map((exp, i) => (
             <motion.div
               key={exp.id}
               initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -161,8 +162,9 @@ const Experience = () => {
                 <span className="text-sm font-mono text-slate-500">{exp.period}</span>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+            ))}
+          </motion.div>
+        </div>
 
       </div>
     </section>

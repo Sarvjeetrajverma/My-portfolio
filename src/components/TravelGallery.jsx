@@ -146,10 +146,10 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } }}
       whileHover={{ y: -6, transition: { duration: 0.3, ease } }}
       onClick={onClick}
-      className="group relative flex flex-row md:flex-col bg-black border border-white/[0.06] overflow-hidden hover:border-white/15 transition-all duration-500 cursor-pointer h-[110px] md:h-auto"
+      className="group min-w-[85vw] sm:min-w-0 snap-center flex-shrink-0 relative flex flex-col bg-gradient-to-b from-white/[0.04] to-transparent sm:bg-black border border-white/[0.08] hover:border-emerald-500/30 sm:hover:border-white/15 overflow-hidden transition-all duration-500 cursor-pointer h-auto rounded-[2rem] sm:rounded-none shadow-xl hover:shadow-emerald-500/10 sm:shadow-none backdrop-blur-xl sm:backdrop-blur-none"
     >
       {/* Image */}
-      <div className="w-[110px] md:w-auto aspect-square md:aspect-[4/3] overflow-hidden relative flex-shrink-0">
+      <div className="w-full aspect-[4/3] overflow-hidden relative flex-shrink-0 rounded-t-[2rem] sm:rounded-none">
         <img
           src={cover} alt={trip.title}
           loading="lazy" decoding="async"
@@ -159,7 +159,7 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       </div>
 
       {/* Content */}
-      <div className="p-4 md:p-6 flex flex-col justify-center md:justify-start flex-1 min-w-0">
+      <div className="p-6 flex flex-col justify-start flex-1 min-w-0 border-t border-white/[0.05] sm:border-t-0">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white tracking-tight leading-tight group-hover:text-slate-300 transition-colors truncate">
             <HighlightText text={trip.title} highlight={searchTerm} />
@@ -267,31 +267,33 @@ const TravelGallery = () => {
           years={years} resultCount={filteredAndSortedTrips.length}
         />
 
-        {/* Cards grid */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <motion.div
-            layout
-            variants={{ show: { transition: { staggerChildren: 0.07 } } }}
-            initial="hidden" animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-px bg-white/[0.05]"
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredAndSortedTrips.map((trip) => (
-                <ModernCard
-                  key={trip.id}
-                  trip={trip}
-                  searchTerm={searchTerm}
-                  onClick={() => navigate(`/travel/${trip.id}`)}
-                  onTagClick={setSearchTerm}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+        {/* Cards grid wrapper for cinematic edge masking on mobile */}
+        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] sm:[mask-image:none]">
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <motion.div
+              layout
+              variants={{ show: { transition: { staggerChildren: 0.07 } } }}
+              initial="hidden" animate="show"
+              className="flex overflow-x-auto sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-px sm:bg-white/[0.05] pb-8 pt-4 px-6 -mx-6 sm:px-0 sm:mx-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredAndSortedTrips.map((trip) => (
+                  <ModernCard
+                    key={trip.id}
+                    trip={trip}
+                    searchTerm={searchTerm}
+                    onClick={() => navigate(`/travel/${trip.id}`)}
+                    onTagClick={setSearchTerm}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
 
       </div>
     </div>

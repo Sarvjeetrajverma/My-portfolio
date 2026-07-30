@@ -105,36 +105,38 @@ const SocialMedia = () => {
               Featured Highlights
             </motion.h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start relative z-10">
-              {highlights.map((post, i) => (
-                <motion.div 
-                  key={post.id}
-                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -8, scale: 1.01 }}
-                  className="group w-full bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl"
-                >
-                  <div className="flex items-center gap-3 mb-7">
-                    <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
-                      {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FiInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
+            <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:none]">
+              <div className="flex overflow-x-auto gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                {highlights.map((post, i) => (
+                  <motion.div 
+                    key={post.id}
+                    initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                    transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -8, scale: 1.01 }}
+                    className="group min-w-[85vw] sm:min-w-[400px] md:min-w-0 md:w-full snap-center bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
+                  >
+                    <div className="flex items-center gap-3 mb-7">
+                      <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
+                        {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FiInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 uppercase tracking-[0.25em] transition-colors duration-500">{post.platform}</span>
                     </div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em] group-hover:text-slate-200 transition-colors">{post.platform}</span>
-                  </div>
-                  
-                  <div className="flex justify-center w-full relative">
-                    {post.platform === 'twitter' && (
-                      <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                        <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
-                      </div>
-                    )}
-                    {post.platform === 'instagram' && (
-                      <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                        <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+                    
+                    <div className="flex justify-center w-full relative">
+                      {post.platform === 'twitter' && (
+                        <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                          <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
+                        </div>
+                      )}
+                      {post.platform === 'instagram' && (
+                        <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                          <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         )}

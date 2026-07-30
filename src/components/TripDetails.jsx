@@ -310,7 +310,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
 
       {/* --- MAIN STAGE --- */}
       <div 
-        className="flex-1 relative flex items-center justify-center overscroll-none" 
+        className="flex-1 relative flex items-center justify-center overscroll-none min-h-0" 
         ref={containerRef}
         onClick={() => { if(!showInfo) setShowUI(!showUI); else setShowInfo(false); }}
         onWheel={handleWheel}
@@ -333,12 +333,26 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
            </>
         )}
 
+        {/* Cinematic Blur Background */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+          <motion.img 
+            key={`bg-${photo.id}`}
+            src={photo.url} 
+            alt="" 
+            className="w-full h-full object-cover opacity-50 blur-[80px] scale-125"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isImageLoaded ? 0.5 : 0 }}
+            transition={{ duration: 1.5 }}
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+
         <motion.img
           key={photo.id}
           src={photo.url}
           alt={photo.caption}
           onLoad={() => setIsImageLoaded(true)}
-          className="max-w-full max-h-full object-contain"
+          className="w-full h-full object-contain relative z-10"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: isImageLoaded ? 1 : 0, scale: scale }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -478,8 +492,8 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
 
   useEffect(() => {
     const updateColumns = () => {
-      if (window.innerWidth < 600) setColumns(2); // 2 columns on mobile to decrease size
-      else setColumns(2); // 2 columns on laptop/desktop to increase size
+      if (window.innerWidth < 640) setColumns(1); // 1 column on mobile to drastically increase photo size
+      else setColumns(2); // 2 columns on laptop/desktop
     };
     updateColumns();
     window.addEventListener('resize', updateColumns);
