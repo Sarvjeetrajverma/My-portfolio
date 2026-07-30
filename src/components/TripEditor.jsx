@@ -91,6 +91,7 @@ export default function TripEditor({ trip, onBack }) {
            throw new Error(data.error?.message || "Cloudinary upload failed");
         }
 
+        if (!point.photos) point.photos = [];
         point.photos.push({
           id: 'photo-' + Date.now() + i,
           url: data.secure_url,
@@ -100,6 +101,7 @@ export default function TripEditor({ trip, onBack }) {
         });
       }
       setFormData({ ...formData, destinations: updated });
+      e.target.value = '';
     } catch (error) {
       console.error("Error uploading photos:", error);
       alert("Failed to upload photos: " + error.message);
