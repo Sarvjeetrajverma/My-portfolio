@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { db } from '../firebase';
 import { collection, doc, setDoc, addDoc } from 'firebase/firestore';
 import { FiArrowLeft, FiSave, FiImage, FiPlus, FiTrash2, FiUploadCloud, FiMapPin, FiMap } from 'react-icons/fi';
+import ConfirmDelete from './ConfirmDelete';
 
 export default function TripEditor({ trip, onBack }) {
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,6 @@ export default function TripEditor({ trip, onBack }) {
   };
 
   const handleRemoveDestination = (destIndex) => {
-    if (!window.confirm("Are you sure you want to delete this entire destination and all its photos?")) return;
     const updated = [...formData.destinations];
     updated.splice(destIndex, 1);
     setFormData({ ...formData, destinations: updated });
@@ -59,7 +59,6 @@ export default function TripEditor({ trip, onBack }) {
   };
 
   const handleRemovePoint = (destIndex, pointIndex) => {
-    if (!window.confirm("Are you sure you want to delete this point and all its photos?")) return;
     const updated = [...formData.destinations];
     updated[destIndex].points.splice(pointIndex, 1);
     setFormData({ ...formData, destinations: updated });
@@ -253,12 +252,10 @@ export default function TripEditor({ trip, onBack }) {
 
           {formData.destinations.map((dest, destIndex) => (
             <div key={dest.id} className="bg-white/5 rounded-2xl p-6 border border-white/10 relative">
-              <button 
-                onClick={() => handleRemoveDestination(destIndex)}
+              <ConfirmDelete 
+                onConfirm={() => handleRemoveDestination(destIndex)}
                 className="absolute top-4 right-4 p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
-              >
-                <FiTrash2 />
-              </button>
+              />
               
               <div className="mb-6 mr-10">
                 <input 
@@ -301,12 +298,10 @@ export default function TripEditor({ trip, onBack }) {
                           placeholder="What did you do here?"
                         />
                       </div>
-                      <button 
-                        onClick={() => handleRemovePoint(destIndex, pointIndex)}
+                      <ConfirmDelete 
+                        onConfirm={() => handleRemovePoint(destIndex, pointIndex)}
                         className="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
-                      >
-                        <FiTrash2 />
-                      </button>
+                      />
                     </div>
 
                     {/* Photos for this Point */}
@@ -325,12 +320,10 @@ export default function TripEditor({ trip, onBack }) {
                             <div key={photo.id} className="bg-black rounded-lg overflow-hidden border border-white/10 group relative">
                               <div className="aspect-square bg-slate-900 relative">
                                 <img src={photo.url} alt="Uploaded" className="w-full h-full object-cover" />
-                                <button 
-                                  onClick={() => handleRemovePhoto(destIndex, pointIndex, photoIndex)}
+                                <ConfirmDelete 
+                                  onConfirm={() => handleRemovePhoto(destIndex, pointIndex, photoIndex)}
                                   className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <FiTrash2 size={14} />
-                                </button>
+                                />
                               </div>
                               <div className="p-2 space-y-2">
                                 <input 

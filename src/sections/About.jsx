@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import {
   FaChevronLeft, FaChevronRight, FaCode, FaBolt, FaMagic,
   FaRocket, FaRobot, FaCamera, FaGraduationCap, FaTrophy, FaRoute,
@@ -20,7 +22,7 @@ import pf7 from '../assets/pf7.webp';
 import pf8 from '../assets/pf8.webp';
 import srvprofile from '../assets/srvprofile.jpeg';
 
-const profileImages = [pf, pf5, pf7, pf8, srvprofile];
+const defaultProfileImages = [pf, pf5, pf7, pf8, srvprofile];
 
 const systemModules = [
   {
@@ -93,7 +95,20 @@ const About = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [activeTab, setActiveTab] = useState(systemModules[0].id);
+  const [profileImages, setProfileImages] = useState(defaultProfileImages);
   const activeData = systemModules.find(m => m.id === activeTab);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_settings', 'about'), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().profileImages?.length > 0) {
+        setProfileImages(docSnap.data().profileImages);
+      } else {
+        setProfileImages(defaultProfileImages);
+      }
+      setCurrentImageIndex(0);
+    });
+    return () => unsub();
+  }, []);
 
   const changeImage = (dir) => {
     setDirection(dir);

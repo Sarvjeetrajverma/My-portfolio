@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { collection, onSnapshot, getDocs, doc, deleteDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { FiPlus, FiImage, FiTrash2, FiEdit2 } from 'react-icons/fi';
 import TripEditor from './TripEditor';
+import ConfirmDelete from './ConfirmDelete';
 
 export default function AdminDashboard() {
   const [trips, setTrips] = useState([]);
@@ -43,13 +44,11 @@ export default function AdminDashboard() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this trip? This cannot be undone.")) {
-      try {
-        await deleteDoc(doc(db, 'trips', id));
-      } catch (err) {
-        console.error("Error deleting trip: ", err);
-        alert("Failed to delete trip.");
-      }
+    try {
+      await deleteDoc(doc(db, 'trips', id));
+    } catch (err) {
+      console.error("Error deleting trip: ", err);
+      alert("Failed to delete trip.");
     }
   };
 
@@ -133,9 +132,11 @@ export default function AdminDashboard() {
                   <button onClick={() => openEditor(trip)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur flex items-center justify-center text-white transition-colors" title="Edit Trip">
                     <FiEdit2 size={14} />
                   </button>
-                  <button onClick={() => handleDelete(trip.id)} className="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 backdrop-blur flex items-center justify-center text-white transition-colors" title="Delete Trip">
-                    <FiTrash2 size={14} />
-                  </button>
+                  <ConfirmDelete 
+                    onConfirm={() => handleDelete(trip.id)} 
+                    className="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 backdrop-blur flex items-center justify-center text-white transition-colors" 
+                    title="Delete Trip" 
+                  />
                 </div>
               </div>
               
