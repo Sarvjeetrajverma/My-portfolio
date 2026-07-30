@@ -124,7 +124,7 @@ const SocialMedia = () => {
                   <div className="flex justify-center w-full relative">
                     {post.platform === 'twitter' && (
                       <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                        <XEmbed url={post.url} width="100%" />
+                        <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
                       </div>
                     )}
                     {post.platform === 'instagram' && (

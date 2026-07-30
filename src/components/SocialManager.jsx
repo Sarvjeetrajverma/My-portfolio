@@ -41,11 +41,13 @@ export default function SocialManager() {
     let sanitizedUrl = newUrl;
     
     if (platform === 'twitter') {
-      const match = newUrl.match(/\/status\/(\d+)/);
-      if (match) {
-        postId = match[1];
-        // Clean URL because Twitter iframe fails if /photo/1 is in the URL
-        sanitizedUrl = `https://twitter.com/x/status/${postId}`;
+      // Extract the exact base URL up to the status ID to avoid /photo/1 breaking it
+      const matchUrl = newUrl.match(/(https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/\d+)/);
+      const matchId = newUrl.match(/\/status\/(\d+)/);
+      
+      if (matchUrl && matchId) {
+        sanitizedUrl = matchUrl[1].replace('x.com', 'twitter.com'); // XEmbed prefers twitter.com
+        postId = matchId[1];
       } else {
         alert("Could not extract Tweet ID from the URL. Please make sure it looks like twitter.com/username/status/123456789");
         return;
@@ -148,7 +150,7 @@ export default function SocialManager() {
               <div className="flex justify-center w-full relative">
                 {post.platform === 'twitter' && (
                   <div className="w-full pointer-events-none overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                     <XEmbed url={post.url} width="100%" />
+                     <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
                   </div>
                 )}
                 {post.platform === 'instagram' && (
