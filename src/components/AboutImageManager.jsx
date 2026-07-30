@@ -99,8 +99,8 @@ export default function AboutImageManager() {
       
       // Upload to Cloudinary
       const formData = new FormData();
+      formData.append('upload_preset', 'protfolio'); // Append preset first
       formData.append('file', blob, 'about-image.jpg');
-      formData.append('upload_preset', 'protfolio'); // Using the tested preset
 
       const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
         method: 'POST',
@@ -118,7 +118,7 @@ export default function AboutImageManager() {
         await setDoc(doc(db, 'site_settings', 'about'), { profileImages: newImages }, { merge: true });
         setImgSrc('');
       } else {
-        throw new Error(data.error?.message || 'Failed to upload');
+        throw new Error(data.error?.message || 'Failed to get secure URL from Cloudinary');
       }
       setIsUploading(false);
 
@@ -151,18 +151,19 @@ export default function AboutImageManager() {
         const blob = await response.blob();
         
         const formData = new FormData();
-        formData.append('file', blob, 'default-image.jpg');
         formData.append('upload_preset', 'protfolio');
+        formData.append('file', blob, 'default-image.jpg');
         
         const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
           method: 'POST',
           body: formData
         });
         const data = await res.json();
+        
         if (data.secure_url) {
           uploadedUrls.push(data.secure_url);
         } else {
-          throw new Error('Cloudinary upload failed');
+          throw new Error('Cloudinary upload failed for default images');
         }
       }
       

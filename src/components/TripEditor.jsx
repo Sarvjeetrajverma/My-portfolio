@@ -76,9 +76,10 @@ export default function TripEditor({ trip, onBack }) {
       
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        
         const formDataUpload = new FormData();
-        formDataUpload.append('file', file);
         formDataUpload.append('upload_preset', 'protfolio');
+        formDataUpload.append('file', file);
         
         const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
           method: 'POST',
@@ -86,6 +87,7 @@ export default function TripEditor({ trip, onBack }) {
         });
         
         const data = await res.json();
+        
         if (!data.secure_url) {
            throw new Error(data.error?.message || "Cloudinary upload failed");
         }
@@ -128,14 +130,15 @@ export default function TripEditor({ trip, onBack }) {
 
       if (coverFile) {
         const formDataUpload = new FormData();
-        formDataUpload.append('file', coverFile);
         formDataUpload.append('upload_preset', 'protfolio');
+        formDataUpload.append('file', coverFile);
         
         const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
           method: 'POST',
           body: formDataUpload
         });
         const data = await res.json();
+        
         if (data.secure_url) {
           finalCoverUrl = data.secure_url;
         } else {
