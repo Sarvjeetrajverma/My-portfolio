@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs, doc, deleteDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { FiPlus, FiImage, FiTrash2, FiEdit2 } from 'react-icons/fi';
 import TripEditor from './TripEditor';
 
@@ -12,7 +12,22 @@ export default function AdminDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentTrip, setCurrentTrip] = useState(null);
 
-  // Fetch real-time data from Firestore
+  // Helper to get total photo count for nested trips
+  const getPhotoCount = (trip) => {
+    let count = 0;
+    if (trip.photos) count += trip.photos.length; // legacy support
+    if (trip.destinations) {
+      trip.destinations.forEach(dest => {
+        if (dest.points) {
+          dest.points.forEach(pt => {
+            if (pt.photos) count += pt.photos.length;
+          });
+        }
+      });
+    }
+    return count;
+  };
+
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'trips'), (snapshot) => {
       let tripsData = [];
@@ -54,12 +69,14 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-medium tracking-tight">Travel Albums</h2>
           <p className="text-slate-400 font-light mt-1">Manage your trips and photos.</p>
         </div>
-        <button 
-          onClick={() => openEditor()}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black px-5 py-2.5 rounded-full font-medium transition-colors"
-        >
-          <FiPlus /> New Trip
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => openEditor()}
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black px-5 py-2.5 rounded-full font-medium transition-colors"
+          >
+            <FiPlus /> New Trip
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -112,7 +129,7 @@ export default function AdminDashboard() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
                 {/* Actions */}
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button onClick={() => openEditor(trip)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur flex items-center justify-center text-white transition-colors" title="Edit Trip">
                     <FiEdit2 size={14} />
                   </button>
@@ -126,8 +143,9 @@ export default function AdminDashboard() {
                 <div className="text-xs font-mono text-emerald-400 mb-2">{trip.date}</div>
                 <h3 className="text-lg font-medium text-white mb-1 truncate">{trip.title}</h3>
                 <p className="text-sm text-slate-400 line-clamp-2">{trip.description}</p>
-                <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-sm text-slate-500">
-                  <span>{trip.photos?.length || 0} photos</span>
+                <div className="flex items-center gap-4 text-sm text-slate-400 mt-4">
+                  <span>{trip.date}</span>
+                  <span className="flex items-center gap-1.5"><FiImage /> {getPhotoCount(trip)} Photos</span>
                 </div>
               </div>
             </div>

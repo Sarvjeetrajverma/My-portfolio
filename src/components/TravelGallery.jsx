@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { FiImage } from 'react-icons/fi';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -23,12 +24,45 @@ const HighlightText = ({ text, highlight }) => {
   );
 };
 
+// Helper to get total photo count for nested trips
+const getPhotoCount = (trip) => {
+  let count = 0;
+  if (trip.photos) count += trip.photos.length;
+  if (trip.destinations) {
+    trip.destinations.forEach(dest => {
+      if (dest.points) {
+        dest.points.forEach(pt => {
+          if (pt.photos) count += pt.photos.length;
+        });
+      }
+    });
+  }
+  return count;
+};
+
+// Helper to get all unique locations
+const getLocations = (trip) => {
+  const locs = new Set();
+  if (trip.photos) trip.photos.forEach(p => p.location && locs.add(p.location));
+  if (trip.destinations) {
+    trip.destinations.forEach(dest => {
+      if (dest.points) {
+        dest.points.forEach(pt => {
+          if (pt.name) locs.add(pt.name);
+          if (pt.photos) pt.photos.forEach(p => p.location && locs.add(p.location));
+        });
+      }
+    });
+  }
+  return Array.from(locs);
+};
+
 // --- 2. Stats row — Apple editorial style ---
 const ModernStats = ({ trips }) => {
   const stats = useMemo(() => {
-    const totalPhotos = trips.reduce((acc, t) => acc + (t.photos?.length || 0), 0);
+    const totalPhotos = trips.reduce((acc, t) => acc + getPhotoCount(t), 0);
     const uniqueLocs = new Set();
-    trips.forEach(t => (t.photos || []).forEach(p => { if (p.location) uniqueLocs.add(p.location.toLowerCase()); }));
+    trips.forEach(t => getLocations(t).forEach(loc => uniqueLocs.add(loc.toLowerCase())));
     return [
       { label: 'Photographs', value: totalPhotos },
       { label: 'Journeys', value: trips.length },
@@ -96,9 +130,14 @@ const ModernCommandBar = ({ searchTerm, setSearchTerm, selectedYear, setSelected
 
 // --- 4. Card — clean editorial style ---
 const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) => {
-  const cover = trip.coverImage || trip.photos?.[0]?.url;
-  const totalPhotos = trip.photos?.length || 0;
-  const locations = Array.from(new Set(trip.photos?.map(p => p.location).filter(Boolean)));
+  let cover = trip.coverImage;
+  if (!cover) {
+    if (trip.photos?.[0]) cover = trip.photos[0].url;
+    else if (trip.destinations?.[0]?.points?.[0]?.photos?.[0]) cover = trip.destinations[0].points[0].photos[0].url;
+  }
+  
+  const totalPhotos = getPhotoCount(trip);
+  const locations = getLocations(trip);
 
   return (
     <motion.div
@@ -146,9 +185,8 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
             {locations.length > 2 && <span className="text-[10px] text-slate-700 self-center">+{locations.length - 2}</span>}
           </div>
 
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-mono">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
-            <span className="text-slate-400">{totalPhotos}</span>
+          <div className="flex items-center gap-4 text-sm text-slate-400">
+            <span className="flex items-center gap-1.5"><FiImage /> {totalPhotos}</span>
           </div>
         </div>
       </div>

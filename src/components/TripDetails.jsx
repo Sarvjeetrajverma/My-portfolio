@@ -478,10 +478,8 @@ const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
 
   useEffect(() => {
     const updateColumns = () => {
-      if (window.innerWidth < 600) setColumns(1);
-      else if (window.innerWidth < 1000) setColumns(2);
-      else if (window.innerWidth < 1400) setColumns(3);
-      else setColumns(4);
+      if (window.innerWidth < 600) setColumns(2); // 2 columns on mobile to decrease size
+      else setColumns(2); // 2 columns on laptop/desktop to increase size
     };
     updateColumns();
     window.addEventListener('resize', updateColumns);
@@ -654,24 +652,36 @@ const TripDetails = () => {
   
   const [safeTrip, setSafeTrip] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeSectionId, setActiveSectionId] = useState('');
 
   useEffect(() => {
     if (!tripId) return;
     const unsub = onSnapshot(doc(db, 'trips', tripId), (docSnap) => {
       if (docSnap.exists()) {
         const rawTrip = { id: docSnap.id, ...docSnap.data() };
-        let allPhotos = rawTrip.photos || [];
+        
+        // Flatten all photos for the global viewer/stats
+        let allPhotos = [];
         if (rawTrip.destinations) {
           rawTrip.destinations.forEach(dest => {
-             if (dest.photos) {
-                allPhotos = [...allPhotos, ...dest.photos];
+             if (dest.points) {
+               dest.points.forEach(pt => {
+                 if (pt.photos) {
+                   allPhotos = [...allPhotos, ...pt.photos];
+                 }
+               });
              }
           });
         }
+        
         setSafeTrip({
           ...rawTrip,
-          photos: allPhotos
+          allPhotos
         });
+        
+        if (rawTrip.destinations?.length > 0) {
+          setActiveSectionId(rawTrip.destinations[0].id);
+        }
       } else {
         setSafeTrip(null);
       }
@@ -681,13 +691,11 @@ const TripDetails = () => {
   }, [tripId]);
 
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const { stats, toggleLike, recordView, recordAction } = usePhotoStats(safeTrip?.photos || []);
+  const { stats, toggleLike, recordView, recordAction } = usePhotoStats(safeTrip?.allPhotos || []);
 
   const handleNavigate = useCallback((dir) => {
     if (!selectedPhoto || !safeTrip) return;
-    const allPhotos = safeTrip.photos;
+    const allPhotos = safeTrip.allPhotos;
     const idx = allPhotos.findIndex(p => p.id === selectedPhoto.id);
     if (idx === -1) return;
 
@@ -709,16 +717,40 @@ const TripDetails = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [selectedPhoto, handleNavigate]);
 
-  const filteredPhotos = useMemo(() => {
-    if (!safeTrip) return [];
-    if (!searchTerm) return safeTrip.photos;
-    const lowerTerm = searchTerm.toLowerCase();
-    
-    return safeTrip.photos.filter(photo => 
-      (photo.caption && photo.caption.toLowerCase().includes(lowerTerm)) ||
-      (photo.location && photo.location.toLowerCase().includes(lowerTerm))
-    );
-  }, [safeTrip, searchTerm]);
+  // Handle Scroll Spy for Sidebar (Destinations and Points)
+  useEffect(() => {
+    if (!safeTrip?.destinations) return;
+    const handleScroll = () => {
+      // Collect all IDs in order
+      const ids = [];
+      safeTrip.destinations.forEach(d => {
+        ids.push(d.id);
+        if (d.points) {
+           d.points.forEach(p => ids.push(p.id));
+        }
+      });
+      
+      const elements = ids.map(id => document.getElementById(id));
+      const scrollPos = window.scrollY + 250; // offset
+
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const el = elements[i];
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSectionId(ids[i]);
+          break;
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [safeTrip]);
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+    }
+  };
 
   if (loading) return (
     <div style={{ color:'white', textAlign:'center', height:'100vh', display:'flex', alignItems:'center', justifyItems:'center', background:'#050505' }}>
@@ -734,74 +766,131 @@ const TripDetails = () => {
   );
 
   return (
-    <div className="gallery-root">
+    <div className="bg-[#050505] min-h-screen text-slate-200 font-sans selection:bg-emerald-500/30">
       <Navbar forceHidden={!!selectedPhoto} />
       
-      <div className="gallery-container" style={{ maxWidth: '1600px', margin: '0 auto', padding: '0 20px' }}>
-        
-        <div style={{ paddingTop: '100px' }}>
-          <button className="back-link" onClick={() => navigate(-1)}>
-            ← Back to Journeys
+      {/* Editorial Header */}
+      <div className="relative w-full h-[60vh] md:h-[70vh] flex flex-col justify-end pb-16 px-6 md:px-16" style={{
+        backgroundImage: `linear-gradient(to top, #050505 0%, transparent 100%), url(${safeTrip.coverImage || ''})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
+        <div className="max-w-7xl mx-auto w-full relative z-10">
+          <button onClick={() => navigate(-1)} className="text-white/60 hover:text-white transition-colors flex items-center gap-2 mb-6 uppercase tracking-widest text-xs font-semibold">
+            <Icons.ArrowLeft /> Back to Gallery
           </button>
-        </div>
-        
-        <header className="gallery-header" style={{ textAlign: 'center', marginBottom: '60px', marginTop: '40px' }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="trip-title">
-              {safeTrip.title}
-            </h1>
-            <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.5)', marginTop: '8px' }}>{safeTrip.date}</p>
-            {safeTrip.description && (
-              <p style={{ maxWidth: '600px', margin: '20px auto 0', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6' }}>
-                {safeTrip.description}
-              </p>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-4"
+          >
+            {safeTrip.title}
+          </motion.h1>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-4 text-white/70">
+            <span className="text-lg font-medium">{safeTrip.date}</span>
+            {safeTrip.allPhotos?.length > 0 && (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
+                <span className="text-lg">{safeTrip.allPhotos.length} Photos</span>
+              </>
             )}
           </motion.div>
-        </header>
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <div className="search-wrapper" style={{ maxWidth: '600px', margin: '0 auto 60px', position: 'relative' }}>
-            <input
-              type="text"
-              placeholder="Search by location or keywords..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-              style={{ 
-                width: '100%', 
-                padding: '16px 50px 16px 25px', 
-                borderRadius: '40px', 
-                border: '1px solid rgba(255,255,255,0.1)', 
-                background: 'rgba(255,255,255,0.03)', 
-                color: 'white', 
-                outline: 'none', 
-                backdropFilter: 'blur(10px)',
-                fontSize: '1rem',
-                transition: 'all 0.3s ease'
-              }}
-            />
-            <span style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, fontSize: '1.2rem' }}>
-              🔍
-            </span>
-          </div>
-
-          <section className="dest-section" style={{ marginBottom: '80px' }}>
-            {filteredPhotos.length > 0 ? (
-               <MasonryLayout 
-                 photos={filteredPhotos} 
-                 stats={stats}
-                 toggleLike={toggleLike}
-                 onPhotoClick={setSelectedPhoto} 
-               />
-            ) : (
-               <div style={{ textAlign: 'center', padding: '80px 20px', color: 'rgba(255,255,255,0.4)', fontSize: '1.2rem' }}>
-                 No moments found matching "{searchTerm}"
-               </div>
-            )}
-          </section>
-        </motion.div>
+          {safeTrip.description && (
+             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="max-w-2xl text-lg text-white/80 mt-6 leading-relaxed font-light">
+               {safeTrip.description}
+             </motion.p>
+          )}
+        </div>
       </div>
 
+      {/* Main Content Layout */}
+      <div className="max-w-7xl mx-auto px-6 md:px-16 py-12 flex flex-col lg:flex-row gap-16 relative">
+        
+        {/* Sticky Sidebar Navigation */}
+        {safeTrip.destinations?.length > 0 && (
+          <div className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-32">
+              <h3 className="text-xs uppercase tracking-widest text-white/40 font-semibold mb-6">Itinerary</h3>
+              <nav className="flex flex-col gap-1 border-l-2 border-white/10 pl-4">
+                {safeTrip.destinations.map(dest => (
+                  <div key={dest.id} className="mb-2">
+                    <button 
+                      onClick={() => scrollToSection(dest.id)}
+                      className={`text-left py-2 px-4 rounded-lg transition-all duration-300 w-full ${activeSectionId === dest.id ? 'bg-white/10 text-white font-medium translate-x-1' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      {dest.name}
+                    </button>
+                    {dest.points && dest.points.length > 0 && (
+                      <div className="flex flex-col ml-4 mt-1 border-l border-white/5 pl-2 gap-1">
+                        {dest.points.map(pt => (
+                          <button
+                            key={pt.id}
+                            onClick={() => scrollToSection(pt.id)}
+                            className={`text-left text-sm py-1.5 px-3 rounded-md transition-all duration-300 ${activeSectionId === pt.id ? 'text-emerald-400 font-medium bg-white/5 translate-x-1' : 'text-slate-500 hover:text-slate-300'}`}
+                          >
+                            {pt.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </div>
+          </div>
+        )}
+
+        {/* Scrolling Destinations Content */}
+        <div className="flex-1">
+          {!safeTrip.destinations || safeTrip.destinations.length === 0 ? (
+            <div className="text-center py-20 text-white/40">No photos have been added to this trip yet.</div>
+          ) : (
+            <div className="space-y-32">
+              {safeTrip.destinations.map((dest, i) => (
+                <section key={dest.id} id={dest.id} className="scroll-mt-24">
+                  
+                  {/* Destination Header */}
+                  <div className="mb-12">
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-emerald-500 font-mono text-xl">{(i+1).toString().padStart(2, '0')}</span>
+                      <h2 className="text-3xl md:text-5xl font-bold text-white">{dest.name}</h2>
+                    </div>
+                    {dest.description && (
+                      <p className="text-lg text-white/60 leading-relaxed font-light ml-10 max-w-3xl">{dest.description}</p>
+                    )}
+                  </div>
+
+                  {/* Points of Interest */}
+                  <div className="space-y-10 ml-0 lg:ml-10">
+                    {dest.points?.map(point => (
+                      <div key={point.id} id={point.id} className="scroll-mt-32">
+                        <div className="mb-8">
+                          <h3 className="text-2xl font-semibold text-white mb-2">{point.name}</h3>
+                          {point.description && <p className="text-white/50">{point.description}</p>}
+                        </div>
+                        
+                        {/* The Masonry Gallery for this specific Point */}
+                        {point.photos?.length > 0 ? (
+                          <MasonryLayout 
+                            photos={point.photos} 
+                            stats={stats}
+                            toggleLike={toggleLike}
+                            onPhotoClick={setSelectedPhoto} 
+                          />
+                        ) : (
+                          <p className="text-white/30 italic text-sm">No photos added to this location.</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Global Image Viewer Overlay */}
       <AnimatePresence>
         {selectedPhoto && (
           <ZoomViewer 
@@ -810,7 +899,7 @@ const TripDetails = () => {
             toggleLike={toggleLike}
             recordView={recordView}
             recordAction={recordAction}
-            onClose={() => setSelectedPhoto(null)}
+            onClose={() => setSelectedPhoto(null)} 
             onNext={() => handleNavigate('next')}
             onPrev={() => handleNavigate('prev')}
           />

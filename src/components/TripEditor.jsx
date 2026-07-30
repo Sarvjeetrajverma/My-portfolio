@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebase';
 import { collection, doc, setDoc, addDoc } from 'firebase/firestore';
-import { FiArrowLeft, FiSave, FiImage, FiPlus, FiTrash2, FiUploadCloud } from 'react-icons/fi';
+import { FiArrowLeft, FiSave, FiImage, FiPlus, FiTrash2, FiUploadCloud, FiMapPin, FiMap } from 'react-icons/fi';
 
 export default function TripEditor({ trip, onBack }) {
   const [loading, setLoading] = useState(false);
@@ -10,22 +10,121 @@ export default function TripEditor({ trip, onBack }) {
     date: trip?.date || '',
     description: trip?.description || '',
     coverImage: trip?.coverImage || '',
-    photos: trip?.photos || []
+    destinations: trip?.destinations || []
   });
-
+  
   const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(trip?.coverImage || '');
+
+  // Add a new Destination
+  const handleAddDestination = () => {
+    const newDest = {
+      id: 'dest-' + Date.now(),
+      name: '',
+      description: '',
+      points: []
+    };
+    setFormData({ ...formData, destinations: [...formData.destinations, newDest] });
+  };
+
+  const handleUpdateDestination = (destIndex, field, value) => {
+    const updated = [...formData.destinations];
+    updated[destIndex][field] = value;
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  const handleRemoveDestination = (destIndex) => {
+    if (!window.confirm("Are you sure you want to delete this entire destination and all its photos?")) return;
+    const updated = [...formData.destinations];
+    updated.splice(destIndex, 1);
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  // Add a new Point of Interest to a Destination
+  const handleAddPoint = (destIndex) => {
+    const updated = [...formData.destinations];
+    updated[destIndex].points.push({
+      id: 'point-' + Date.now(),
+      name: '',
+      description: '',
+      photos: []
+    });
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  const handleUpdatePoint = (destIndex, pointIndex, field, value) => {
+    const updated = [...formData.destinations];
+    updated[destIndex].points[pointIndex][field] = value;
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  const handleRemovePoint = (destIndex, pointIndex) => {
+    if (!window.confirm("Are you sure you want to delete this point and all its photos?")) return;
+    const updated = [...formData.destinations];
+    updated[destIndex].points.splice(pointIndex, 1);
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  // Handle Photo Uploads to a specific Point
+  const handlePhotoUpload = async (e, destIndex, pointIndex) => {
+    const files = e.target.files;
+    if (!files.length) return;
+    
+    setLoading(true);
+    try {
+      const updated = [...formData.destinations];
+      const point = updated[destIndex].points[pointIndex];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
+        formDataUpload.append('upload_preset', 'protfolio');
+        
+        const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
+          method: 'POST',
+          body: formDataUpload
+        });
+        
+        const data = await res.json();
+        if (!data.secure_url) {
+           throw new Error(data.error?.message || "Cloudinary upload failed");
+        }
+
+        point.photos.push({
+          id: 'photo-' + Date.now() + i,
+          url: data.secure_url,
+          date: '',
+          location: point.name || '',
+          caption: ''
+        });
+      }
+      setFormData({ ...formData, destinations: updated });
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      alert("Failed to upload photos: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePhoto = (destIndex, pointIndex, photoIndex, field, value) => {
+    const updated = [...formData.destinations];
+    updated[destIndex].points[pointIndex].photos[photoIndex][field] = value;
+    setFormData({ ...formData, destinations: updated });
+  };
+
+  const handleRemovePhoto = (destIndex, pointIndex, photoIndex) => {
+    const updated = [...formData.destinations];
+    updated[destIndex].points[pointIndex].photos.splice(photoIndex, 1);
+    setFormData({ ...formData, destinations: updated });
+  };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.date) {
-      alert("Title and Date are required");
-      return;
-    }
-
     setLoading(true);
     try {
       let finalCoverUrl = formData.coverImage;
 
-      // Upload cover image if new one selected
       if (coverFile) {
         const formDataUpload = new FormData();
         formDataUpload.append('file', coverFile);
@@ -45,228 +144,228 @@ export default function TripEditor({ trip, onBack }) {
 
       const tripDataToSave = {
         ...formData,
-        coverImage: finalCoverUrl
+        coverImage: finalCoverUrl,
+        updatedAt: new Date().toISOString()
       };
 
       if (trip?.id) {
-        // Update
-        await setDoc(doc(db, 'trips', trip.id), tripDataToSave);
+        await setDoc(doc(db, 'trips', trip.id), tripDataToSave, { merge: true });
       } else {
-        // Create new (generate a URL friendly ID)
-        const newId = formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-        await setDoc(doc(db, 'trips', newId), tripDataToSave);
+        tripDataToSave.createdAt = new Date().toISOString();
+        await addDoc(collection(db, 'trips'), tripDataToSave);
       }
-
+      
+      alert("Trip saved successfully!");
       onBack();
     } catch (error) {
       console.error("Error saving trip:", error);
-      alert("Failed to save trip: " + error.message);
+      alert("Error saving trip: " + error.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  // --- Photo uploading ---
-  const handlePhotoUpload = async (files) => {
-    if (!files || files.length === 0) return;
-    
-    setLoading(true);
-    try {
-      const newPhotos = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const formDataUpload = new FormData();
-        formDataUpload.append('file', file);
-        formDataUpload.append('upload_preset', 'protfolio');
-        
-        const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
-          method: 'POST',
-          body: formDataUpload
-        });
-        
-        const data = await res.json();
-        if (!data.secure_url) {
-           throw new Error(data.error?.message || "Cloudinary upload failed");
-        }
-
-        newPhotos.push({
-          id: 'photo-' + Date.now() + i,
-          url: data.secure_url,
-          date: '',
-          location: '',
-          caption: ''
-        });
-      }
-
-      setFormData({ ...formData, photos: [...formData.photos, ...newPhotos] });
-
-    } catch (error) {
-      console.error("Error uploading photos:", error);
-      alert("Failed to upload photos: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updatePhoto = (photoIndex, key, value) => {
-    const newPhotos = [...formData.photos];
-    newPhotos[photoIndex][key] = value;
-    setFormData({ ...formData, photos: newPhotos });
-  };
-
-  const removePhoto = (photoIndex) => {
-    const newPhotos = formData.photos.filter((_, i) => i !== photoIndex);
-    setFormData({ ...formData, photos: newPhotos });
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-20">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
-        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-          <FiArrowLeft /> Back
-        </button>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={handleSave} 
-            disabled={loading}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-black px-6 py-2.5 rounded-full font-medium transition-colors"
-          >
-            {loading ? <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div> : <FiSave />}
-            Save Trip
+    <div className="bg-[#0f0f0f] min-h-screen text-slate-200">
+      <div className="max-w-5xl mx-auto p-6 pt-12">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
+          <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+            <FiArrowLeft /> Back to Dashboard
           </button>
-        </div>
-      </div>
-
-      <div className="space-y-8">
-        {/* Basic Info */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h3 className="text-xl font-medium mb-6">Trip Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-1.5">Title</label>
-                <input 
-                  type="text" 
-                  value={formData.title} 
-                  onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500/50"
-                  placeholder="e.g., Summer in Paris"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-1.5">Date / Duration</label>
-                <input 
-                  type="text" 
-                  value={formData.date} 
-                  onChange={e => setFormData({...formData, date: e.target.value})}
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500/50"
-                  placeholder="e.g., June 2024"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-1.5">Description</label>
-                <textarea 
-                  value={formData.description} 
-                  onChange={e => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500/50 h-24 resize-none"
-                  placeholder="Brief summary of the trip..."
-                />
-              </div>
-            </div>
-
-            {/* Cover Image */}
-            <div>
-              <label className="block text-xs font-mono text-slate-500 uppercase tracking-wider mb-1.5">Cover Image</label>
-              <div className="relative aspect-[4/3] rounded-xl border-2 border-dashed border-white/20 bg-black/50 overflow-hidden group flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500/50 transition-colors">
-                {coverFile ? (
-                  <img src={URL.createObjectURL(coverFile)} alt="Cover preview" className="w-full h-full object-cover" />
-                ) : formData.coverImage ? (
-                  <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-center p-4">
-                    <FiImage className="mx-auto text-3xl text-slate-500 mb-2" />
-                    <span className="text-sm text-slate-400">Click to upload cover</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white font-medium bg-black/50 px-4 py-2 rounded-lg backdrop-blur">Change Image</span>
-                </div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) setCoverFile(e.target.files[0]);
-                  }}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </div>
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold">{trip ? 'Edit Trip' : 'Create New Trip'}</h1>
+            <button 
+              onClick={handleSave} 
+              disabled={loading}
+              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black px-6 py-2 rounded-full font-medium transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Saving...' : <><FiSave /> Save Trip</>}
+            </button>
           </div>
         </div>
 
-        {/* Photos */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-medium">Photos</h3>
-            <div className="relative overflow-hidden cursor-pointer">
-              <button className="flex items-center gap-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-4 py-2 rounded-lg font-medium transition-colors pointer-events-none">
-                <FiUploadCloud /> Upload Photos
-              </button>
+        {/* Basic Info */}
+        <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8 space-y-5">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2"><FiMap /> Trip Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">Trip Title</label>
               <input 
-                type="file" 
-                multiple
-                accept="image/*"
-                onChange={(e) => handlePhotoUpload(e.target.files)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                type="text" 
+                value={formData.title} 
+                onChange={e => setFormData({...formData, title: e.target.value})}
+                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
+                placeholder="e.g. Winter in Sikkim"
               />
             </div>
+            <div>
+              <label className="block text-sm text-slate-400 mb-2">Date / Duration</label>
+              <input 
+                type="text" 
+                value={formData.date} 
+                onChange={e => setFormData({...formData, date: e.target.value})}
+                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500"
+                placeholder="e.g. Dec 2023 - Jan 2024"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm text-slate-400 mb-2">Description</label>
+              <textarea 
+                value={formData.description} 
+                onChange={e => setFormData({...formData, description: e.target.value})}
+                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 h-24"
+                placeholder="Write a short summary about this trip..."
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm text-slate-400 mb-2">Cover Image</label>
+              <div className="flex gap-4 items-center">
+                {coverPreview && <img src={coverPreview} alt="Cover" className="w-32 h-20 object-cover rounded-lg border border-white/10" />}
+                <label className="cursor-pointer bg-black/50 border border-white/10 rounded-lg px-4 py-3 hover:bg-black transition-colors flex items-center gap-2">
+                  <FiImage /> Choose Cover
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                    if (e.target.files[0]) {
+                      setCoverFile(e.target.files[0]);
+                      setCoverPreview(URL.createObjectURL(e.target.files[0]));
+                    }
+                  }} />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Destinations & Points */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">Destinations (Itinerary)</h2>
+            <button 
+              onClick={handleAddDestination}
+              className="flex items-center gap-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <FiPlus /> Add Destination
+            </button>
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            {formData.photos && formData.photos.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formData.photos.map((photo, pIndex) => (
-                  <div key={photo.id || pIndex} className="flex gap-4 bg-black/30 border border-white/5 p-3 rounded-xl">
-                    <img src={photo.url} alt="thumbnail" className="w-24 h-24 object-cover rounded-lg bg-black" />
-                    <div className="flex-1 space-y-2">
-                      <input 
-                        type="text" 
-                        value={photo.caption || ''} 
-                        onChange={e => updatePhoto(pIndex, 'caption', e.target.value)}
-                        placeholder="Caption..."
-                        className="w-full bg-transparent border-b border-white/10 text-sm focus:border-emerald-500 outline-none px-1 py-0.5"
-                      />
-                      <div className="flex gap-2">
+          {formData.destinations.map((dest, destIndex) => (
+            <div key={dest.id} className="bg-white/5 rounded-2xl p-6 border border-white/10 relative">
+              <button 
+                onClick={() => handleRemoveDestination(destIndex)}
+                className="absolute top-4 right-4 p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+              >
+                <FiTrash2 />
+              </button>
+              
+              <div className="mb-6 mr-10">
+                <input 
+                  type="text" 
+                  value={dest.name} 
+                  onChange={e => handleUpdateDestination(destIndex, 'name', e.target.value)}
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-2 text-xl font-bold text-white focus:outline-none focus:border-blue-500 mb-2"
+                  placeholder="Destination Name (e.g. Gangtok)"
+                />
+                <input 
+                  type="text" 
+                  value={dest.description} 
+                  onChange={e => handleUpdateDestination(destIndex, 'description', e.target.value)}
+                  className="w-full bg-transparent border-b border-white/10 px-0 py-1 text-sm text-slate-400 focus:outline-none focus:border-blue-500"
+                  placeholder="Optional short description..."
+                />
+              </div>
+
+              {/* Points of Interest */}
+              <div className="space-y-4 ml-4 pl-4 border-l-2 border-white/5">
+                {dest.points.map((point, pointIndex) => (
+                  <div key={point.id} className="bg-black/40 rounded-xl p-5 border border-white/5">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 mr-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiMapPin className="text-emerald-400" />
+                          <input 
+                            type="text" 
+                            value={point.name} 
+                            onChange={e => handleUpdatePoint(destIndex, pointIndex, 'name', e.target.value)}
+                            className="flex-1 bg-transparent border-b border-white/20 px-1 py-1 font-semibold text-white focus:outline-none focus:border-emerald-500"
+                            placeholder="Point of Interest (e.g. MG Marg)"
+                          />
+                        </div>
                         <input 
                           type="text" 
-                          value={photo.date || ''} 
-                          onChange={e => updatePhoto(pIndex, 'date', e.target.value)}
-                          placeholder="Date"
-                          className="w-1/2 bg-transparent border-b border-white/10 text-xs focus:border-emerald-500 outline-none px-1 py-0.5"
-                        />
-                        <input 
-                          type="text" 
-                          value={photo.location || ''} 
-                          onChange={e => updatePhoto(pIndex, 'location', e.target.value)}
-                          placeholder="Location"
-                          className="w-1/2 bg-transparent border-b border-white/10 text-xs focus:border-emerald-500 outline-none px-1 py-0.5"
+                          value={point.description} 
+                          onChange={e => handleUpdatePoint(destIndex, pointIndex, 'description', e.target.value)}
+                          className="w-full bg-transparent border-b border-white/10 px-1 py-1 text-sm text-slate-400 focus:outline-none focus:border-emerald-500"
+                          placeholder="What did you do here?"
                         />
                       </div>
-                      <div className="flex justify-end pt-1">
-                        <button onClick={() => removePhoto(pIndex)} className="text-slate-500 hover:text-red-400 text-xs">Remove</button>
+                      <button 
+                        onClick={() => handleRemovePoint(destIndex, pointIndex)}
+                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
+
+                    {/* Photos for this Point */}
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-medium text-slate-300">Photos ({point.photos?.length || 0})</span>
+                        <label className="cursor-pointer flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                          <FiUploadCloud /> Upload Photos
+                          <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => handlePhotoUpload(e, destIndex, pointIndex)} />
+                        </label>
                       </div>
+
+                      {point.photos?.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {point.photos.map((photo, photoIndex) => (
+                            <div key={photo.id} className="bg-black rounded-lg overflow-hidden border border-white/10 group relative">
+                              <div className="aspect-square bg-slate-900 relative">
+                                <img src={photo.url} alt="Uploaded" className="w-full h-full object-cover" />
+                                <button 
+                                  onClick={() => handleRemovePhoto(destIndex, pointIndex, photoIndex)}
+                                  className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <FiTrash2 size={14} />
+                                </button>
+                              </div>
+                              <div className="p-2 space-y-2">
+                                <input 
+                                  type="text" 
+                                  value={photo.caption || ''} 
+                                  onChange={e => handleUpdatePhoto(destIndex, pointIndex, photoIndex, 'caption', e.target.value)}
+                                  placeholder="Caption..."
+                                  className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white focus:outline-none"
+                                />
+                                <input 
+                                  type="text" 
+                                  value={photo.date || ''} 
+                                  onChange={e => handleUpdatePhoto(destIndex, pointIndex, photoIndex, 'date', e.target.value)}
+                                  placeholder="Date..."
+                                  className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
+
+                <button 
+                  onClick={() => handleAddPoint(destIndex)}
+                  className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors mt-2"
+                >
+                  <FiPlus /> Add Point of Interest
+                </button>
               </div>
-            ) : (
-              <div className="text-center py-10 border border-dashed border-white/10 rounded-xl bg-black/20 text-slate-500">
-                No photos uploaded yet.
-              </div>
-            )}
-          </div>
+
+            </div>
+          ))}
         </div>
+
       </div>
     </div>
   );
