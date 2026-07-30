@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter } from 'react-icons/fa6';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { InstagramEmbed, XEmbed } from 'react-social-media-embed';
 
 const socialLinks = [
   { name: 'GitHub', icon: FaGithub, url: 'https://github.com/sarvjeetrajverma', action: 'Follow', color: 'group-hover:text-white' },
@@ -13,9 +16,20 @@ const socialLinks = [
 const ease = [0.22, 1, 0.36, 1];
 
 const SocialMedia = () => {
+  const [highlights, setHighlights] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_settings', 'social_highlights'), (docSnap) => {
+      if (docSnap.exists()) {
+        setHighlights(docSnap.data().posts || []);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   return (
     <section id="social-media" className="relative w-full bg-transparent text-white py-5 md:py-8 border-t border-white/[0.06]">
-      <div className="max-w-[1100px] mx-auto px-6 md:px-10">
+      <div className="max-w-[1300px] mx-auto px-6 md:px-10">
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
 
@@ -74,6 +88,56 @@ const SocialMedia = () => {
           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
           <span className="text-[10px] tracking-widest text-slate-700 font-mono uppercase">System Online</span>
         </motion.div>
+
+        {/* Highlights Grid */}
+        {highlights.length > 0 && (
+          <div className="mt-20 pt-16 relative">
+            {/* Elegant Divider */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent"></div>
+            
+            {/* Subtle Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/[0.02] rounded-full blur-[120px] pointer-events-none"></div>
+            
+            <motion.h3 
+              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="text-[11px] tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 uppercase font-semibold mb-12 text-center relative z-10"
+            >
+              Featured Highlights
+            </motion.h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start relative z-10">
+              {highlights.map((post, i) => (
+                <motion.div 
+                  key={post.id}
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -8, scale: 1.01 }}
+                  className="group w-full bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl"
+                >
+                  <div className="flex items-center gap-3 mb-7">
+                    <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
+                      {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FiInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
+                    </div>
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em] group-hover:text-slate-200 transition-colors">{post.platform}</span>
+                  </div>
+                  
+                  <div className="flex justify-center w-full relative">
+                    {post.platform === 'twitter' && (
+                      <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                        <XEmbed url={post.url} width="100%" />
+                      </div>
+                    )}
+                    {post.platform === 'instagram' && (
+                      <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                        <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </section>

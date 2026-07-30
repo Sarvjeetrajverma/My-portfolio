@@ -7,6 +7,7 @@ import { FiLogOut, FiPlus, FiImage, FiTrash2, FiSave, FiEdit2, FiArrowLeft } fro
 import { Link } from 'react-router-dom';
 import AdminDashboard from '../components/AdminDashboard';
 import AboutImageManager from '../components/AboutImageManager';
+import SocialManager from '../components/SocialManager';
 
 export default function Admin() {
   const [user, loading, error] = useAuthState(auth);
@@ -120,22 +121,30 @@ export default function Admin() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-white/10 pb-4">
+        <div className="flex gap-4 mb-8 border-b border-white/10 pb-4 overflow-x-auto">
           <button 
             onClick={() => setActiveTab('trips')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'trips' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'trips' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
             Travel Albums
           </button>
           <button 
             onClick={() => setActiveTab('about')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'about' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'about' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
             About Images
           </button>
+          <button 
+            onClick={() => setActiveTab('social')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'social' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Social Highlights
+          </button>
         </div>
 
-        {activeTab === 'trips' ? <AdminDashboard /> : <AboutImageManager />}
+        {activeTab === 'trips' && <AdminDashboard />}
+        {activeTab === 'about' && <AboutImageManager />}
+        {activeTab === 'social' && <SocialManager />}
       </main>
     </div>
   );
