@@ -91,29 +91,36 @@ export default function AboutImageManager() {
         completedCrop.height
       );
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) throw new Error('Canvas is empty');
-        
-        // Upload to Cloudinary
-        const formData = new FormData();
-        formData.append('file', blob, 'about-image.jpg');
-        formData.append('upload_preset', 'protfolio'); // Using the tested preset
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.95);
+      });
 
-        const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        
-        if (data.secure_url) {
-          const newImages = [...images, data.secure_url];
-          await setDoc(doc(db, 'site_settings', 'about'), { profileImages: newImages }, { merge: true });
-          setImgSrc('');
-        } else {
-          throw new Error(data.error?.message || 'Failed to upload');
-        }
-        setIsUploading(false);
-      }, 'image/jpeg', 0.95);
+      if (!blob) throw new Error('Canvas is empty');
+      
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append('file', blob, 'about-image.jpg');
+      formData.append('upload_preset', 'protfolio'); // Using the tested preset
+
+      const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!res.ok) {
+        throw new Error('Upload failed: ' + res.statusText);
+      }
+      
+      const data = await res.json();
+      
+      if (data.secure_url) {
+        const newImages = [...images, data.secure_url];
+        await setDoc(doc(db, 'site_settings', 'about'), { profileImages: newImages }, { merge: true });
+        setImgSrc('');
+      } else {
+        throw new Error(data.error?.message || 'Failed to upload');
+      }
+      setIsUploading(false);
 
     } catch (err) {
       console.error(err);
