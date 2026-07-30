@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { travelData } from '../sections/travelData'; 
+
 import Navbar from './Navbar'; 
 import './TravelGallery.css'; 
 
@@ -652,14 +652,32 @@ const TripDetails = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
   
-  // Find the trip dynamically
-  const safeTrip = useMemo(() => {
-    const rawTrip = travelData.find(t => t.id === tripId);
-    if (!rawTrip) return null;
-    return {
-      ...rawTrip,
-      photos: rawTrip.photos || []
-    };
+  const [safeTrip, setSafeTrip] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!tripId) return;
+    const unsub = onSnapshot(doc(db, 'trips', tripId), (docSnap) => {
+      if (docSnap.exists()) {
+        const rawTrip = { id: docSnap.id, ...docSnap.data() };
+        let allPhotos = rawTrip.photos || [];
+        if (rawTrip.destinations) {
+          rawTrip.destinations.forEach(dest => {
+             if (dest.photos) {
+                allPhotos = [...allPhotos, ...dest.photos];
+             }
+          });
+        }
+        setSafeTrip({
+          ...rawTrip,
+          photos: allPhotos
+        });
+      } else {
+        setSafeTrip(null);
+      }
+      setLoading(false);
+    });
+    return () => unsub();
   }, [tripId]);
 
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -701,6 +719,12 @@ const TripDetails = () => {
       (photo.location && photo.location.toLowerCase().includes(lowerTerm))
     );
   }, [safeTrip, searchTerm]);
+
+  if (loading) return (
+    <div style={{ color:'white', textAlign:'center', height:'100vh', display:'flex', alignItems:'center', justifyItems:'center', background:'#050505' }}>
+      <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto mt-60"></div>
+    </div>
+  );
 
   if (!safeTrip) return (
     <div style={{ color:'white', textAlign:'center', height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#050505', fontSize:'2rem', flexDirection: 'column', gap: '20px' }}>

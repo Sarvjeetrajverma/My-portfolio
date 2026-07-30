@@ -3,10 +3,8 @@
 // This automatically imports all images from src/assets/travel/
 // ----------------------------------------------------------------------
 
-const images = import.meta.glob('../assets/travel/*.{png,jpg,jpeg,svg,webp}', { eager: true });
-
 const getImage = (filename) => {
-    return images[`../assets/travel/${filename}`]?.default || '';
+    return `/travel/${filename}`;
 };
 
 /**

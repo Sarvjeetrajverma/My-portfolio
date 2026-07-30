@@ -27,6 +27,7 @@ const TripDetails = lazy(() => import('./components/TripDetails'));
 const Resume = lazy(() => import('./components/Resume'));
 
 const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
+const Admin = lazy(() => import('./sections/Admin'));
 
 
 // Thin component that registers the visitor — rendered at root so it's always active
@@ -92,6 +93,11 @@ const AnimatedRoutes = () => {
         <Route path="/resume" element={
           <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
             <Resume />
+          </Suspense>
+        } />
+        <Route path="/admin" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+            <Admin />
           </Suspense>
         } />
       </Routes>

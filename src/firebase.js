@@ -1,34 +1,32 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
-// All values loaded from .env.local — never hardcoded in source
-// Add these to Vercel Environment Variables for production
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  apiKey: "AIzaSyD0QrXuM3tlgr0W9AKKQ3GnCf9uh80seyk",
+  authDomain: "my-portfolio-admin-284b8.firebaseapp.com",
+  projectId: "my-portfolio-admin-284b8",
+  storageBucket: "my-portfolio-admin-284b8.firebasestorage.app",
+  messagingSenderId: "299228906066",
+  appId: "1:299228906066:web:80956a54661317d38d558b",
+  // if you have a databaseURL for rtdb, add it here or default it
 };
 
-let app = null;
-let db = null;
-let rtdb = null;
+// Initialize Firebase (prevent multiple initializations)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// Keep rtdb for backward compatibility if it's used somewhere else, but handle error if databaseURL is missing
+let rtdb = null;
 try {
-  // Check for the most critical keys to prevent Firebase from throwing fatal errors
-  if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.databaseURL) {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    rtdb = getDatabase(app);
-  } else {
-    console.warn("Firebase config is missing or incomplete. Real-time features are disabled. Please check Vercel Environment Variables.");
-  }
-} catch (error) {
-  console.error("Firebase initialization error:", error);
+  rtdb = getDatabase(app);
+} catch (e) {
+  console.warn("RTDB not initialized", e);
 }
 
-export { db, rtdb };
+export { app, auth, db, storage, rtdb };

@@ -1,7 +1,8 @@
 import React, { useState, useMemo, forwardRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { travelData } from '../sections/travelData';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -161,14 +162,28 @@ const TravelGallery = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const years = useMemo(() => {
-    const allYears = travelData.map(t => t.date?.match(/\d{4}/)?.[0]).filter(Boolean);
-    return ['All', ...new Set(allYears)].sort((a, b) => b - a);
+  React.useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'trips'), (snapshot) => {
+      let tripsData = [];
+      snapshot.forEach(doc => {
+        tripsData.push({ id: doc.id, ...doc.data() });
+      });
+      setTrips(tripsData);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
 
+  const years = useMemo(() => {
+    const allYears = trips.map(t => t.date?.match(/\d{4}/)?.[0]).filter(Boolean);
+    return ['All', ...new Set(allYears)].sort((a, b) => b - a);
+  }, [trips]);
+
   const filteredAndSortedTrips = useMemo(() => {
-    let filtered = travelData.filter(trip => {
+    let filtered = trips.filter(trip => {
       const lowerSearch = searchTerm.toLowerCase();
       const matchesMain = trip.title.toLowerCase().includes(lowerSearch);
       const matchesDest = (trip.photos || []).some(p => p.location.toLowerCase().includes(lowerSearch));
@@ -179,7 +194,7 @@ const TravelGallery = () => {
       if (sortBy === 'photos') return (b.photos?.length || 0) - (a.photos?.length || 0);
       return new Date(b.date) - new Date(a.date);
     });
-  }, [searchTerm, selectedYear, sortBy]);
+  }, [searchTerm, selectedYear, sortBy, trips]);
 
   return (
     <div className="w-full bg-transparent text-white py-5 md:py-8 lg:py-10 px-6 md:px-10 font-sans">
@@ -204,7 +219,7 @@ const TravelGallery = () => {
         </motion.h2>
 
         {/* Stats */}
-        <ModernStats trips={travelData} />
+        {!loading && <ModernStats trips={trips} />}
 
         {/* Command bar */}
         <ModernCommandBar
@@ -215,24 +230,30 @@ const TravelGallery = () => {
         />
 
         {/* Cards grid */}
-        <motion.div
-          layout
-          variants={{ show: { transition: { staggerChildren: 0.07 } } }}
-          initial="hidden" animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-px bg-white/[0.05]"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredAndSortedTrips.map((trip) => (
-              <ModernCard
-                key={trip.id}
-                trip={trip}
-                searchTerm={searchTerm}
-                onClick={() => navigate(`/travel/${trip.id}`)}
-                onTagClick={setSearchTerm}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <motion.div
+            layout
+            variants={{ show: { transition: { staggerChildren: 0.07 } } }}
+            initial="hidden" animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-px bg-white/[0.05]"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredAndSortedTrips.map((trip) => (
+                <ModernCard
+                  key={trip.id}
+                  trip={trip}
+                  searchTerm={searchTerm}
+                  onClick={() => navigate(`/travel/${trip.id}`)}
+                  onTagClick={setSearchTerm}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
       </div>
     </div>
