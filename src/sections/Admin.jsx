@@ -12,13 +12,14 @@ import ProjectsManager from '../components/ProjectsManager';
 import SettingsManager from '../components/SettingsManager';
 import ExperienceManager from '../components/ExperienceManager';
 import BlogManager from '../components/BlogManager';
+import GlobalAnalyticsManager from '../components/GlobalAnalyticsManager';
 
 export default function Admin() {
   const [user, loading, error] = useAuthState(auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'trips', 'about', 'social', 'settings', 'experience'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'projects', 'trips', 'about', 'social', 'settings', 'experience'
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -127,6 +128,12 @@ export default function Admin() {
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-white/10 pb-4 overflow-x-auto">
           <button 
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'analytics' ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Site Analytics
+          </button>
+          <button 
             onClick={() => setActiveTab('projects')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'projects' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
@@ -170,6 +177,7 @@ export default function Admin() {
           </button>
         </div>
 
+        {activeTab === 'analytics' && <GlobalAnalyticsManager />}
         {activeTab === 'projects' && <ProjectsManager />}
         {activeTab === 'experience' && <ExperienceManager />}
         {activeTab === 'blog' && <BlogManager />}

@@ -34,7 +34,7 @@ export default function BlogIndex() {
       <Navbar />
       <ScrollToTop />
       
-      <div className="absolute top-1/4 left-1/2 w-[800px] h-[800px] rounded-full pointer-events-none -translate-x-1/2" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 60%)', filter: 'blur(100px)' }} />
+      <div className="absolute top-1/4 left-1/2 w-[800px] h-[800px] rounded-full pointer-events-none -translate-x-1/2 md:blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 60%)' }} />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-32 relative z-10">
         

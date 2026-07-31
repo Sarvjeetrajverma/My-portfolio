@@ -27,7 +27,7 @@ export default function Blog() {
 
   return (
     <section id="notes" className="relative w-full bg-transparent text-white py-20 lg:py-32 overflow-hidden font-sans">
-      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.03) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2 md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.03) 0%, transparent 70%)' }} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
         

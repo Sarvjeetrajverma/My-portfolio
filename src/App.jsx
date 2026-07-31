@@ -33,9 +33,12 @@ const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'))
 const Admin = lazy(() => import('./sections/Admin'));
 
 
+import { useGlobalAnalytics } from './hooks/useGlobalAnalytics';
+
 // Thin component that registers the visitor — rendered at root so it's always active
-function PresenceTracker() {
+function AnalyticsTracker() {
   usePresence();
+  useGlobalAnalytics();
   return null;
 }
 
@@ -122,7 +125,7 @@ const AnimatedRoutes = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <PresenceTracker />
+      <AnalyticsTracker />
       
       <Suspense fallback={null}>
 

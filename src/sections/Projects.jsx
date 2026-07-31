@@ -8,6 +8,7 @@ import project4Image from '../assets/project4.png';
 
 import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
+import { trackEvent } from '../hooks/useGlobalAnalytics';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -67,7 +68,7 @@ const Projects = () => {
     <section id="projects" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
 
       {/* Ambient glow */}
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)' }} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
 
@@ -141,12 +142,24 @@ const Projects = () => {
                 {/* Links */}
                 <div className="flex gap-5 pt-4 border-t border-white/[0.05]">
                   {project.github && (
-                    <a href={project.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium">
+                    <a 
+                      href={project.github} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      onClick={() => trackEvent('project_click', { id: `${project.id}_github` })}
+                      className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
+                    >
                       <FaGithub /> Codebase
                     </a>
                   )}
                   {project.demo && (
-                    <a href={project.demo} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium">
+                    <a 
+                      href={project.demo} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      onClick={() => trackEvent('project_click', { id: `${project.id}_demo` })}
+                      className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
+                    >
                       <FaExternalLinkAlt /> Live Demo
                     </a>
                   )}
@@ -236,7 +249,13 @@ const Projects = () => {
                       </div>
                       
                       {project.github && (
-                        <a href={project.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs font-mono text-slate-500 hover:text-white transition-colors">
+                        <a 
+                          href={project.github} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          onClick={() => trackEvent('project_click', { id: `${project.id}_github` })}
+                          className="flex items-center gap-2 text-xs font-mono text-slate-500 hover:text-white transition-colors"
+                        >
                           <FaGithub /> View Source
                         </a>
                       )}

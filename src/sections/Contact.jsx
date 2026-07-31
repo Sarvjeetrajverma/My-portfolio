@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { trackEvent } from '../hooks/useGlobalAnalytics';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -24,6 +25,7 @@ const Contact = () => {
       if (response.ok) {
         setStatus('Message delivered successfully!');
         setFormData({ name: '', email: '', message: '' });
+        trackEvent('contact_submit');
       } else {
         setStatus('Error: Message failed to send.');
       }
@@ -36,7 +38,7 @@ const Contact = () => {
     <section id="contact" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
 
       {/* Ambient glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full pointer-events-none md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)' }} />
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
 

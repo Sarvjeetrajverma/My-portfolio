@@ -351,7 +351,7 @@ export default function Home() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none opacity-40 mix-blend-screen" />
 
       {/* Single ambient glow — Apple-style single soft orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(120,119,198,0.15) 0%, rgba(99,80,180,0.06) 50%, transparent 70%)', filter: 'blur(90px)' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none md:blur-[90px]" style={{ background: 'radial-gradient(circle, rgba(120,119,198,0.15) 0%, rgba(99,80,180,0.06) 50%, transparent 70%)' }} />
 
       <div className="relative z-10 w-full h-full max-w-[1100px] mx-auto px-6 md:px-10 flex flex-col items-center justify-center text-center" style={{ paddingTop: '76px', paddingBottom: '16px' }}>
 
