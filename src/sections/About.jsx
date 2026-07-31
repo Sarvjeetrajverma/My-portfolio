@@ -195,7 +195,7 @@ const About = () => {
           <motion.div {...fadeUp(0.15)} className="flex flex-col justify-center">
             <div className="space-y-6 text-slate-400 text-lg sm:text-xl md:text-2xl leading-relaxed font-light mb-10">
               <p>
-                I engineer intelligent systems that learn, adapt, and scale. As a 3rd-year CS student at <span className="text-white font-normal">Katihar Engineering College</span>, my foundation is deeply rooted in Data Science, Neural Networks, and mathematical optimization.
+                I engineer intelligent systems that learn, adapt, and scale. As a Final-year CS student at <span className="text-white font-normal">Katihar Engineering College</span>, my foundation is deeply rooted in Data Science, Neural Networks, and mathematical optimization.
               </p>
               <p>
                 My core research and development focus is on <span className="text-slate-300">Large Language Models, Computer Vision, and Agentic AI workflows</span>. I bridge the gap between raw data and predictive intelligence.
@@ -234,8 +234,8 @@ const About = () => {
                 key={m.id}
                 onClick={() => setActiveTab(m.id)}
                 className={`px-4 py-2 text-xs font-medium rounded-full border tracking-wide transition-all duration-300 ${activeTab === m.id
-                    ? 'border-white/30 text-white bg-white/[0.06]'
-                    : 'border-white/[0.06] text-slate-500 hover:text-slate-300 hover:border-white/15'
+                  ? 'border-white/30 text-white bg-white/[0.06]'
+                  : 'border-white/[0.06] text-slate-500 hover:text-slate-300 hover:border-white/15'
                   }`}
               >
                 {m.title}
@@ -282,17 +282,17 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.05]">
             {[
               {
-                icon: <FaDatabase />, step: '01', title: 'Data Engineering', 
+                icon: <FaDatabase />, step: '01', title: 'Data Engineering',
                 desc: 'Gathering, cleaning, and transforming raw datasets into high-quality features ready for model ingestion.',
                 tools: ['Pandas', 'NumPy', 'SQL']
               },
               {
-                icon: <FaBrain />, step: '02', title: 'Model Architecture', 
+                icon: <FaBrain />, step: '02', title: 'Model Architecture',
                 desc: 'Designing neural networks and training machine learning algorithms using state-of-the-art frameworks.',
                 tools: ['PyTorch', 'TensorFlow', 'Scikit-Learn']
               },
               {
-                icon: <FaRocket />, step: '03', title: 'Deployment & MLOps', 
+                icon: <FaRocket />, step: '03', title: 'Deployment & MLOps',
                 desc: 'Optimizing hyperparameters, testing model accuracy, and deploying models to scalable cloud environments.',
                 tools: ['Docker', 'AWS', 'FastAPI']
               },
@@ -311,10 +311,10 @@ const About = () => {
                     <div className="text-xs tracking-[0.3em] text-slate-600 uppercase font-medium">{step.step}</div>
                     <div className="text-slate-500 group-hover:text-white transition-colors duration-500 text-2xl">{step.icon}</div>
                   </div>
-                  
+
                   <h4 className="text-white text-xl sm:text-2xl font-medium mb-4 tracking-tight">{step.title}</h4>
                   <p className="text-slate-500 text-sm sm:text-base leading-relaxed font-light mb-8 flex-grow">{step.desc}</p>
-                  
+
                   <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-white/[0.05]">
                     {step.tools.map(tool => (
                       <span key={tool} className="text-[10px] uppercase tracking-widest font-medium text-slate-400 bg-white/[0.02] border border-white/[0.08] px-3 py-1.5 rounded-full group-hover:border-white/[0.15] group-hover:text-slate-200 transition-colors duration-300">
