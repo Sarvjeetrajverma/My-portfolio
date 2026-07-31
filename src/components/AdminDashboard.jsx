@@ -33,9 +33,12 @@ export default function AdminDashboard() {
     const unsub = onSnapshot(collection(db, 'trips'), (snapshot) => {
       let tripsData = [];
       snapshot.forEach(doc => {
-        tripsData.push({ id: doc.id, ...doc.data() });
+        tripsData.push({ id: doc.id, order: doc.data().order || 0, ...doc.data() });
       });
-      // Sort by creation date if needed, for now just set
+      tripsData.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
       setTrips(tripsData);
       setLoading(false);
     });
@@ -49,6 +52,39 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error deleting trip: ", err);
       alert("Failed to delete trip.");
+    }
+  };
+
+  const handleReorderTrip = async (index, direction) => {
+    if (
+      (direction === 'up' && index === 0) || 
+      (direction === 'down' && index === trips.length - 1)
+    ) return;
+
+    const newTrips = [...trips];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    // Assign definitive order values if they don't have them
+    newTrips.forEach((trip, i) => {
+      trip.order = trip.order !== undefined && trip.order !== 0 ? trip.order : (i + 1) * 10;
+    });
+
+    // Swap the order values of the two elements
+    const tempOrder = newTrips[index].order;
+    newTrips[index].order = newTrips[swapIndex].order;
+    newTrips[swapIndex].order = tempOrder;
+
+    // Sort array locally immediately for UI
+    newTrips.sort((a, b) => a.order - b.order);
+    setTrips(newTrips);
+
+    try {
+      // Update both documents in Firestore
+      await updateDoc(doc(db, 'trips', newTrips[index].id), { order: newTrips[index].order });
+      await updateDoc(doc(db, 'trips', newTrips[swapIndex].id), { order: newTrips[swapIndex].order });
+    } catch (err) {
+      console.error("Error reordering trips:", err);
+      alert("Failed to reorder. Please try again.");
     }
   };
 
@@ -115,7 +151,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trips.map(trip => (
+          {trips.map((trip, idx) => (
             <div key={trip.id} className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all">
               <div className="aspect-[4/3] relative overflow-hidden bg-black/50">
                 {trip.coverImage ? (
@@ -137,6 +173,26 @@ export default function AdminDashboard() {
                     className="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 backdrop-blur flex items-center justify-center text-white transition-colors" 
                     title="Delete Trip" 
                   />
+                </div>
+                
+                {/* Reorder Arrows */}
+                <div className="absolute bottom-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => handleReorderTrip(idx, 'up')}
+                    disabled={idx === 0}
+                    className="w-8 h-8 rounded-full bg-black/50 hover:bg-black border border-white/20 flex items-center justify-center text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move Left (Earlier)"
+                  >
+                    ←
+                  </button>
+                  <button 
+                    onClick={() => handleReorderTrip(idx, 'down')}
+                    disabled={idx === trips.length - 1}
+                    className="w-8 h-8 rounded-full bg-black/50 hover:bg-black border border-white/20 flex items-center justify-center text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move Right (Later)"
+                  >
+                    →
+                  </button>
                 </div>
               </div>
               

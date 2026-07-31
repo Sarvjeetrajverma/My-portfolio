@@ -3,18 +3,22 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '../firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { FiLogOut, FiPlus, FiImage, FiTrash2, FiSave, FiEdit2, FiArrowLeft } from 'react-icons/fi';
+import { FiLogOut, FiPlus, FiImage, FiTrash2, FiSave, FiEdit2, FiArrowLeft, FiCode, FiLink, FiSettings, FiBriefcase } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import AdminDashboard from '../components/AdminDashboard';
 import AboutImageManager from '../components/AboutImageManager';
 import SocialManager from '../components/SocialManager';
+import ProjectsManager from '../components/ProjectsManager';
+import SettingsManager from '../components/SettingsManager';
+import ExperienceManager from '../components/ExperienceManager';
+import BlogManager from '../components/BlogManager';
 
 export default function Admin() {
   const [user, loading, error] = useAuthState(auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState('trips'); // 'trips' or 'about'
+  const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'trips', 'about', 'social', 'settings', 'experience'
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -123,6 +127,24 @@ export default function Admin() {
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-white/10 pb-4 overflow-x-auto">
           <button 
+            onClick={() => setActiveTab('projects')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'projects' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Software Projects
+          </button>
+          <button 
+            onClick={() => setActiveTab('experience')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'experience' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Experience
+          </button>
+          <button 
+            onClick={() => setActiveTab('blog')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'blog' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Blog & Notes
+          </button>
+          <button 
             onClick={() => setActiveTab('trips')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'trips' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
@@ -140,11 +162,21 @@ export default function Admin() {
           >
             Social Highlights
           </button>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Settings
+          </button>
         </div>
 
+        {activeTab === 'projects' && <ProjectsManager />}
+        {activeTab === 'experience' && <ExperienceManager />}
+        {activeTab === 'blog' && <BlogManager />}
         {activeTab === 'trips' && <AdminDashboard />}
         {activeTab === 'about' && <AboutImageManager />}
         {activeTab === 'social' && <SocialManager />}
+        {activeTab === 'settings' && <SettingsManager />}
       </main>
     </div>
   );

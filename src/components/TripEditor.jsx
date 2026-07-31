@@ -327,6 +327,40 @@ export default function TripEditor({ trip, onBack }) {
                                   onConfirm={() => handleRemovePhoto(destIndex, pointIndex, photoIndex)}
                                   className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                                 />
+                                
+                                {/* Photo Reorder Arrows */}
+                                <div className="absolute bottom-2 left-2 right-2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      if (photoIndex === 0) return;
+                                      const updated = [...formData.destinations];
+                                      const photos = updated[destIndex].points[pointIndex].photos;
+                                      [photos[photoIndex - 1], photos[photoIndex]] = [photos[photoIndex], photos[photoIndex - 1]];
+                                      setFormData({ ...formData, destinations: updated });
+                                    }}
+                                    disabled={photoIndex === 0}
+                                    className="w-6 h-6 rounded bg-black/80 hover:bg-black border border-white/20 flex items-center justify-center text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                    title="Move Left"
+                                  >
+                                    ←
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      const updated = [...formData.destinations];
+                                      const photos = updated[destIndex].points[pointIndex].photos;
+                                      if (photoIndex === photos.length - 1) return;
+                                      [photos[photoIndex + 1], photos[photoIndex]] = [photos[photoIndex], photos[photoIndex + 1]];
+                                      setFormData({ ...formData, destinations: updated });
+                                    }}
+                                    disabled={photoIndex === point.photos.length - 1}
+                                    className="w-6 h-6 rounded bg-black/80 hover:bg-black border border-white/20 flex items-center justify-center text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                    title="Move Right"
+                                  >
+                                    →
+                                  </button>
+                                </div>
                               </div>
                               <div className="p-2 space-y-2">
                                 <input 

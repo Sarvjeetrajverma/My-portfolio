@@ -8,6 +8,8 @@ import {
   FaBrain, FaRocket, FaTerminal, FaCamera, FaRobot
 } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -60,81 +62,6 @@ const skillGroups = [
       { name: 'OOP', level: 80 },
       { name: 'Logic & Problem Solving', level: 90 },
     ],
-  },
-];
-
-const education = [
-  {
-    degree: 'B.Tech — Computer Science Engineering',
-    institution: 'Katihar Engineering College, Bihar',
-    period: '2023 – Present',
-    gpa: '7.92 CGPA (Aggregate)',
-    highlights: [
-      'Lead Coordinator — TechFusion\'26 (Annual Tech Fest)',
-      'Core Team & Technical Team Lead',
-      'Focus: AI/ML Engineering, Data Science',
-    ],
-  },
-  {
-    degree: 'JEE Scholar — Residential Coaching',
-    institution: 'Magadh Super 30, Gaya',
-    period: '2020 – 2022',
-    gpa: null,
-    highlights: [
-      'Mentored under Ex-DGP Abhiyanand Sir',
-      'Advanced Physics & Mathematics',
-      'Intensive competitive exam preparation',
-    ],
-  },
-  {
-    degree: 'Intermediate — Science (PCM)',
-    institution: 'S.S. College, Jehanabad',
-    period: '2020 – 2022',
-    gpa: null,
-    highlights: [
-      'Stream: Physics, Chemistry, Mathematics',
-      'Analytical Problem Solving',
-    ],
-  },
-];
-
-const experience = [
-  {
-    role: 'ML Researcher',
-    org: 'Kaggle & Open Source',
-    period: '2026 – Present',
-    type: 'Research',
-    bullets: [
-      'Competing in Computer Vision & NLP challenges on Kaggle',
-      'Achieved Top 20% ranking in Image Classification competition',
-      'Designed and optimised end-to-end data pipelines for model training',
-      'Exploring fine-tuning of LLMs and transformer architectures',
-    ],
-  },
-];
-
-const projects = [
-  {
-    name: 'Portfolio Launchpad',
-    description:
-      'A premium, multi-theme personal portfolio engineered from scratch with a custom canvas neural-network starfield, Firebase-backed travel photography gallery with real-time stats, and a 4-theme system. Deployed on Vercel.',
-    tech: ['React 18', 'Vite', 'Tailwind CSS v4', 'Framer Motion', 'Firebase', 'Vercel Analytics'],
-    github: 'https://github.com/sarvjeetrajverma/My-portfolio-3',
-    demo: 'https://my-protfolio.vercel.app',
-    status: 'Live',
-  },
-];
-
-const leadership = [
-  {
-    title: 'Lead Coordinator — TechFusion\'26',
-    org: 'Katihar Engineering College',
-    desc: 'Spearheaded the annual technical festival, overseeing event planning, sponsorship, and cross-functional team coordination for 500+ student attendees.',
-  },
-  {
-    title: 'Technical Team Lead',
-    org: 'Katihar Engineering College',
-    desc: 'Led the core technical committee, managing web infrastructure, hardware projects, and autonomous algorithm development for Robo War competitions.',
   },
 ];
 
@@ -247,8 +174,83 @@ const TimelineItem = ({ item, index, type }) => {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
+import { collection, onSnapshot } from 'firebase/firestore';
+
 export default function Resume() {
   const [activeGroup, setActiveGroup] = useState(0);
+  const [resumePdfUrl, setResumePdfUrl] = useState('/sarvjeetrajverma_resume.pdf');
+  const [availableForHire, setAvailableForHire] = useState(true);
+
+  // Dynamic lists
+  const [educationList, setEducationList] = useState([]);
+  const [experienceList, setExperienceList] = useState([]);
+  const [leadershipList, setLeadershipList] = useState([]);
+  const [projectsList, setProjectsList] = useState([]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, 'settings', 'global'));
+        if (docSnap.exists()) {
+          if (docSnap.data().resumePdfUrl) setResumePdfUrl(docSnap.data().resumePdfUrl);
+          if (docSnap.data().availableForHire !== undefined) setAvailableForHire(docSnap.data().availableForHire);
+        }
+      } catch (err) {
+        console.error("Error fetching settings:", err);
+      }
+    };
+    fetchSettings();
+
+    // Fetch Experiences
+    const unsubExp = onSnapshot(collection(db, 'experiences'), (snapshot) => {
+      const allExp = [];
+      snapshot.forEach(doc => allExp.push({ id: doc.id, ...doc.data() }));
+      allExp.sort((a, b) => (b.order || 0) - (a.order || 0));
+
+      setEducationList(allExp.filter(e => e.type === 'education').map(e => ({
+        degree: e.role,
+        institution: e.institution,
+        period: e.period,
+        gpa: e.details?.find(d => d.label?.toLowerCase().includes('performance') || d.label?.toLowerCase().includes('gpa'))?.value || null,
+        highlights: e.details?.filter(d => !d.label?.toLowerCase().includes('performance') && !d.label?.toLowerCase().includes('gpa')).map(d => `${d.label ? d.label + ': ' : ''}${d.value}`) || []
+      })));
+
+      setExperienceList(allExp.filter(e => e.type === 'experience').map(e => ({
+        role: e.role,
+        org: e.institution,
+        period: e.period,
+        type: e.status,
+        bullets: e.details?.map(d => `${d.label ? d.label + ': ' : ''}${d.value}`) || []
+      })));
+
+      setLeadershipList(allExp.filter(e => e.type === 'leadership').map(e => ({
+        title: e.role,
+        org: e.institution,
+        desc: e.details?.map(d => `${d.label ? d.label + ': ' : ''}${d.value}`).join(' | ') || ''
+      })));
+    });
+
+    // Fetch Projects
+    const unsubProj = onSnapshot(collection(db, 'projects'), (snapshot) => {
+      const allProj = [];
+      snapshot.forEach(doc => allProj.push({ id: doc.id, ...doc.data() }));
+      allProj.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      
+      setProjectsList(allProj.slice(0, 3).map(p => ({
+        name: p.title,
+        description: p.description,
+        tech: p.tech || [],
+        github: p.github,
+        demo: p.demo,
+        status: p.status
+      })));
+    });
+
+    return () => {
+      unsubExp();
+      unsubProj();
+    };
+  }, []);
 
   // Inject print styles once
   useEffect(() => {
@@ -296,8 +298,8 @@ export default function Resume() {
             <FaPrint size={10} /> Print
           </button>
           <a
-            href="/sarvjeetrajverma_resume.pdf"
-            download="SarvjeetRajVerma_Resume.pdf"
+            href={resumePdfUrl}
+            target="_blank"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black bg-white hover:bg-slate-100 rounded-full transition-all"
           >
             <FaDownload size={10} /> Download PDF
@@ -516,15 +518,17 @@ export default function Resume() {
                 </div>
 
                 {/* Availability */}
-                <div className="no-print">
-                  <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04]">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-emerald-400">Available for Opportunities</p>
-                      <p className="text-[10px] text-slate-600 mt-0.5">Internships · Collaborations</p>
+                {availableForHire && (
+                  <div className="no-print">
+                    <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04]">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-emerald-400">Available for Opportunities</p>
+                        <p className="text-[10px] text-slate-600 mt-0.5">Internships · Collaborations</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* ── RIGHT MAIN CONTENT ── */}
@@ -534,7 +538,7 @@ export default function Resume() {
                 <div>
                   <SectionTitle label="Education" icon={<FaGraduationCap />} />
                   <div className="space-y-0">
-                    {education.map((item, i) => (
+                    {educationList.map((item, i) => (
                       <TimelineItem key={i} item={item} index={i} type="education" />
                     ))}
                   </div>
@@ -544,7 +548,7 @@ export default function Resume() {
                 <div>
                   <SectionTitle label="Research & Experience" icon={<FaBriefcase />} />
                   <div className="space-y-0">
-                    {experience.map((item, i) => (
+                    {experienceList.map((item, i) => (
                       <TimelineItem key={i} item={item} index={i} type="experience" />
                     ))}
                   </div>
@@ -567,7 +571,7 @@ export default function Resume() {
                 <div>
                   <SectionTitle label="Projects" icon={<FaRocket />} />
                   <div className="space-y-5">
-                    {projects.map((proj, i) => (
+                    {projectsList.map((proj, i) => (
                       <motion.div
                         key={proj.name}
                         initial={{ opacity: 0, y: 16 }}
@@ -627,7 +631,7 @@ export default function Resume() {
                 <div>
                   <SectionTitle label="Leadership & Activities" icon={<FaTrophy />} />
                   <div className="space-y-5">
-                    {leadership.map((item, i) => (
+                    {leadershipList.map((item, i) => (
                       <motion.div
                         key={item.title}
                         initial={{ opacity: 0, y: 14 }}
@@ -682,8 +686,8 @@ export default function Resume() {
               </p>
               <div className="no-print flex items-center gap-4">
                 <a
-                  href="/sarvjeetrajverma_resume.pdf"
-                  download="SarvjeetRajVerma_Resume.pdf"
+                  href={resumePdfUrl}
+                  target="_blank"
                   className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-white transition-colors"
                 >
                   <FaDownload size={10} /> Download PDF version

@@ -120,7 +120,7 @@ const ModernCommandBar = ({ searchTerm, setSearchTerm, selectedYear, setSelected
           className="bg-transparent border-b border-white/[0.08] text-slate-500 text-xs font-medium px-0 py-2 focus:outline-none cursor-pointer hover:text-white transition-colors"
           value={sortBy} onChange={(e) => setSortBy(e.target.value)}
         >
-          <option value="newest" className="bg-black">NEWEST</option>
+          <option value="featured" className="bg-black">FEATURED</option>
           <option value="photos" className="bg-black">MOST PHOTOS</option>
         </select>
         <span className="text-[10px] tracking-widest text-slate-700 font-mono">{resultCount} FOUND</span>
@@ -147,10 +147,10 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } }}
       whileHover={{ y: -6, transition: { duration: 0.3, ease } }}
       onClick={onClick}
-      className="group min-w-[85vw] sm:min-w-0 snap-center flex-shrink-0 relative flex flex-col bg-gradient-to-b from-white/[0.04] to-transparent sm:bg-black border border-white/[0.08] hover:border-emerald-500/30 sm:hover:border-white/15 overflow-hidden transition-all duration-500 cursor-pointer h-auto rounded-[2rem] sm:rounded-none shadow-xl hover:shadow-emerald-500/10 sm:shadow-none backdrop-blur-xl sm:backdrop-blur-none"
+      className="group w-[85vw] sm:w-[320px] md:w-[360px] lg:w-[380px] shrink-0 snap-center relative flex flex-col bg-[#0A0A0A] border border-white/5 hover:border-emerald-500/40 overflow-hidden transition-all duration-500 cursor-pointer h-auto rounded-[2rem] shadow-2xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.15)]"
     >
       {/* Image */}
-      <div className="w-full aspect-[4/3] overflow-hidden relative flex-shrink-0 rounded-t-[2rem] sm:rounded-none">
+      <div className="w-full aspect-[4/3] overflow-hidden relative flex-shrink-0 rounded-t-[2rem]">
         <img
           src={cover} alt={trip.title}
           loading="lazy" decoding="async"
@@ -160,7 +160,7 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       </div>
 
       {/* Content */}
-      <div className="p-6 flex flex-col justify-start flex-1 min-w-0 border-t border-white/[0.05] sm:border-t-0">
+      <div className="p-6 flex flex-col justify-start flex-1 min-w-0 border-t border-white/[0.05]">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-base sm:text-xl md:text-2xl font-medium text-white tracking-tight leading-tight group-hover:text-slate-300 transition-colors truncate">
             <HighlightText text={trip.title} highlight={searchTerm} />
@@ -195,20 +195,55 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
   );
 });
 
-// --- 5. Main Component ---
 const TravelGallery = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('All');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('featured');
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftPos, setScrollLeftPos] = useState(0);
+  const scrollRef = React.useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      // Calculate scroll based on device width to perfectly advance one card at a time
+      const cardWidth = window.innerWidth > 1024 ? 380 : window.innerWidth > 768 ? 360 : window.innerWidth > 640 ? 320 : window.innerWidth * 0.85;
+      const gap = window.innerWidth > 640 ? 32 : 24; 
+      const scrollAmount = cardWidth + gap;
+      
+      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  // Drag to scroll logic
+  const handleMouseDown = (e) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeftPos(scrollRef.current.scrollLeft);
+  };
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseMove = (e) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; 
+    scrollRef.current.scrollLeft = scrollLeftPos - walk;
+  };
 
   React.useEffect(() => {
     const unsub = onSnapshot(collection(db, 'trips'), (snapshot) => {
       let tripsData = [];
       snapshot.forEach(doc => {
-        tripsData.push({ id: doc.id, ...doc.data() });
+        tripsData.push({ id: doc.id, order: doc.data().order || 0, ...doc.data() });
+      });
+      tripsData.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
       setTrips(tripsData);
       setLoading(false);
@@ -231,7 +266,9 @@ const TravelGallery = () => {
     });
     return filtered.sort((a, b) => {
       if (sortBy === 'photos') return (b.photos?.length || 0) - (a.photos?.length || 0);
-      return new Date(b.date) - new Date(a.date);
+      // Default to sorting by the custom 'order' field
+      if (a.order !== b.order) return a.order - b.order;
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
   }, [searchTerm, selectedYear, sortBy, trips]);
 
@@ -268,9 +305,27 @@ const TravelGallery = () => {
           years={years} resultCount={filteredAndSortedTrips.length}
         />
 
-        {/* Cards grid wrapper for cinematic edge masking on mobile */}
-        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] sm:[mask-image:none]">
+        {/* Cards scroll wrapper */}
+        <div className="relative w-full group/gallery">
             
+            {/* Desktop Scroll Buttons */}
+            {!loading && filteredAndSortedTrips.length > 2 && (
+              <>
+                <button 
+                  onClick={() => scroll('left')}
+                  className="hidden sm:flex opacity-0 group-hover/gallery:opacity-100 absolute left-4 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-12 h-12 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/10 shadow-2xl transition-all duration-300 cursor-pointer hover:scale-105"
+                >
+                  <FaArrowRight size={16} className="text-white rotate-180 opacity-70 hover:opacity-100 transition-opacity" />
+                </button>
+                <button 
+                  onClick={() => scroll('right')}
+                  className="hidden sm:flex opacity-0 group-hover/gallery:opacity-100 absolute right-4 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-12 h-12 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/10 shadow-2xl transition-all duration-300 cursor-pointer hover:scale-105"
+                >
+                  <FaArrowRight size={16} className="text-white opacity-70 hover:opacity-100 transition-opacity" />
+                </button>
+              </>
+            )}
+
             {/* Mobile Swipe Hint */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
@@ -294,10 +349,15 @@ const TravelGallery = () => {
             </div>
           ) : (
             <motion.div
+              ref={scrollRef}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
               layout
               variants={{ show: { transition: { staggerChildren: 0.07 } } }}
               initial="hidden" animate="show"
-              className="flex overflow-x-auto sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-px sm:bg-white/[0.05] pb-8 pt-4 px-6 -mx-6 sm:px-0 sm:mx-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+              className={`flex overflow-x-auto gap-6 sm:gap-8 pb-10 pt-4 px-6 sm:px-12 -mx-6 sm:-mx-12 snap-x snap-mandatory scroll-smooth ${isDragging ? 'cursor-grabbing !scroll-auto !snap-none' : 'cursor-grab'} [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-transparent group-hover/gallery:[&::-webkit-scrollbar-track]:bg-white/[0.02] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-transparent group-hover/gallery:[&::-webkit-scrollbar-thumb]:bg-white/[0.1] hover:[&::-webkit-scrollbar-thumb]:!bg-white/[0.2] [&::-webkit-scrollbar-thumb]:rounded-full transition-colors duration-500`}
             >
               <AnimatePresence mode="popLayout">
                 {filteredAndSortedTrips.map((trip) => (

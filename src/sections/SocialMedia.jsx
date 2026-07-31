@@ -124,14 +124,14 @@ const SocialMedia = () => {
                 </motion.div>
               </motion.div>
 
-              <div className="flex overflow-x-auto gap-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+              <div className="flex overflow-x-auto gap-6 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {highlights.map((post, i) => (
                   <motion.div 
                     key={post.id}
                     initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                     transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ y: -8, scale: 1.01 }}
-                    className="group min-w-[85vw] sm:min-w-[400px] md:min-w-0 md:w-full snap-center bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
+                    className="group min-w-[85vw] sm:min-w-[400px] snap-center bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
                   >
                     <div className="flex items-center gap-3 mb-7">
                       <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">

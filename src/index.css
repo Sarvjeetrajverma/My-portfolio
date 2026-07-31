@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-white: var(--theme-white);
@@ -390,55 +391,83 @@
   opacity: 0.85 !important;
 }
 
-/* Projects section: remove white/black hardcoded colors in read mode */
-[data-theme="read"] #projects .bg-white\/\[0\.05\] {
+/* Projects and Blog section: remove white/black hardcoded colors in read mode */
+[data-theme="read"] #projects .bg-white\/\[0\.05\],
+[data-theme="read"] #notes .bg-white\/\[0\.05\],
+[data-theme="read"] #blog-index .bg-white\/\[0\.05\] {
   background-color: rgba(26, 16, 7, 0.08) !important;
 }
 
-[data-theme="read"] #projects .bg-black {
+[data-theme="read"] #projects .bg-black,
+[data-theme="read"] #notes .bg-black,
+[data-theme="read"] #blog-index .bg-black {
   background-color: #fef9e7 !important;
 }
 
-[data-theme="read"] #projects .bg-black\/80 {
+[data-theme="read"] #projects .bg-black\/80,
+[data-theme="read"] #notes .bg-black\/80,
+[data-theme="read"] #blog-index .bg-black\/80 {
   background-color: rgba(255, 251, 235, 0.95) !important;
 }
 
-[data-theme="read"] #projects .bg-black\/60 {
+[data-theme="read"] #projects .bg-black\/60,
+[data-theme="read"] #notes .bg-black\/60,
+[data-theme="read"] #blog-index .bg-black\/60 {
   background-color: rgba(254, 243, 199, 0.85) !important;
 }
 
-[data-theme="read"] #projects .from-black {
+[data-theme="read"] #projects .from-black,
+[data-theme="read"] #notes .from-black,
+[data-theme="read"] #blog-index .from-black {
   --tw-gradient-from: #fef3c7 !important;
 }
 
-[data-theme="read"] #projects .via-black\/40 {
+[data-theme="read"] #projects .via-black\/40,
+[data-theme="read"] #notes .via-black\/40,
+[data-theme="read"] #blog-index .via-black\/40 {
   --tw-gradient-via: rgba(253, 230, 138, 0.5) !important;
 }
 
-[data-theme="read"] #projects .bg-white\/\[0\.02\] {
+[data-theme="read"] #projects .bg-white\/\[0\.02\],
+[data-theme="read"] #notes .bg-white\/\[0\.02\],
+[data-theme="read"] #blog-index .bg-white\/\[0\.02\] {
   background-color: rgba(26, 16, 7, 0.03) !important;
 }
 
-[data-theme="read"] #projects .border-white\/\[0\.08\] {
+[data-theme="read"] #projects .border-white\/\[0\.08\],
+[data-theme="read"] #notes .border-white\/\[0\.08\],
+[data-theme="read"] #blog-index .border-white\/\[0\.08\] {
   border-color: rgba(26, 16, 7, 0.12) !important;
 }
 
-[data-theme="read"] #projects .border-white\/\[0\.05\] {
+[data-theme="read"] #projects .border-white\/\[0\.05\],
+[data-theme="read"] #notes .border-white\/\[0\.05\],
+[data-theme="read"] #blog-index .border-white\/\[0\.05\] {
   border-color: rgba(26, 16, 7, 0.08) !important;
 }
 
-[data-theme="read"] #projects .text-slate-200 {
+[data-theme="read"] #projects .text-slate-200,
+[data-theme="read"] #notes .text-slate-200,
+[data-theme="read"] #blog-index .text-slate-200 {
   color: #292115 !important;
 }
 
-[data-theme="read"] #projects .text-slate-300 {
+[data-theme="read"] #projects .text-slate-300,
+[data-theme="read"] #notes .text-slate-300,
+[data-theme="read"] #blog-index .text-slate-300 {
   color: #4a3c28 !important;
 }
 
-/* Remove dark image overlays in Projects & Travel in read mode */
+/* Remove dark image overlays in Projects, Blog & Travel in read mode */
 [data-theme="read"] #projects .absolute.inset-0.bg-gradient-to-t,
 [data-theme="read"] #projects .absolute.inset-0.bg-gradient-to-r,
-[data-theme="read"] #projects .absolute.inset-0[class*="from-black"] {
+[data-theme="read"] #projects .absolute.inset-0[class*="from-black"],
+[data-theme="read"] #notes .absolute.inset-0.bg-gradient-to-t,
+[data-theme="read"] #notes .absolute.inset-0.bg-gradient-to-r,
+[data-theme="read"] #notes .absolute.inset-0[class*="from-black"],
+[data-theme="read"] #blog-index .absolute.inset-0.bg-gradient-to-t,
+[data-theme="read"] #blog-index .absolute.inset-0.bg-gradient-to-r,
+[data-theme="read"] #blog-index .absolute.inset-0[class*="from-black"] {
   opacity: 0 !important;
 }
 
@@ -448,7 +477,9 @@
   opacity: 0 !important;
 }
 
-[data-theme="read"] #projects .absolute.bottom-0.left-0.right-0.h-12 {
+[data-theme="read"] #projects .absolute.bottom-0.left-0.right-0.h-12,
+[data-theme="read"] #notes .absolute.bottom-0.left-0.right-0.h-12,
+[data-theme="read"] #blog-index .absolute.bottom-0.left-0.right-0.h-12 {
   opacity: 0 !important;
 }
 

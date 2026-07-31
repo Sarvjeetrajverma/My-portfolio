@@ -18,6 +18,7 @@ const Projects = lazy(() => import("./sections/Projects"));
 const Experience = lazy(() => import("./sections/Experience"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 const TravelGallery = lazy(() => import("./components/TravelGallery"));
+const Blog = lazy(() => import("./sections/Blog"));
 const SocialMedia = lazy(() => import("./sections/SocialMedia"));
 const Contact = lazy(() => import("./sections/Contact"));
 const Footer = lazy(() => import("./sections/footer"));
@@ -25,6 +26,8 @@ const Footer = lazy(() => import("./sections/footer"));
 // Modals and Routes (Lazy loaded)
 const TripDetails = lazy(() => import('./components/TripDetails'));
 const Resume = lazy(() => import('./components/Resume'));
+const BlogIndex = lazy(() => import('./pages/BlogIndex'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
 const Admin = lazy(() => import('./sections/Admin'));
@@ -69,6 +72,7 @@ const MainPage = () => {
           <section id="travel">
             <TravelGallery />
           </section>
+          <Blog />
           <SocialMedia />
           <Contact />
           <Footer />
@@ -93,6 +97,16 @@ const AnimatedRoutes = () => {
         <Route path="/resume" element={
           <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
             <Resume />
+          </Suspense>
+        } />
+        <Route path="/blog" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+            <BlogIndex />
+          </Suspense>
+        } />
+        <Route path="/blog/:slug" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+            <BlogPost />
           </Suspense>
         } />
         <Route path="/admin" element={

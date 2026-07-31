@@ -1,72 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain, FaArrowRight } from 'react-icons/fa';
+import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain, FaArrowRight, FaBriefcase, FaCode, FaRocket } from 'react-icons/fa';
+import { db } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
-const experiences = [
-  {
-    id: "00",
-    role: "ML Researcher",
-    institution: "Kaggle & Open Source",
-    period: "2026 - Present",
-    status: "SYS_ACTIVE",
-    color: "purple",
-    icon: <FaBrain />,
-    details: [
-      { label: "Focus", value: "Computer Vision & NLP" },
-      { label: "Platform", value: "Kaggle Competitions" },
-      { label: "Roles", value: "Data Pipeline Architect" },
-      { label: "Achievements", value: "Top 20% in Image Classification" }
-    ]
-  },
-  {
-    id: "01",
-    role: "B.Tech (CSE)",
-    institution: "Katihar Engineering College",
-    period: "2023 - Present",
-    status: "SYS_ACTIVE",
-    color: "cyan",
-    icon: <FaLaptopCode />,
-    details: [
-      { label: "Performance", value: "7.92 CGPA (Aggregate)" },
-      { label: "Leadership", value: "Lead Coordinator - TechFusion'26" },
-      { label: "Roles", value: "Core Team & Technical Team Lead" },
-      { label: "Focus", value: "AI - ML Engineering" }
-    ]
-  },
-  {
-    id: "02",
-    role: "JEE Scholar",
-    institution: "Magadh Super 30, Gaya",
-    period: "2020 - 2022",
-    status: "ARCHIVED",
-    color: "orange",
-    icon: <FaAtom />,
-    details: [
-      { label: "Mentorship", value: "Under Ex-DGP Abhiyanand Sir" },
-      { label: "Program", value: "Residential Coaching" },
-      { label: "Focus", value: "Advanced Physics & Math" }
-    ]
-  },
-  {
-    id: "03",
-    role: "Intermediate (Science)",
-    institution: "S.S. College Jehanabad",
-    period: "2020 - 2022",
-    status: "ARCHIVED",
-    color: "purple",
-    icon: <FaGraduationCap />,
-    details: [
-      { label: "Stream", value: "Physics, Chemistry, Math" },
-      { label: "Focus", value: "Engineering Entrance Prep" },
-      { label: "Skills", value: "Analytical Problem Solving" }
-    ]
-  }
-];
+const iconMap = {
+  FaLaptopCode: <FaLaptopCode />,
+  FaGraduationCap: <FaGraduationCap />,
+  FaSchool: <FaSchool />,
+  FaAtom: <FaAtom />,
+  FaBrain: <FaBrain />,
+  FaBriefcase: <FaBriefcase />,
+  FaCode: <FaCode />,
+  FaRocket: <FaRocket />
+};
 
 const ease = [0.22, 1, 0.36, 1];
 
 const Experience = () => {
   const scrollContainerRef = React.useRef(null);
+  const [experiences, setExperiences] = useState([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'experiences'), (snapshot) => {
+      let data = [];
+      snapshot.forEach(doc => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+      data.sort((a, b) => (b.order || 0) - (a.order || 0));
+      setExperiences(data);
+    });
+    return () => unsub();
+  }, []);
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
@@ -151,7 +116,7 @@ const Experience = () => {
             >
               {/* ID & Status */}
               <div className="flex justify-between items-center mb-8">
-                <span className="text-[10px] font-mono text-slate-700 tracking-widest">ID: {exp.id}</span>
+                <span className="text-[10px] font-mono text-slate-700 tracking-widest">ID: {String(i + 1).padStart(2, '0')}</span>
                 <span className={`text-[10px] font-mono tracking-widest flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-emerald-500' : 'text-slate-700'}`}>
                   {exp.status === 'SYS_ACTIVE' && <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />}
                   [{exp.status}]
@@ -160,7 +125,9 @@ const Experience = () => {
 
               {/* Icon & Title */}
               <div className="mb-8">
-                <div className="text-slate-500 mb-4 group-hover:text-slate-300 transition-colors text-2xl">{exp.icon}</div>
+                <div className="text-slate-500 mb-4 group-hover:text-slate-300 transition-colors text-2xl">
+                  {iconMap[exp.iconString] || <FaBriefcase />}
+                </div>
                 <h3 className="text-white text-2xl font-medium tracking-tight leading-tight mb-2">{exp.role}</h3>
                 <p className="text-slate-400 text-sm font-light">@ {exp.institution}</p>
               </div>
