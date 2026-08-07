@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 
 import Navbar from './Navbar'; 
 import './TravelGallery.css'; 
@@ -149,33 +149,75 @@ const formatCount = (count) => {
 
 // --- GOOGLE PHOTOS STYLE VIEWER ---
 const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClose, onNext, onPrev }) => {
-  const [scale, setScale] = useState(1);
   const [showUI, setShowUI] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [initialDistance, setInitialDistance] = useState(null);
   
+  // Custom pointer-aware zoom states
+  const scale = useMotionValue(1);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const [currentScale, setCurrentScale] = useState(1);
+  
   const containerRef = useRef(null);
+
+  // Derive allPhotos context for swiping
+  
 
   useEffect(() => {
     if (photo?.id) recordView(photo.id);
-    setScale(1);
+    scale.set(1);
+    x.set(0);
+    y.set(0);
+    setCurrentScale(1);
     setIsImageLoaded(false);
     setShowInfo(false);
   }, [photo, recordView]);
 
-  const handleZoomIn = () => setScale(prev => Math.min(prev + 0.5, 4));
-  const handleZoomOut = () => setScale(prev => Math.max(prev - 0.5, 1));
-  const handleDoubleClick = () => setScale(prev => (prev === 1 ? 2.5 : 1));
+  const handleZoom = (clientX, clientY, targetScale) => {
+      const prevScale = scale.get();
+      let newScale = Math.max(1, Math.min(targetScale, 4));
+      
+      if (newScale === prevScale) return;
+      
+      const ratio = newScale / prevScale;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      const pointerX = clientX - centerX;
+      const pointerY = clientY - centerY;
+      
+      const currentX = x.get();
+      const currentY = y.get();
+      
+      let newX = pointerX - (pointerX - currentX) * ratio;
+      let newY = pointerY - (pointerY - currentY) * ratio;
+      
+      if (newScale === 1) {
+          newX = 0;
+          newY = 0;
+      }
+      
+      animate(scale, newScale, { type: "spring", stiffness: 300, damping: 30 });
+      animate(x, newX, { type: "spring", stiffness: 300, damping: 30 });
+      animate(y, newY, { type: "spring", stiffness: 300, damping: 30 });
+      setCurrentScale(newScale);
+  };
 
   const handleWheel = (e) => {
     e.stopPropagation();
-    if (e.deltaY < 0) handleZoomIn();
-    else handleZoomOut();
+    const delta = e.deltaY < 0 ? 0.5 : -0.5;
+    handleZoom(e.clientX, e.clientY, scale.get() + delta);
   };
 
-  // Pinch to Zoom
+  const handleDoubleClick = (e) => {
+    e.stopPropagation();
+    const targetScale = scale.get() === 1 ? 2.5 : 1;
+    handleZoom(e.clientX, e.clientY, targetScale);
+  };
+
   const handleTouchStart = (e) => {
     if (e.touches.length === 2) {
       const dist = Math.hypot(
@@ -193,7 +235,12 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
         e.touches[0].clientY - e.touches[1].clientY
       );
       const zoomFactor = dist / initialDistance;
-      setScale(prev => Math.min(Math.max(1, prev * zoomFactor), 4));
+      const targetScale = scale.get() * zoomFactor;
+      
+      const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      
+      handleZoom(centerX, centerY, targetScale);
       setInitialDistance(dist);
     }
   };
@@ -322,7 +369,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="absolute w-10 h-10 border-4 border-white/10 border-t-white rounded-full" />
         )}
 
-        {scale === 1 && showUI && !showInfo && window.innerWidth > 768 && (
+        {currentScale === 1 && showUI && !showInfo && window.innerWidth > 768 && onNext && onPrev && (
            <>
              <button className="absolute left-6 z-40 p-3 bg-black/40 hover:bg-black/60 rounded-full transition-colors backdrop-blur-sm" onClick={(e) => { e.stopPropagation(); onPrev(); }}>
                <Icons.ArrowLeft />
@@ -353,26 +400,25 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
           alt={photo.caption}
           onLoad={() => setIsImageLoaded(true)}
           className="w-full h-full object-contain relative z-10"
+          style={{ x, y, scale, cursor: currentScale > 1 ? 'grab' : 'default', willChange: 'transform' }}
           initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: isImageLoaded ? 1 : 0, scale: scale }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          animate={{ opacity: isImageLoaded ? 1 : 0 }}
+          transition={{ opacity: { duration: 0.2 } }}
           drag
-          dragConstraints={scale > 1 ? containerRef : { top: 0, bottom: 0, left: 0, right: 0 }}
-          dragElastic={scale === 1 ? 0.6 : 0.2}
+          dragConstraints={currentScale > 1 ? containerRef : { top: 0, bottom: 0, left: 0, right: 0 }}
+          dragElastic={currentScale === 1 ? 0.6 : 0.2}
           onDragEnd={(e, info) => {
-            if (scale === 1) {
+            if (currentScale === 1) {
               const hThreshold = window.innerWidth * 0.15;
               const vThreshold = 80;
               
-              if (info.offset.x > hThreshold) onPrev();
-              else if (info.offset.x < -hThreshold) onNext();
+              if (info.offset.x > hThreshold) onPrev(); else if (info.offset.x < -hThreshold) onNext();
               else if (info.offset.y > vThreshold) onClose();
               else if (info.offset.y < -vThreshold) { setShowInfo(true); setShowUI(false); }
             }
           }}
-          onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(); }}
-          style={{ cursor: scale > 1 ? 'grab' : 'default', willChange: 'transform' }}
-          whileTap={{ cursor: scale > 1 ? 'grabbing' : 'default' }}
+          onDoubleClick={handleDoubleClick}
+          whileTap={{ cursor: currentScale > 1 ? 'grabbing' : 'default' }}
         />
       </div>
 
@@ -482,6 +528,7 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
     </motion.div>
   );
 };
+
 
 // --- MASONRY LAYOUT COMPONENT ---
 const MasonryLayout = ({ photos, stats, toggleLike, onPhotoClick }) => {
