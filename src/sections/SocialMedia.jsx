@@ -17,6 +17,26 @@ const ease = [0.22, 1, 0.36, 1];
 
 const SocialMedia = () => {
   const [highlights, setHighlights] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftPos, setScrollLeftPos] = useState(0);
+  const scrollRef = React.useRef(null);
+
+  const handleMouseDown = (e) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeftPos(scrollRef.current.scrollLeft);
+  };
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseMove = (e) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; 
+    scrollRef.current.scrollLeft = scrollLeftPos - walk;
+  };
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'site_settings', 'social_highlights'), (docSnap) => {
@@ -94,39 +114,58 @@ const SocialMedia = () => {
           <div className="mt-20 pt-16 relative">
             {/* Elegant Divider */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent"></div>
-            
+
             {/* Subtle Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/[0.02] rounded-full md:blur-[120px] pointer-events-none"></div>
-            
-            <motion.h3 
+
+            <motion.h3
               initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="text-[11px] tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 uppercase font-semibold mb-12 text-center relative z-10"
             >
               Featured Highlights
             </motion.h3>
-            
-            <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:none]">
+
+            <motion.div 
+              whileHover="hover"
+              initial="initial"
+              whileInView="inView"
+              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+              className="relative w-full"
+            >
               
-              {/* Mobile Swipe Hint */}
+              {/* Swipe Hint */}
               <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: [0, 1, 1, 1, 0], x: [20, 0, 0, 0, 10] }}
-                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                transition={{ duration: 4, times: [0, 0.1, 0.7, 0.9, 1] }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 md:hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl pointer-events-none"
+                variants={{
+                  initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
+                  inView: { 
+                    opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                    transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
+                  },
+                  hover: { 
+                    opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                    transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
+                  }
+                }}
+                className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
               >
-                <span className="text-white/80 text-[11px] font-bold tracking-widest uppercase">Swipe</span>
                 <motion.div
-                  animate={{ x: [0, 6, 0] }}
-                  transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                  animate={{ x: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
                 >
-                  <FaArrowRight size={14} className="text-white" />
+                  <FaArrowRight size={20} className="text-white/80" />
                 </motion.div>
               </motion.div>
 
-              <div className="flex overflow-x-auto gap-6 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+              <div 
+                ref={scrollRef}
+                onMouseDown={handleMouseDown}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+                className={`flex overflow-x-auto gap-6 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] ${isDragging ? 'cursor-grabbing !scroll-auto !snap-none' : 'cursor-grab'}`}
+              >
                 {highlights.map((post, i) => (
-                  <motion.div 
+                  <motion.div
                     key={post.id}
                     initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                     transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -139,7 +178,7 @@ const SocialMedia = () => {
                       </div>
                       <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 uppercase tracking-[0.25em] transition-colors duration-500">{post.platform}</span>
                     </div>
-                    
+
                     <div className="flex justify-center w-full relative">
                       {post.platform === 'twitter' && (
                         <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
@@ -155,7 +194,7 @@ const SocialMedia = () => {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 

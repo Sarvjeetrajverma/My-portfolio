@@ -306,40 +306,34 @@ const TravelGallery = () => {
         />
 
         {/* Cards scroll wrapper */}
-        <div className="relative w-full group/gallery">
+        <motion.div 
+          whileHover="hover"
+          initial="initial"
+          whileInView="inView"
+          viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+          className="relative w-full group/gallery"
+        >
             
-            {/* Desktop Scroll Buttons */}
-            {!loading && filteredAndSortedTrips.length > 2 && (
-              <>
-                <button 
-                  onClick={() => scroll('left')}
-                  className="hidden sm:flex opacity-0 group-hover/gallery:opacity-100 absolute left-4 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-12 h-12 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/10 shadow-2xl transition-all duration-300 cursor-pointer hover:scale-105"
-                >
-                  <FaArrowRight size={16} className="text-white rotate-180 opacity-70 hover:opacity-100 transition-opacity" />
-                </button>
-                <button 
-                  onClick={() => scroll('right')}
-                  className="hidden sm:flex opacity-0 group-hover/gallery:opacity-100 absolute right-4 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-12 h-12 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/10 shadow-2xl transition-all duration-300 cursor-pointer hover:scale-105"
-                >
-                  <FaArrowRight size={16} className="text-white opacity-70 hover:opacity-100 transition-opacity" />
-                </button>
-              </>
-            )}
-
-            {/* Mobile Swipe Hint */}
+            {/* Swipe Hint */}
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: [0, 1, 1, 1, 0], x: [20, 0, 0, 0, 10] }}
-              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-              transition={{ duration: 4, times: [0, 0.1, 0.7, 0.9, 1] }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 sm:hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl pointer-events-none"
+              variants={{
+                initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
+                inView: { 
+                  opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                  transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
+                },
+                hover: { 
+                  opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                  transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
+                }
+              }}
+              className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
             >
-              <span className="text-white/80 text-[11px] font-bold tracking-widest uppercase">Swipe</span>
               <motion.div
-                animate={{ x: [0, 6, 0] }}
-                transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                animate={{ x: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
               >
-                <FaArrowRight size={14} className="text-white" />
+                <FaArrowRight size={20} className="text-white/80" />
               </motion.div>
             </motion.div>
 
@@ -372,7 +366,7 @@ const TravelGallery = () => {
               </AnimatePresence>
             </motion.div>
           )}
-        </div>
+        </motion.div>
 
       </div>
     </div>

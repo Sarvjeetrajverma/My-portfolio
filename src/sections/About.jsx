@@ -92,8 +92,6 @@ const fadeUp = (delay = 0) => ({
 });
 
 const About = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
   const [activeTab, setActiveTab] = useState(systemModules[0].id);
   const [profileImages, setProfileImages] = useState(defaultProfileImages);
   const activeData = systemModules.find(m => m.id === activeTab);
@@ -105,31 +103,9 @@ const About = () => {
       } else {
         setProfileImages(defaultProfileImages);
       }
-      setCurrentImageIndex(0);
     });
     return () => unsub();
   }, []);
-
-  const changeImage = (dir) => {
-    setDirection(dir);
-    setCurrentImageIndex(prev => {
-      let n = prev + dir;
-      if (n < 0) return profileImages.length - 1;
-      if (n >= profileImages.length) return 0;
-      return n;
-    });
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => changeImage(1), 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const slideVariants = {
-    enter: (d) => ({ x: d > 0 ? '60%' : '-60%', opacity: 0 }),
-    center: { x: 0, opacity: 1, transition: { duration: 0.6, ease } },
-    exit: (d) => ({ x: d < 0 ? '60%' : '-60%', opacity: 0, transition: { duration: 0.5, ease } }),
-  };
 
   return (
     <section id="about" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
@@ -159,35 +135,16 @@ const About = () => {
           {/* Profile image */}
           <motion.div {...fadeUp(0.1)}>
             <div className="relative w-full max-w-[300px] mx-auto lg:mx-0 aspect-square rounded-2xl overflow-hidden" style={{ background: 'rgba(13,5,20,0.7)' }}>
-              <AnimatePresence custom={direction} initial={false}>
-                <motion.img
-                  key={currentImageIndex}
-                  src={profileImages[currentImageIndex]}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter" animate="center" exit="exit"
-                  alt="Sarvjeet Profile"
-                  loading="lazy" decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                />
-              </AnimatePresence>
-              {/* Nav arrows */}
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-3 pb-3 opacity-0 hover:opacity-100 transition-opacity">
-                <button onClick={() => changeImage(-1)} className="w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"><FaChevronLeft size={12} /></button>
-                <div className="flex gap-1.5">
-                  {profileImages.map((_, i) => (
-                    <button key={i} onClick={() => { setDirection(i > currentImageIndex ? 1 : -1); setCurrentImageIndex(i); }}
-                      className="w-1 h-1 rounded-full transition-all duration-300"
-                      style={{ background: i === currentImageIndex ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)', transform: i === currentImageIndex ? 'scale(1.6)' : 'scale(1)' }}
-                    />
-                  ))}
-                </div>
-                <button onClick={() => changeImage(1)} className="w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-white/70 hover:text-white transition-colors"><FaChevronRight size={12} /></button>
-              </div>
+              <img
+                src={profileImages[0]}
+                alt="Sarvjeet Profile"
+                loading="lazy" decoding="async"
+                className="absolute inset-0 w-full h-full object-cover object-top"
+              />
             </div>
             <div className="mt-5 text-center lg:text-left">
               <p className="text-white text-lg font-medium tracking-tight">Sarvjeet</p>
-              <p className="text-slate-400 text-base mt-1">AI - ML Engineer Learner</p>
+              <p className="text-slate-400 text-base mt-1">AI/ML Engineer</p>
             </div>
           </motion.div>
 
@@ -213,7 +170,7 @@ const About = () => {
                 { icon: <FaRobot size={13} />, label: 'Combat Robotics' },
                 { icon: <FaCamera size={13} />, label: 'Photography' },
               ].map(tag => (
-                <span key={tag.label} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-400 border border-white/[0.08] rounded-full tracking-wide hover:text-white hover:border-white/20 transition-colors duration-300 cursor-default">
+                <span key={tag.label} className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-slate-400 tracking-wide hover:text-white transition-colors duration-300 cursor-default">
                   {tag.icon} {tag.label}
                 </span>
               ))}
@@ -257,15 +214,6 @@ const About = () => {
                     <div className="text-base" style={{ color: skill.brand }}>{skill.logo}</div>
                     <span className="text-sm font-medium text-slate-300 truncate">{skill.name}</span>
                   </div>
-                  <div className="h-px w-full bg-white/[0.05] rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.9, delay: i * 0.05, ease }}
-                      className="h-full origin-left bg-white/20"
-                      style={{ width: `${skill.level}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-slate-500">{skill.level}%</span>
                 </div>
               ))}
             </motion.div>

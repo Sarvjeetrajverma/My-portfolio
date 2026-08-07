@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaCode, FaBrain, FaTerminal } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaCode, FaBrain, FaTerminal, FaArrowRight } from 'react-icons/fa';
 import project1Image from '../assets/project1.png';
 import project2Image from '../assets/project2.png';
 import project3Image from '../assets/project3.png';
@@ -87,15 +87,15 @@ const Projects = () => {
           transition={{ duration: 1, ease }}
           className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-12 md:mb-18"
         >
-          Model <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Index.</span>
+          Featured <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Projects.</span>
         </motion.h2>
 
-        {/* Carousel */}
+        {/* Carousel Container */}
         <div className="flex overflow-x-auto gap-6 pb-8 pt-4 snap-x snap-mandatory scroll-smooth" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
 
           {/* Active project cards */}
           {loading ? (
-            <div className="flex items-center justify-center min-h-[420px] w-full bg-black rounded-2xl">
+            <div className="flex items-center justify-center min-h-[420px] w-[80vw] sm:w-[320px] md:w-[360px] lg:w-[400px] flex-none bg-black rounded-2xl border border-white/[0.08]">
               <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
             </div>
           ) : projects.active.map((project) => (

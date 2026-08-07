@@ -57,7 +57,7 @@ const Experience = () => {
           transition={{ duration: 0.7, ease }}
           className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8 md:mb-10"
         >
-          Academics Timeline
+          Experience Timeline
         </motion.p>
 
         {/* Headline */}
@@ -67,7 +67,7 @@ const Experience = () => {
             transition={{ duration: 1, ease }}
             className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-10 md:mb-14"
           >
-            Data <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Logs.</span>
+            Work <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Experience.</span>
           </motion.h2>
 
           {/* Scroll nav */}

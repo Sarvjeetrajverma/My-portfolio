@@ -108,7 +108,7 @@ const Contact = () => {
                   type="text" id="name" name="name"
                   value={formData.name} onChange={handleChange}
                   className="w-full bg-transparent border-b border-white/[0.08] py-4 text-base sm:text-lg text-white placeholder-slate-700 focus:outline-none focus:border-white/30 transition-colors duration-300"
-                  placeholder="sarvjeet raj verma"
+                  placeholder="Alice Bey"
                   required
                 />
               </div>
@@ -119,7 +119,7 @@ const Contact = () => {
                   type="email" id="email" name="email"
                   value={formData.email} onChange={handleChange}
                   className="w-full bg-transparent border-b border-white/[0.08] py-4 text-base sm:text-lg text-white placeholder-slate-700 focus:outline-none focus:border-white/30 transition-colors duration-300"
-                  placeholder="sarvjeet45@gmail.com"
+                  placeholder="alice@example.com"
                   required
                 />
               </div>

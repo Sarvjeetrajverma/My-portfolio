@@ -35,13 +35,13 @@ export default function Blog() {
         <motion.p
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           transition={{ duration: 0.7, ease }}
-          className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8"
+          className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-4 md:mb-6"
         >
           Technical Notes
         </motion.p>
 
         {/* Headline */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-6 md:mb-10">
           <motion.h2
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 1, ease }}

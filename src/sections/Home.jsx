@@ -179,16 +179,15 @@ const Icons = {
 
 export default function Home() {
   const roles = useMemo(
-    () => ["AI - ML ENGINEER LEARNER", "DATA SCIENCE ENTHUSIAST", "TECH EXPLORER"],
+    () => ["AI/ML ENGINEER", "DATA SCIENCE ENTHUSIAST", "TECH EXPLORER"],
     []
   );
   const [index, setIndex] = useState(0);
   const [subindex, setSubindex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
-  // --- Real Time Clock & Banner State ---
+  // --- Real Time Clock ---
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [showHolidayBanner, setShowHolidayBanner] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -197,14 +196,7 @@ export default function Home() {
 
   const hours = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', hour12: true }).split(' ')[0];
   const minutes = currentTime.toLocaleTimeString('en-US', { minute: '2-digit' });
-  const seconds = currentTime.toLocaleTimeString('en-US', { second: '2-digit' });
   const ampm = currentTime.toLocaleTimeString('en-US', { hour12: true }).split(' ')[1];
-  const dateStr = currentTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-
-  // --- Holiday Checking Logic ---
-  const currentMonthDay = `${String(currentTime.getMonth() + 1).padStart(2, '0')}-${String(currentTime.getDate()).padStart(2, '0')}`;
-  const currentFullDate = `${currentTime.getFullYear()}-${currentMonthDay}`;
-  const activeHoliday = floatingHolidays[currentFullDate] || fixedHolidays[currentMonthDay];
 
   // --- Typewriter Effect ---
   useEffect(() => {
@@ -388,7 +380,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}
           className="text-slate-400 text-sm sm:text-sm md:text-base max-w-md mx-auto leading-relaxed mb-4 font-light tracking-wide"
         >
-          Crafting immaculate digital experiences. Bridging profound technical architecture with flawless aesthetic design.
+          Architecting intelligent systems. Bridging raw data with predictive intelligence and scalable machine learning workflows.
         </motion.p>
 
         {/* ACTION BUTTONS */}
@@ -430,21 +422,7 @@ export default function Home() {
           ))}
         </motion.div>
 
-        {/* HOLIDAY BANNER — bottom of screen */}
-        <AnimatePresence>
-          {activeHoliday && showHolidayBanner && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 text-slate-600 text-[10px] tracking-widest uppercase font-medium"
-            >
-              <span>{activeHoliday.icon}</span>
-              <span className="truncate max-w-[220px] sm:max-w-none">{activeHoliday.name} — {activeHoliday.note}</span>
-              <button onClick={() => setShowHolidayBanner(false)} className="hover:text-slate-300 transition-colors">
-                <Icons.Close size={11} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
       </div>
     </motion.section>
   );
