@@ -1,14 +1,24 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
+let hasPlayedIntro = false;
 
 export default function IntroAnimation({ onfinish }) {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(!hasPlayedIntro);
   const greetings = ["Initialize", "नमस्ते", "System Ready"];
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 2200);
+    if (hasPlayedIntro) {
+      if (onfinish) onfinish();
+      return;
+    }
+    const timer = setTimeout(() => {
+      setVisible(false);
+      hasPlayedIntro = true;
+    }, 2200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [onfinish]);
+
+  if (hasPlayedIntro && !visible) return null;
 
   return (
     <AnimatePresence onExitComplete={onfinish}>

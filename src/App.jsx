@@ -21,7 +21,7 @@ const TravelGallery = lazy(() => import("./components/TravelGallery"));
 const Blog = lazy(() => import("./sections/Blog"));
 const SocialMedia = lazy(() => import("./sections/SocialMedia"));
 const Contact = lazy(() => import("./sections/Contact"));
-const Footer = lazy(() => import("./sections/footer"));
+const Footer = lazy(() => import("./sections/Footer"));
 
 // Modals and Routes (Lazy loaded)
 const TripDetails = lazy(() => import('./components/TripDetails'));
@@ -73,14 +73,13 @@ const MainPage = () => {
           <Experience />
           <Testimonials />
           <section id="travel">
-            <TravelGallery />
+            <TravelGallery preview={true} />
           </section>
           <Blog />
-          <SocialMedia />
+          <SocialMedia preview={true} />
           <Contact />
           <Footer />
         </Suspense>
-        <Analytics />
       </div>
     </div>
   );
@@ -92,9 +91,19 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<MainPage />} />
+        <Route path="/travel" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+             <TravelGallery preview={false} />
+          </Suspense>
+        } />
         <Route path="/travel/:tripId" element={
           <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
             <TripDetails />
+          </Suspense>
+        } />
+        <Route path="/highlights" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+             <SocialMedia preview={false} />
           </Suspense>
         } />
 

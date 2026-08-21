@@ -14,6 +14,7 @@ export default function ProjectEditor({ project, onBack }) {
     tech: project?.tech?.join(', ') || '',
     github: project?.github || '',
     demo: project?.demo || '',
+    videoUrl: project?.videoUrl || '',
     images: {
       dark: project?.images?.dark || '',
       light: project?.images?.light || '',
@@ -78,6 +79,7 @@ export default function ProjectEditor({ project, onBack }) {
         category: formData.category,
         github: formData.github,
         demo: formData.demo,
+        videoUrl: formData.videoUrl,
         tech: techArray,
         images: formData.images,
         updatedAt: new Date().toISOString()
@@ -160,7 +162,7 @@ export default function ProjectEditor({ project, onBack }) {
         {/* Links */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
           <h3 className="text-lg font-medium mb-6">Links</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">GitHub URL</label>
               <input type="url" name="github" value={formData.github} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 focus:border-emerald-500/50 outline-none" />
@@ -168,6 +170,10 @@ export default function ProjectEditor({ project, onBack }) {
             <div>
               <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Live Demo URL</label>
               <input type="url" name="demo" value={formData.demo} onChange={handleInputChange} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 focus:border-emerald-500/50 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">Video Embed URL <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full normal-case">New</span></label>
+              <input type="url" name="videoUrl" value={formData.videoUrl} onChange={handleInputChange} placeholder="e.g. YouTube link" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 focus:border-emerald-500/50 outline-none" />
             </div>
           </div>
         </div>

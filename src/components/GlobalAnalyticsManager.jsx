@@ -5,11 +5,20 @@ import { FiUsers, FiEye, FiMousePointer, FiDownload, FiMail, FiActivity } from '
 
 // Simple Sparkline component for the charts
 function Sparkline({ data, color = '#34d399', height = 40 }) {
-  if (!data || data.length < 2) return (
+  if (!data || data.length === 0) return (
     <div className="h-full flex items-end">
       <div className="w-full border-b border-dashed border-white/20 mb-2"></div>
     </div>
   );
+  
+  if (data.length === 1) {
+    const v = data[0];
+    return (
+      <svg viewBox={`0 0 100 ${height}`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <circle cx="50" cy={height - 2} r="3" fill={color} />
+      </svg>
+    );
+  }
   
   const max = Math.max(...data, 1);
   const min = 0;
@@ -60,7 +69,7 @@ export default function GlobalAnalyticsManager() {
         }
 
         const dailyRef = collection(db, 'analytics_daily');
-        const q = query(dailyRef, orderBy('timestamp', 'desc'), limit(14));
+        const q = query(dailyRef, orderBy('date', 'desc'), limit(14));
         const dailySnap = await getDocs(q);
         const days = [];
         dailySnap.forEach(d => days.push(d.data()));

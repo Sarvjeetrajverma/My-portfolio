@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain, FaArrowRight, FaBriefcase, FaCode, FaRocket } from 'react-icons/fa';
 import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -18,8 +18,17 @@ const iconMap = {
 const ease = [0.22, 1, 0.36, 1];
 
 const Experience = () => {
-  const scrollContainerRef = React.useRef(null);
   const [experiences, setExperiences] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+  const containerRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
+
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'experiences'), (snapshot) => {
@@ -29,18 +38,16 @@ const Experience = () => {
       });
       data.sort((a, b) => (b.order || 0) - (a.order || 0));
       setExperiences(data);
+      setLoading(false);
     });
     return () => unsub();
   }, []);
 
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -(window.innerWidth * 0.85) : window.innerWidth * 0.85,
-        behavior: 'smooth'
-      });
-    }
+  const toggleExpand = (id) => {
+    setExpandedId(prev => prev === id ? null : id);
   };
+
+
 
   return (
     <section id="experience" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10 font-sans">
@@ -61,7 +68,7 @@ const Experience = () => {
         </motion.p>
 
         {/* Headline */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-20">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14">
           <motion.h2
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 1, ease }}
@@ -69,86 +76,95 @@ const Experience = () => {
           >
             Work <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Experience.</span>
           </motion.h2>
-
-          {/* Scroll nav */}
-          <div className="flex md:hidden gap-2">
-            <button onClick={() => scroll('left')} className="w-10 h-10 rounded-full border border-white/[0.08] text-slate-500 hover:text-white hover:border-white/20 transition-all flex items-center justify-center">
-              <FaChevronLeft size={12} />
-            </button>
-            <button onClick={() => scroll('right')} className="w-10 h-10 rounded-full border border-white/[0.08] text-slate-500 hover:text-white hover:border-white/20 transition-all flex items-center justify-center">
-              <FaChevronRight size={12} />
-            </button>
-          </div>
         </div>
 
-        {/* Cards grid wrapper for cinematic edge masking on mobile */}
-        <div className="relative w-full [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:none]">
+        {/* Vertical Timeline */}
+        <div ref={containerRef} className="relative ml-4 md:ml-8 pl-8 md:pl-12 py-4 space-y-12">
           
-          {/* Mobile Swipe Hint */}
+          {/* Static Background Line */}
+          <div className="absolute left-0 top-0 bottom-0 w-px bg-white/10" />
+          
+          {/* Animated Tracking Line */}
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: [0, 1, 1, 1, 0], x: [20, 0, 0, 0, 10] }}
-            viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-            transition={{ duration: 4, times: [0, 0.1, 0.7, 0.9, 1] }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 md:hidden flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl pointer-events-none"
-          >
-            <span className="text-white/80 text-[11px] font-bold tracking-widest uppercase">Swipe</span>
-            <motion.div
-              animate={{ x: [0, 6, 0] }}
-              transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
-            >
-              <FaArrowRight size={14} className="text-white" />
-            </motion.div>
-          </motion.div>
+            style={{ height: lineHeight }}
+            className="absolute left-[-1px] top-0 w-[3px] bg-gradient-to-b from-emerald-400 via-emerald-500 to-transparent shadow-[0_0_15px_3px_rgba(16,185,129,0.5)] origin-top z-0 rounded-full"
+          />
 
-          <motion.div
-            ref={scrollContainerRef}
-            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.05] overflow-x-auto md:overflow-visible pb-8 pt-4 px-6 -mx-6 md:px-0 md:mx-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
-          >
-            {experiences.map((exp, i) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.7, ease, delay: i * 0.08 }}
-              className="min-w-[85vw] md:min-w-0 snap-center flex-shrink-0 group relative card-frosted p-8 transition-colors duration-500 bg-black"
-            >
-              {/* ID & Status */}
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-[10px] font-mono text-slate-700 tracking-widest">ID: {String(i + 1).padStart(2, '0')}</span>
-                <span className={`text-[10px] font-mono tracking-widest flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-emerald-500' : 'text-slate-700'}`}>
-                  {exp.status === 'SYS_ACTIVE' && <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />}
-                  [{exp.status}]
-                </span>
-              </div>
-
-              {/* Icon & Title */}
-              <div className="mb-8">
-                <div className="text-slate-500 mb-4 group-hover:text-slate-300 transition-colors text-2xl">
-                  {iconMap[exp.iconString] || <FaBriefcase />}
-                </div>
-                <h3 className="text-white text-2xl font-medium tracking-tight leading-tight mb-2">{exp.role}</h3>
-                <p className="text-slate-400 text-sm font-light">@ {exp.institution}</p>
-              </div>
-
-              {/* Details list */}
-              <div className="space-y-5 border-t border-white/[0.05] pt-6">
-                {exp.details.map((detail, j) => (
-                  <div key={j}>
-                    <span className="text-[11px] tracking-widest text-slate-600 uppercase font-medium">{detail.label}</span>
-                    <p className="text-slate-200 text-base font-light mt-1">{detail.value}</p>
+          {loading ? (
+            /* Skeleton Loading State */
+            [1, 2, 3].map(i => (
+              <div key={i} className="relative">
+                <div className="absolute -left-[41px] md:-left-[57px] top-6 w-4 h-4 rounded-full bg-white/5 border border-white/10" />
+                <div className="w-full max-w-3xl bg-white/[0.02] border border-white/[0.05] rounded-[2rem] p-6 md:p-8 animate-pulse flex items-start gap-4 md:gap-6">
+                  <div className="w-8 h-8 bg-white/5 rounded-full shrink-0" />
+                  <div className="flex-1">
+                    <div className="h-6 bg-white/5 rounded w-1/2 mb-3" />
+                    <div className="h-4 bg-white/5 rounded w-1/3" />
                   </div>
-                ))}
+                </div>
               </div>
+            ))
+          ) : (
+            experiences.map((exp, i) => (
+              <motion.div
+                key={exp.id}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.7, ease, delay: i * 0.08 }}
+                className="relative group"
+              >
+                {/* Timeline Node */}
+                <div className={`absolute -left-[41px] md:-left-[57px] top-6 w-4 h-4 rounded-full border-2 transition-colors duration-500 ${exp.status === 'SYS_ACTIVE' ? 'border-emerald-500 bg-emerald-500/20' : 'border-white/20 bg-black group-hover:border-emerald-500/50'} z-10`} />
+                
+                {/* Expandable Card */}
+                <div 
+                  onClick={() => toggleExpand(exp.id)}
+                  className={`w-full max-w-3xl rounded-[2rem] transition-all duration-500 cursor-pointer overflow-hidden border backdrop-blur-xl ${
+                    expandedId === exp.id 
+                      ? 'bg-white/[0.04] border-white/20 shadow-xl' 
+                      : 'bg-transparent border-white/[0.08] hover:border-white/15 hover:bg-white/[0.02]'
+                  }`}
+                >
+                  {/* Header (Always Visible) */}
+                  <div className="p-6 md:p-8 flex items-start gap-4 md:gap-6">
+                    <div className="text-slate-500 group-hover:text-slate-300 transition-colors duration-500 text-3xl shrink-0 mt-1">
+                      {iconMap[exp.iconString] || <FaBriefcase />}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-white text-xl md:text-2xl font-medium tracking-tight mb-1.5">{exp.role}</h3>
+                      <p className="text-slate-400 text-sm font-light">{exp.institution} • {exp.period}</p>
+                    </div>
+                    {/* Status indicator */}
+                    <div className={`text-[10px] font-mono tracking-widest hidden md:flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-emerald-500' : 'text-slate-600'}`}>
+                      {exp.status === 'SYS_ACTIVE' && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />}
+                      [{exp.status}]
+                    </div>
+                  </div>
 
-              {/* Period */}
-              <div className="mt-8 pt-6 border-t border-white/[0.05]">
-                <span className="text-sm font-mono text-slate-500">{exp.period}</span>
-              </div>
-            </motion.div>
-            ))}
-          </motion.div>
+                  {/* Expandable Details */}
+                  <AnimatePresence>
+                    {expandedId === exp.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="px-6 md:px-8 pb-6 md:pb-8 border-t border-white/[0.05] pt-6"
+                      >
+                        <div className="space-y-6">
+                          {exp.details.map((detail, j) => (
+                            <div key={j}>
+                              <span className="text-[11px] tracking-widest text-slate-500 uppercase font-medium">{detail.label}</span>
+                              <p className="text-slate-200 text-sm md:text-base font-light mt-1.5 leading-relaxed">{detail.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
 
       </div>

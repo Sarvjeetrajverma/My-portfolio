@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { FiImage } from 'react-icons/fi';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -58,6 +58,36 @@ const getLocations = (trip) => {
   return Array.from(locs);
 };
 
+// Helper to get all text for searching
+const getTripSearchText = (trip) => {
+  let text = [trip.title, trip.date, trip.description].filter(Boolean).join(' ');
+  if (trip.highlights) text += ' ' + trip.highlights.join(' ');
+  
+  if (trip.destinations) {
+    trip.destinations.forEach(dest => {
+      text += ' ' + [dest.name, dest.details].filter(Boolean).join(' ');
+      if (dest.points) {
+        dest.points.forEach(pt => {
+          text += ' ' + [pt.name, pt.description].filter(Boolean).join(' ');
+          if (pt.photos) {
+            pt.photos.forEach(p => {
+              text += ' ' + [p.caption, p.location].filter(Boolean).join(' ');
+            });
+          }
+        });
+      }
+    });
+  }
+  
+  if (trip.photos) {
+    trip.photos.forEach(p => {
+      text += ' ' + [p.caption, p.location].filter(Boolean).join(' ');
+    });
+  }
+  
+  return text.toLowerCase();
+};
+
 // --- 2. Stats row — Apple editorial style ---
 const ModernStats = ({ trips }) => {
   const stats = useMemo(() => {
@@ -72,7 +102,7 @@ const ModernStats = ({ trips }) => {
   }, [trips]);
 
   return (
-    <div className="flex gap-8 md:gap-16 mb-10 md:mb-16">
+    <div className="flex gap-8 md:gap-16 mb-8 md:mb-10">
       {stats.map((stat, i) => (
         <motion.div
           key={i}
@@ -94,7 +124,7 @@ const ModernCommandBar = ({ searchTerm, setSearchTerm, selectedYear, setSelected
     <motion.div
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease }}
-      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-14 md:mb-20"
+      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 md:mb-10"
     >
       {/* Search */}
       <div className="relative flex items-center border-b border-white/[0.08] focus-within:border-white/30 transition-colors duration-300 flex-1 w-full sm:max-w-sm">
@@ -130,7 +160,7 @@ const ModernCommandBar = ({ searchTerm, setSearchTerm, selectedYear, setSelected
 };
 
 // --- 4. Card — clean editorial style ---
-const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) => {
+const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick, isGrid = false }, ref) => {
   let cover = trip.coverImage;
   if (!cover) {
     if (trip.photos?.[0]) cover = trip.photos[0].url;
@@ -147,7 +177,9 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
       variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } }}
       whileHover={{ y: -6, transition: { duration: 0.3, ease } }}
       onClick={onClick}
-      className="group w-[85vw] sm:w-[320px] md:w-[360px] lg:w-[380px] shrink-0 snap-center relative flex flex-col bg-[#0A0A0A] border border-white/5 hover:border-emerald-500/40 overflow-hidden transition-all duration-500 cursor-pointer h-auto rounded-[2rem] shadow-2xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.15)]"
+      className={`group relative flex flex-col bg-[#0A0A0A] border border-white/5 hover:border-emerald-500/40 overflow-hidden transition-all duration-500 cursor-pointer h-auto rounded-[2rem] shadow-2xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.15)] ${
+        isGrid ? 'w-full' : 'w-[85vw] sm:w-[320px] md:w-[360px] lg:w-[380px] shrink-0 snap-center'
+      }`}
     >
       {/* Image */}
       <div className="w-full aspect-[4/3] overflow-hidden relative flex-shrink-0 rounded-t-[2rem]">
@@ -195,7 +227,7 @@ const ModernCard = forwardRef(({ trip, searchTerm, onClick, onTagClick }, ref) =
   );
 });
 
-const TravelGallery = () => {
+const TravelGallery = ({ preview = false }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('All');
@@ -206,6 +238,8 @@ const TravelGallery = () => {
   const [startX, setStartX] = useState(0);
   const [scrollLeftPos, setScrollLeftPos] = useState(0);
   const scrollRef = React.useRef(null);
+  const startXRef = React.useRef(0);
+  const startYRef = React.useRef(0);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -224,6 +258,8 @@ const TravelGallery = () => {
     setIsDragging(true);
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeftPos(scrollRef.current.scrollLeft);
+    startXRef.current = e.pageX;
+    startYRef.current = e.pageY;
   };
   const handleMouseLeave = () => setIsDragging(false);
   const handleMouseUp = () => setIsDragging(false);
@@ -258,23 +294,55 @@ const TravelGallery = () => {
 
   const filteredAndSortedTrips = useMemo(() => {
     let filtered = trips.filter(trip => {
-      const lowerSearch = searchTerm.toLowerCase();
-      const matchesMain = trip.title.toLowerCase().includes(lowerSearch);
-      const matchesDest = (trip.photos || []).some(p => p.location.toLowerCase().includes(lowerSearch));
+      const searchWords = searchTerm.toLowerCase().split(' ').filter(Boolean);
+      const tripText = getTripSearchText(trip);
+      
+      const matchesSearch = searchWords.length === 0 || searchWords.every(word => tripText.includes(word));
+      
       const matchesYear = selectedYear === 'All' || trip.date?.includes(selectedYear);
-      return (matchesMain || matchesDest) && matchesYear;
+      return matchesSearch && matchesYear;
     });
     return filtered.sort((a, b) => {
-      if (sortBy === 'photos') return (b.photos?.length || 0) - (a.photos?.length || 0);
+      if (sortBy === 'photos') return getPhotoCount(b) - getPhotoCount(a);
       // Default to sorting by the custom 'order' field
       if (a.order !== b.order) return a.order - b.order;
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
   }, [searchTerm, selectedYear, sortBy, trips]);
 
+  const groupedTrips = useMemo(() => {
+    if (preview) return []; 
+    
+    const groups = {};
+    filteredAndSortedTrips.forEach(trip => {
+      const year = trip.date?.match(/\d{4}/)?.[0] || 'Unknown';
+      if (!groups[year]) groups[year] = [];
+      groups[year].push(trip);
+    });
+    
+    return Object.keys(groups)
+      .sort((a, b) => b.localeCompare(a))
+      .map(year => ({
+        year,
+        trips: groups[year]
+      }));
+  }, [filteredAndSortedTrips, preview]);
+
   return (
     <div className="w-full bg-transparent text-white py-5 md:py-8 lg:py-10 px-6 md:px-10 font-sans">
       <div className="max-w-[1100px] mx-auto">
+
+        {/* Back Button */}
+        {!preview && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
+              <FaArrowLeft /> Back to Home
+            </button>
+          </motion.div>
+        )}
 
         {/* Section label */}
         <motion.p
@@ -286,13 +354,27 @@ const TravelGallery = () => {
         </motion.p>
 
         {/* Headline */}
-        <motion.h2
+        <motion.div
           initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease }}
-          className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-10 md:mb-14"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 md:mb-14"
         >
-          Visual <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Diaries.</span>
-        </motion.h2>
+          <h2 className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white">
+            Visual <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Diaries.</span>
+          </h2>
+          
+          {preview && filteredAndSortedTrips.length > 4 && (
+            <button
+              onClick={() => navigate('/travel')}
+              className="group flex items-center gap-3 text-sm font-medium text-slate-400 hover:text-white transition-colors pb-2 md:pb-6"
+            >
+              View Full Gallery
+              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 transition-all duration-300">
+                <FaArrowRight className="text-[10px] group-hover:text-emerald-400 transition-colors" />
+              </div>
+            </button>
+          )}
+        </motion.div>
 
         {/* Stats */}
         {!loading && <ModernStats trips={trips} />}
@@ -315,33 +397,35 @@ const TravelGallery = () => {
         >
             
             {/* Swipe Hint */}
-            <motion.div 
-              variants={{
-                initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
-                inView: { 
-                  opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
-                  transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
-                },
-                hover: { 
-                  opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
-                  transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
-                }
-              }}
-              className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
-            >
-              <motion.div
-                animate={{ x: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+            {preview && (
+              <motion.div 
+                variants={{
+                  initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
+                  inView: { 
+                    opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                    transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
+                  },
+                  hover: { 
+                    opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                    transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
+                  }
+                }}
+                className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
               >
-                <FaArrowRight size={20} className="text-white/80" />
+                <motion.div
+                  animate={{ x: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                >
+                  <FaArrowRight size={20} className="text-white/80" />
+                </motion.div>
               </motion.div>
-            </motion.div>
+            )}
 
           {loading ? (
             <div className="flex justify-center py-20">
               <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
             </div>
-          ) : (
+          ) : preview ? (
             <motion.div
               ref={scrollRef}
               onMouseDown={handleMouseDown}
@@ -354,17 +438,51 @@ const TravelGallery = () => {
               className={`flex overflow-x-auto gap-6 sm:gap-8 pb-10 pt-4 px-6 sm:px-12 -mx-6 sm:-mx-12 snap-x snap-mandatory scroll-smooth ${isDragging ? 'cursor-grabbing !scroll-auto !snap-none' : 'cursor-grab'} [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-transparent group-hover/gallery:[&::-webkit-scrollbar-track]:bg-white/[0.02] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-transparent group-hover/gallery:[&::-webkit-scrollbar-thumb]:bg-white/[0.1] hover:[&::-webkit-scrollbar-thumb]:!bg-white/[0.2] [&::-webkit-scrollbar-thumb]:rounded-full transition-colors duration-500`}
             >
               <AnimatePresence mode="popLayout">
-                {filteredAndSortedTrips.map((trip) => (
+                {filteredAndSortedTrips.slice(0, 4).map((trip) => (
                   <ModernCard
                     key={trip.id}
                     trip={trip}
                     searchTerm={searchTerm}
-                    onClick={() => navigate(`/travel/${trip.id}`)}
+                    onClick={(e) => {
+                      const dx = Math.abs(e.pageX - startXRef.current);
+                      const dy = Math.abs(e.pageY - startYRef.current);
+                      if (dx < 5 && dy < 5) navigate(`/travel/${trip.id}`);
+                    }}
                     onTagClick={setSearchTerm}
                   />
                 ))}
               </AnimatePresence>
             </motion.div>
+          ) : (
+            <div className="flex flex-col gap-16 md:gap-24 mt-10">
+              {groupedTrips.map(group => (
+                 <div key={group.year} className="flex flex-col">
+                   <h3 className="text-3xl md:text-5xl font-medium text-white mb-6 tracking-tight opacity-90 border-b border-white/10 pb-4 inline-block self-start">
+                     {group.year === 'Unknown' ? 'Other Journeys' : group.year}
+                   </h3>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                     <AnimatePresence mode="popLayout">
+                       {group.trips.map(trip => (
+                         <ModernCard
+                           key={trip.id}
+                           trip={trip}
+                           searchTerm={searchTerm}
+                           onClick={() => navigate(`/travel/${trip.id}`)}
+                           onTagClick={setSearchTerm}
+                           isGrid={true}
+                         />
+                       ))}
+                     </AnimatePresence>
+                   </div>
+                 </div>
+              ))}
+              
+              {groupedTrips.length === 0 && (
+                <div className="text-center text-slate-500 py-20 font-light">
+                  No journeys found matching your search.
+                </div>
+              )}
+            </div>
           )}
         </motion.div>
 

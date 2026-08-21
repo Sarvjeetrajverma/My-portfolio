@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaPaperPlane, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { trackEvent } from '../hooks/useGlobalAnalytics';
+import confetti from 'canvas-confetti';
 
 const ease = [0.22, 1, 0.36, 1];
 
 const Contact = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '', _gotcha: '' });
   const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    let timer;
+    if (status && status !== 'Sending...') {
+      timer = setTimeout(() => {
+        setStatus('');
+      }, 5000);
+    }
+    return () => clearTimeout(timer);
+  }, [status]);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,15 +28,21 @@ const Contact = () => {
     e.preventDefault();
     setStatus('Sending...');
     try {
-      const response = await fetch('https://formspree.io/f/mwvbgqwv', {
+      const response = await fetch(import.meta.env.VITE_FORMSPREE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
       if (response.ok) {
         setStatus('Message delivered successfully!');
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: '', email: '', message: '', _gotcha: '' });
         trackEvent('contact_submit');
+        
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
       } else {
         setStatus('Error: Message failed to send.');
       }
@@ -96,11 +113,26 @@ const Contact = () => {
                 </div>
               </div>
             </div>
+
+            {/* Book a Meeting */}
+            <div className="pt-2 mt-4">
+              <a 
+                href="https://calendly.com/sarvjeetrajverma" 
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-full transition-colors border border-emerald-500/20"
+              >
+                <FaCalendarAlt />
+                <span className="font-medium">Book a Meeting</span>
+              </a>
+            </div>
           </div>
 
           {/* Form */}
           <div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+              {/* Honeypot Spam Field */}
+              <input type="text" name="_gotcha" value={formData._gotcha} onChange={handleChange} style={{ display: 'none' }} tabIndex="-1" autoComplete="off" />
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="name" className="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-widest">Your Name</label>

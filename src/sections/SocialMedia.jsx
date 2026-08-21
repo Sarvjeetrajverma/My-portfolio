@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter, FaArrowRight } from 'react-icons/fa6';
+import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaXTwitter, FaArrowRight, FaArrowLeft } from 'react-icons/fa6';
 import { db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { InstagramEmbed, XEmbed } from 'react-social-media-embed';
@@ -15,7 +16,8 @@ const socialLinks = [
 
 const ease = [0.22, 1, 0.36, 1];
 
-const SocialMedia = () => {
+const SocialMedia = ({ preview = false }) => {
+  const navigate = useNavigate();
   const [highlights, setHighlights] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -50,6 +52,18 @@ const SocialMedia = () => {
   return (
     <section id="social-media" className="relative w-full bg-transparent text-white py-5 md:py-8 border-t border-white/[0.06]">
       <div className="max-w-[1300px] mx-auto px-6 md:px-10">
+
+        {/* Back Button */}
+        {!preview && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
+              <FaArrowLeft /> Back to Home
+            </button>
+          </motion.div>
+        )}
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
 
@@ -111,19 +125,33 @@ const SocialMedia = () => {
 
         {/* Highlights Grid */}
         {highlights.length > 0 && (
-          <div className="mt-20 pt-16 relative">
+          <div className="mt-12 pt-10 relative">
             {/* Elegant Divider */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent"></div>
 
             {/* Subtle Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/[0.02] rounded-full md:blur-[120px] pointer-events-none"></div>
 
-            <motion.h3
+            <motion.div
               initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-[11px] tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 uppercase font-semibold mb-12 text-center relative z-10"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-12 relative z-10"
             >
-              Featured Highlights
-            </motion.h3>
+              <h3 className="text-[11px] tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 uppercase font-semibold">
+                Featured Highlights
+              </h3>
+              
+              {preview && highlights.length > 4 && (
+                <button
+                  onClick={() => navigate('/highlights')}
+                  className="group flex items-center gap-3 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+                >
+                  View Full Gallery
+                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/50 transition-all duration-300">
+                    <FaArrowRight className="text-[10px] group-hover:text-emerald-400 transition-colors" />
+                  </div>
+                </button>
+              )}
+            </motion.div>
 
             <motion.div 
               whileHover="hover"
@@ -134,66 +162,102 @@ const SocialMedia = () => {
             >
               
               {/* Swipe Hint */}
-              <motion.div 
-                variants={{
-                  initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
-                  inView: { 
-                    opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
-                    transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
-                  },
-                  hover: { 
-                    opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
-                    transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
-                  }
-                }}
-                className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
-              >
-                <motion.div
-                  animate={{ x: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+              {preview && (
+                <motion.div 
+                  variants={{
+                    initial: { opacity: 0, x: 30, scale: 0.9, filter: "blur(4px)" },
+                    inView: { 
+                      opacity: [0, 1, 1, 0], x: [30, 0, 0, -20], scale: [0.9, 1, 1, 0.95], filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                      transition: { duration: 3.5, times: [0, 0.15, 0.85, 1], ease: "easeOut" } 
+                    },
+                    hover: { 
+                      opacity: [0, 1, 1, 0], x: [20, 0, 0, -20], scale: [0.95, 1, 1, 0.95], filter: ["blur(2px)", "blur(0px)", "blur(0px)", "blur(4px)"],
+                      transition: { duration: 2.5, times: [0, 0.15, 0.8, 1], ease: "easeOut" } 
+                    }
+                  }}
+                  className="absolute right-0 md:-right-10 lg:-right-16 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[54px] h-[54px] bg-black/40 backdrop-blur-xl rounded-full border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-none"
                 >
-                  <FaArrowRight size={20} className="text-white/80" />
-                </motion.div>
-              </motion.div>
-
-              <div 
-                ref={scrollRef}
-                onMouseDown={handleMouseDown}
-                onMouseLeave={handleMouseLeave}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-                className={`flex overflow-x-auto gap-6 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] ${isDragging ? 'cursor-grabbing !scroll-auto !snap-none' : 'cursor-grab'}`}
-              >
-                {highlights.map((post, i) => (
                   <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -8, scale: 1.01 }}
-                    className="group min-w-[85vw] sm:min-w-[400px] snap-center bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
+                    animate={{ x: [0, 8, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
                   >
-                    <div className="flex items-center gap-3 mb-7">
-                      <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
-                        {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FiInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 uppercase tracking-[0.25em] transition-colors duration-500">{post.platform}</span>
-                    </div>
-
-                    <div className="flex justify-center w-full relative">
-                      {post.platform === 'twitter' && (
-                        <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                          <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
-                        </div>
-                      )}
-                      {post.platform === 'instagram' && (
-                        <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
-                          <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
-                        </div>
-                      )}
-                    </div>
+                    <FaArrowRight size={20} className="text-white/80" />
                   </motion.div>
-                ))}
-              </div>
+                </motion.div>
+              )}
+
+              {preview ? (
+                <div 
+                  ref={scrollRef}
+                  onMouseDown={handleMouseDown}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseUp={handleMouseUp}
+                  onMouseMove={handleMouseMove}
+                  className={`flex overflow-x-auto gap-6 items-start relative z-10 pb-8 px-6 md:px-0 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] ${isDragging ? 'cursor-grabbing !scroll-auto !snap-none' : 'cursor-grab'}`}
+                >
+                  {highlights.slice(0, 4).map((post, i) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                      transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={{ y: -8, scale: 1.01 }}
+                      className="group min-w-[85vw] sm:min-w-[400px] snap-center bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
+                    >
+                      <div className="flex items-center gap-3 mb-7">
+                        <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
+                          {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FaInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 uppercase tracking-[0.25em] transition-colors duration-500">{post.platform}</span>
+                      </div>
+
+                      <div className="flex justify-center w-full relative">
+                        {post.platform === 'twitter' && (
+                          <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                            <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
+                          </div>
+                        )}
+                        {post.platform === 'instagram' && (
+                          <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                            <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-10 w-full">
+                  {highlights.map((post, i) => (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                      transition={{ delay: i * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={{ y: -8, scale: 1.01 }}
+                      className="group w-full bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.08] hover:border-emerald-500/30 rounded-[2rem] p-5 md:p-7 transition-all duration-500 shadow-xl hover:shadow-emerald-500/10 backdrop-blur-xl shrink-0"
+                    >
+                      <div className="flex items-center gap-3 mb-7">
+                        <div className="w-9 h-9 rounded-full bg-white/[0.05] flex items-center justify-center border border-white/[0.1] group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-colors duration-500 shadow-inner">
+                          {post.platform === 'twitter' ? <FaXTwitter className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} /> : <FaInstagram className="text-slate-300 group-hover:text-emerald-400 transition-colors" size={14} />}
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 uppercase tracking-[0.25em] transition-colors duration-500">{post.platform}</span>
+                      </div>
+
+                      <div className="flex justify-center w-full relative">
+                        {post.platform === 'twitter' && (
+                          <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                            <XEmbed url={post.url.replace('twitter.com/x/status/', 'twitter.com/twitter/status/')} width="100%" />
+                          </div>
+                        )}
+                        {post.platform === 'instagram' && (
+                          <div className="w-full overflow-hidden rounded-[1.25rem] bg-black/30 border border-white/[0.04] p-1.5 shadow-inner">
+                            <InstagramEmbed url={post.url} width="100%" style={{ background: 'transparent' }} />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           </div>
         )}

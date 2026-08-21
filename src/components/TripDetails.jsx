@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 import './TravelGallery.css'; 
 
 // --- FIREBASE IMPORTS ---
-import { doc, onSnapshot, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc, increment, collection } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // --- ICONS ---
@@ -36,36 +36,40 @@ const usePhotoStats = (photos) => {
   useEffect(() => {
     if (!photos || photos.length === 0) return;
 
-    const unsubscribes = photos.map(photo => {
-      if (!photo.id) return () => {};
+    if (!db) {
+      console.error("Firebase DB is missing!");
+      return;
+    }
 
-      try {
-        if (!db) {
-           console.error("Firebase DB is missing!");
-           return () => {};
+    const photoIds = photos.map(p => String(p.id));
+    const unsub = onSnapshot(collection(db, 'gallery_stats'), (snapshot) => {
+      const newStats = {};
+      
+      // Initialize all with defaults first
+      photoIds.forEach(id => {
+        newStats[id] = { likes: 0, views: 0, downloads: 0, shares: 0, userLiked: false };
+      });
+
+      // Override with actual data
+      snapshot.forEach(docSnap => {
+        if (photoIds.includes(docSnap.id)) {
+          const data = docSnap.data();
+          const userLikedLocally = localStorage.getItem(`liked_${docSnap.id}`) === 'true';
+          newStats[docSnap.id] = { ...data, userLiked: userLikedLocally };
         }
-        
-        const photoRef = doc(db, 'gallery_stats', String(photo.id));
-        return onSnapshot(photoRef, (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const userLikedLocally = localStorage.getItem(`liked_${photo.id}`) === 'true';
-            setStats(prev => ({ ...prev, [photo.id]: { ...data, userLiked: userLikedLocally } }));
-          } else {
-            setDoc(photoRef, { likes: 0, views: 0, downloads: 0, shares: 0 })
-              .catch(err => {
-                console.error("Firebase Create Error:", err);
-                setStats(prev => ({ ...prev, [photo.id]: { likes: 0, views: 0, downloads: 0, shares: 0, userLiked: false } }));
-              });
-          }
-        }, (error) => console.error("Firebase Snapshot Error:", error));
-      } catch (err) {
-        console.error("Critical Firebase Setup Error for photo:", photo.id, err);
-        return () => {};
-      }
-    });
+      });
+      
+      setStats(prev => ({ ...prev, ...newStats }));
+      
+      // Lazily create missing docs in background
+      photoIds.forEach(id => {
+        if (!snapshot.docs.find(d => d.id === id)) {
+          setDoc(doc(db, 'gallery_stats', id), { likes: 0, views: 0, downloads: 0, shares: 0 }).catch(console.error);
+        }
+      });
+    }, (error) => console.error("Firebase Snapshot Error:", error));
 
-    return () => unsubscribes.forEach(unsub => unsub && typeof unsub === 'function' && unsub());
+    return () => unsub();
   }, [photos]);
 
   const toggleLike = useCallback(async (photoId) => {
@@ -469,7 +473,15 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
                 <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 shrink-0 cursor-grab active:cursor-grabbing" />
                 
                 <h4 className="text-xl font-semibold mb-1 text-white">Details</h4>
-                <p className="text-sm text-gray-400 mb-6">{photo.date}</p>
+                <div className="mb-6">
+                  {photo.location && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">📍</span>
+                      <span className="text-white font-medium">{photo.location}</span>
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-400">{photo.date}</p>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                    <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl">
@@ -506,13 +518,24 @@ const ZoomViewer = ({ photo, stats, toggleLike, recordView, recordAction, onClos
                    <div className="flex items-start gap-4">
                       <div className="p-3 bg-white/10 rounded-full shrink-0"><Icons.Camera /></div>
                       <div className="flex-1">
-                         <p className="text-sm font-semibold text-white">Sony A7IV</p>
-                         <p className="text-xs text-gray-400 mt-1">Sony FE 35mm f/1.4 GM</p>
+                         {(photo.camera || photo.lens) ? (
+                           <>
+                             <p className="text-sm font-semibold text-white">{photo.camera || 'Unknown Camera'}</p>
+                             <p className="text-xs text-gray-400 mt-1">{photo.lens || ''}</p>
+                           </>
+                         ) : (
+                           <p className="text-sm font-semibold text-white mt-1.5">📸 Captured with care</p>
+                         )}
                       </div>
                    </div>
-                   <div className="flex gap-4 text-[11px] font-mono text-gray-300 ml-[52px]">
-                      <span>35mm</span><span>f/1.4</span><span>1/1000s</span><span>ISO 100</span>
-                   </div>
+                   {(photo.camera || photo.lens) && (
+                     <div className="flex gap-4 text-[11px] font-mono text-gray-300 ml-[52px] flex-wrap">
+                        {photo.focalLength && <span>{photo.focalLength}</span>}
+                        {photo.aperture && <span>{photo.aperture}</span>}
+                        {photo.shutterSpeed && <span>{photo.shutterSpeed}</span>}
+                        {photo.iso && <span>ISO {photo.iso}</span>}
+                     </div>
+                   )}
                 </div>
 
                 {photo.caption && (

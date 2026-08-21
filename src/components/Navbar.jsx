@@ -1,14 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import OverlayMenu from "./OverlayMenu";
 import logo from "../assets/logo.png";
-import { FiMenu, FiMoon, FiSun, FiBook, FiCode } from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion";
+import { FiMenu } from "react-icons/fi";
+import { motion, useScroll, useSpring } from "framer-motion";
 import ThemeSwitcher from "./ThemeSwitcher";
 export default function Navbar({ forceHidden }) {
   const [visible, setVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [activeSection, setActiveSection] = useState('');
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   const lastscrollY = useRef(0);
   const timerId = useRef(null);
@@ -33,18 +41,7 @@ export default function Navbar({ forceHidden }) {
     return () => observer.disconnect();
   }, [theme]);
 
-  const cycleTheme = () => {
-    const themes = ['dark', 'light', 'read', 'green'];
-    const nextIndex = (themes.indexOf(theme) + 1) % themes.length;
-    setTheme(themes[nextIndex]);
-  };
 
-  const getThemeIcon = () => {
-    if (theme === 'light') return <FiSun className="text-lg" />;
-    if (theme === 'read') return <FiBook className="text-lg" />;
-    if (theme === 'green') return <FiCode className="text-lg" />;
-    return <FiMoon className="text-lg" />;
-  };
 
   // Smooth Hide/Show on Scroll Logic
   useEffect(() => {
@@ -52,6 +49,19 @@ export default function Navbar({ forceHidden }) {
       const currentScrollY = window.scrollY;
 
       setIsScrolled(currentScrollY > 20);
+
+      // Active section highlighting
+      const sections = ['about', 'projects', 'experience', 'testimonials', 'travel']
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+        
+      let current = '';
+      for (const section of sections) {
+        if (currentScrollY >= section.offsetTop - 150) {
+          current = section.getAttribute('id');
+        }
+      }
+      setActiveSection(current);
 
       // Hide navbar when scrolling down past 50px
       if (currentScrollY > lastscrollY.current && currentScrollY > 50) {
@@ -96,10 +106,14 @@ export default function Navbar({ forceHidden }) {
     }
   };
 
-  const navLinks = ['about', 'skills', 'projects', 'experience', 'testimonials', 'travel'];
+  const navLinks = ['about', 'projects', 'experience', 'testimonials', 'travel'];
 
   return (
     <>
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[3px] bg-emerald-500 origin-left z-[60] shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+        style={{ scaleX }}
+      />
       <nav
         className={`fixed top-0 sm:top-5 left-1/2 w-full sm:w-[98%] max-w-[1400px] -translate-x-1/2 flex items-center justify-between px-6 sm:px-12 py-1 sm:py-2 z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${visible && !forceHidden ? "translate-y-0 opacity-100" : "-translate-y-[150%] opacity-0"
           } ${isScrolled ? 'bg-black/70 backdrop-blur-2xl border border-white/5 sm:rounded-full shadow-2xl shadow-black/50' : 'bg-transparent border-transparent sm:rounded-none'}`}
@@ -130,7 +144,7 @@ export default function Navbar({ forceHidden }) {
             <a
               key={item}
               href={`/#${item}`}
-              className="px-6 py-1.5 text-[15px] font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 capitalize"
+              className={`px-6 py-1.5 text-[15px] font-medium rounded-full transition-all duration-300 capitalize ${activeSection === item ? 'text-white bg-white/20 shadow-inner' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
             >
               {item}
             </a>
@@ -141,7 +155,7 @@ export default function Navbar({ forceHidden }) {
           <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
           {/* Action Button */}
           <a
-            href="#contact"
+            href="/#contact"
             className="inline-flex items-center justify-center px-6 py-2 text-[15px] font-semibold text-black bg-white rounded-full hover:bg-gray-200 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
           >
             Let's Talk
@@ -149,7 +163,7 @@ export default function Navbar({ forceHidden }) {
         </div>
 
         {/* MOBILE HAMBURGER MENU */}
-        <div className="block lg:hidden flex gap-2">
+        <div className="flex lg:hidden gap-2">
           <ThemeSwitcher currentTheme={theme} onThemeChange={setTheme} />
           <button
             onClick={() => setMenuOpen(true)}

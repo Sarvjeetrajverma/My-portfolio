@@ -3,16 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {
-  FaChevronLeft, FaChevronRight, FaCode, FaBolt, FaMagic,
-  FaRocket, FaRobot, FaCamera, FaGraduationCap, FaTrophy, FaRoute,
-  FaTerminal, FaNetworkWired, FaServer, FaCodeBranch, FaBrain,
-  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaJava, FaChartLine
+  FaCode, FaBolt, FaMagic,
+  FaRocket, FaRobot, FaCamera, FaGraduationCap, FaRoute,
+  FaTerminal, FaNetworkWired, FaCodeBranch, FaBrain,
+  FaGithub, FaClock, FaCube, FaLaptopCode, FaDatabase, FaAws, FaChartLine
 } from 'react-icons/fa';
 import {
-  SiReact, SiNodedotjs, SiCplusplus, SiNextdotjs, SiTailwindcss, SiMongodb,
-  SiTypescript, SiFramer, SiRedux, SiExpress, SiPython, SiGraphql,
-  SiPostgresql, SiMysql, SiRedis, SiSupabase, SiGithubactions,
-  SiDocker, SiLinux, SiVercel, SiScikitlearn, SiPandas, SiNumpy, SiJupyter,
+  SiReact, SiCplusplus, SiMongodb,
+  SiPython, SiPostgresql, SiMysql, SiRedis, SiGithubactions,
+  SiDocker, SiLinux, SiScikitlearn, SiPandas, SiNumpy, SiJupyter,
   SiTensorflow, SiPytorch, SiHuggingface, SiKeras, SiOpencv
 } from 'react-icons/si';
 
@@ -94,6 +93,7 @@ const fadeUp = (delay = 0) => ({
 const About = () => {
   const [activeTab, setActiveTab] = useState(systemModules[0].id);
   const [profileImages, setProfileImages] = useState(defaultProfileImages);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const activeData = systemModules.find(m => m.id === activeTab);
 
   useEffect(() => {
@@ -106,6 +106,14 @@ const About = () => {
     });
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    if (profileImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % profileImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [profileImages]);
 
   return (
     <section id="about" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
@@ -132,15 +140,22 @@ const About = () => {
         {/* ── Profile + Bio row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 md:gap-12 items-start mb-10 md:mb-14">
 
-          {/* Profile image */}
+          {/* Profile image carousel */}
           <motion.div {...fadeUp(0.1)}>
             <div className="relative w-full max-w-[300px] mx-auto lg:mx-0 aspect-square rounded-2xl overflow-hidden" style={{ background: 'rgba(13,5,20,0.7)' }}>
-              <img
-                src={profileImages[0]}
-                alt="Sarvjeet Profile"
-                loading="lazy" decoding="async"
-                className="absolute inset-0 w-full h-full object-cover object-top"
-              />
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentImageIndex}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                  src={profileImages[currentImageIndex]}
+                  alt={`Sarvjeet Profile ${currentImageIndex + 1}`}
+                  loading="lazy" decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+              </AnimatePresence>
             </div>
             <div className="mt-5 text-center lg:text-left">
               <p className="text-white text-lg font-medium tracking-tight">Sarvjeet</p>
@@ -163,7 +178,7 @@ const About = () => {
             </div>
 
             {/* Tags — minimal pill style */}
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               {[
                 { icon: <FaCode size={13} />, label: 'Data Science' },
                 { icon: <FaBolt size={13} />, label: 'Agentic AI' },
@@ -174,6 +189,7 @@ const About = () => {
                   {tag.icon} {tag.label}
                 </span>
               ))}
+
             </div>
           </motion.div>
         </div>
@@ -209,10 +225,19 @@ const About = () => {
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
             >
               {activeData.content.map((skill, i) => (
-                <div key={skill.name} className="flex flex-col gap-2.5 p-4 border border-white/[0.06] rounded-xl hover:border-white/15 transition-colors duration-300">
-                  <div className="flex items-center gap-2">
-                    <div className="text-base" style={{ color: skill.brand }}>{skill.logo}</div>
-                    <span className="text-sm font-medium text-slate-300 truncate">{skill.name}</span>
+                <div key={skill.name} className="group relative flex flex-col gap-2.5 p-4 border border-white/[0.06] rounded-xl hover:border-white/15 hover:bg-white/[0.02] transition-colors duration-300">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 truncate">
+                      <div className="text-base" style={{ color: skill.brand }}>{skill.logo}</div>
+                      <span className="text-sm font-medium text-slate-300 truncate">{skill.name}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-10 whitespace-nowrap group-hover:-translate-y-1">
+                    <div className="bg-black/90 backdrop-blur-md border border-white/10 text-slate-200 text-[11px] font-medium px-3 py-1.5 rounded-lg shadow-xl">
+                      {skill.meta}
+                    </div>
                   </div>
                 </div>
               ))}

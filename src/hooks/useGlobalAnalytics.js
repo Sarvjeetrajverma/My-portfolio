@@ -17,12 +17,14 @@ export const trackEvent = async (eventName, eventData = {}) => {
     
     // Create a dynamic field path. 
     // Example: events.project_click.my_project_id OR events.resume_download.total
-    const fieldPath = eventData.id 
-      ? `events.${eventName}.${eventData.id}`
-      : `events.${eventName}.total`;
-      
+    const key = eventData.id ? eventData.id : 'total';
+    
     await setDoc(globalRef, {
-      [fieldPath]: increment(1)
+      events: {
+        [eventName]: {
+          [key]: increment(1)
+        }
+      }
     }, { merge: true });
     
   } catch (error) {

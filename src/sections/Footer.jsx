@@ -6,6 +6,13 @@ const Footer = () => {
   const [bursts, setBursts] = useState([]);
   const footerRef = useRef(null);
   const isInView = useInView(footerRef, { amount: 0.1 });
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleTrigger = (isAuto = false) => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
@@ -13,7 +20,7 @@ const Footer = () => {
     const emojis = ['🌸', '🌺', '🏵️', '🌼']; // Only the requested emojis
 
     // Less quantity and height for automatic scroll, Massive burst for manual clicks
-    const flowerCount = isAuto ? 15 : 15;
+    const flowerCount = 15;
     const heightMultiplier = isAuto ? 0.4 : 1.2;
     const heightBase = isAuto ? 0.1 : 0.2;
 
@@ -31,14 +38,17 @@ const Footer = () => {
     };
 
     setBursts(prev => [...prev, newBurst]);
-    setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 6000);
+    timeoutRef.current = setTimeout(() => setBursts(prev => prev.filter(b => b.id !== newBurst.id)), 6000);
   };
 
   // Automatically trigger on scroll end ONLY for mobile screens
   useEffect(() => {
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     if (isInView && screenWidth < 768) {
-      handleTrigger(true); // Pass true to indicate this is the auto-trigger
+      if (!sessionStorage.getItem('footer_burst')) {
+        handleTrigger(true); // Pass true to indicate this is the auto-trigger
+        sessionStorage.setItem('footer_burst', 'true');
+      }
     }
   }, [isInView]);
 
@@ -77,6 +87,7 @@ const Footer = () => {
         {/* Bottom row */}
         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <p>© {new Date().getFullYear()} Sarvjeet. All rights reserved.</p>
+          
           <div className="flex items-center gap-1.5">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent('toggle-analytics-dashboard'))}
