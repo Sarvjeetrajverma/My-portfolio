@@ -5,13 +5,13 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD0QrXuM3tlgr0W9AKKQ3GnCf9uh80seyk",
-  authDomain: "my-portfolio-admin-284b8.firebaseapp.com",
-  projectId: "my-portfolio-admin-284b8",
-  storageBucket: "my-portfolio-admin-284b8.firebasestorage.app",
-  messagingSenderId: "299228906066",
-  appId: "1:299228906066:web:80956a54661317d38d558b",
-  // if you have a databaseURL for rtdb, add it here or default it
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
 // Initialize Firebase (prevent multiple initializations)

@@ -25,7 +25,7 @@ const Footer = lazy(() => import("./sections/footer"));
 
 // Modals and Routes (Lazy loaded)
 const TripDetails = lazy(() => import('./components/TripDetails'));
-const Resume = lazy(() => import('./components/Resume'));
+
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 
@@ -97,11 +97,7 @@ const AnimatedRoutes = () => {
             <TripDetails />
           </Suspense>
         } />
-        <Route path="/resume" element={
-          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
-            <Resume />
-          </Suspense>
-        } />
+
         <Route path="/blog" element={
           <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
             <BlogIndex />

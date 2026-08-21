@@ -395,14 +395,15 @@ export default function Home() {
           >
             Explore Work <Icons.ArrowRight size={14} />
           </motion.a>
-          <Link
-            to="/resume"
+          <a
+            href="/sarvjeetrajverma_resume.pdf"
+            download="Sarvjeet_Raj_Verma_Resume.pdf"
             className="flex items-center gap-1.5 text-slate-500 hover:text-slate-200 transition-colors text-base sm:text-base font-medium tracking-wide"
           >
             <motion.span className="flex items-center gap-1.5" whileHover={{ y: -2 }}>
-              Resume <Icons.ArrowRight size={13} />
+              Resume <Icons.Download size={13} />
             </motion.span>
-          </Link>
+          </a>
         </motion.div>
 
         {/* SOCIALS — horizontal row */}
