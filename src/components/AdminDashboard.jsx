@@ -30,18 +30,25 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'trips'), (snapshot) => {
-      let tripsData = [];
-      snapshot.forEach(doc => {
-        tripsData.push({ id: doc.id, order: doc.data().order || 0, ...doc.data() });
-      });
-      tripsData.sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
-        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-      });
-      setTrips(tripsData);
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      collection(db, 'trips'),
+      (snapshot) => {
+        let tripsData = [];
+        snapshot.forEach(doc => {
+          tripsData.push({ id: doc.id, order: doc.data().order || 0, ...doc.data() });
+        });
+        tripsData.sort((a, b) => {
+          if (a.order !== b.order) return a.order - b.order;
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+        setTrips(tripsData);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Firebase subscription error in Admin:", error);
+        setLoading(false);
+      }
+    );
 
     return () => unsub();
   }, []);
