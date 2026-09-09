@@ -24,6 +24,9 @@ export default function BlogIndex() {
       data.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       setBlogs(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching blogs:", error);
+      setLoading(false);
     });
     return () => unsub();
   }, []);

@@ -123,6 +123,9 @@ const Projects = () => {
       
       setProjects({ active: activeList, upcoming: upcomingList });
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching projects:", error);
+      setLoading(false);
     });
 
     return () => unsub();

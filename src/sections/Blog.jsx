@@ -19,6 +19,8 @@ export default function Blog() {
       });
       data.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       setBlogs(data.slice(0, 3)); // Only show latest 3 on homepage
+    }, (error) => {
+      console.error("Error fetching blogs:", error);
     });
     return () => unsub();
   }, []);

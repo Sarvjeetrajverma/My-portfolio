@@ -39,6 +39,9 @@ const Experience = () => {
       data.sort((a, b) => (b.order || 0) - (a.order || 0));
       setExperiences(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching experiences:", error);
+      setLoading(false);
     });
     return () => unsub();
   }, []);
