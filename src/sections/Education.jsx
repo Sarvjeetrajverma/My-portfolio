@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain, FaArrowRight, FaBriefcase, FaCode, FaRocket, FaExternalLinkAlt, FaImage } from 'react-icons/fa';
 import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { FaLaptopCode, FaGraduationCap, FaSchool, FaAtom, FaChevronLeft, FaChevronRight, FaBrain, FaArrowRight, FaBriefcase, FaCode, FaRocket, FaExternalLinkAlt, FaImage } from 'react-icons/fa';
 import ImageModal from '../components/ImageModal';
 
 const iconMap = {
@@ -20,8 +20,8 @@ const ease = [0.22, 1, 0.36, 1];
 
 
 
-const Experience = () => {
-  const [experiences, setExperiences] = useState([]);
+const Education = () => {
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -35,17 +35,17 @@ const Experience = () => {
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'experiences'), (snapshot) => {
+    const unsub = onSnapshot(collection(db, 'education'), (snapshot) => {
       let data = [];
       snapshot.forEach(doc => {
         data.push({ ...doc.data(), id: doc.id });
       });
       data.sort((a, b) => (b.order || 0) - (a.order || 0));
-      setExperiences(data);
+      setItems(data);
       setLoading(false);
     }, (error) => {
-      console.error("Error fetching experiences:", error);
-      setExperiences([]);
+      console.error("Error fetching education:", error);
+      setItems([]);
       setLoading(false);
     });
     return () => unsub();
@@ -55,49 +55,32 @@ const Experience = () => {
     setExpandedId(prev => prev === id ? null : id);
   };
 
-
-
   return (
-    <section id="experience" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10 font-sans">
-
-      {/* Ambient glow & Data Grid */}
-      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2 md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)' }} />
-      <div className="absolute inset-0 w-full h-full bg-grid pointer-events-none opacity-[0.15]" style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }} />
-
+    <section id="education" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10 font-sans">
+      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] rounded-full pointer-events-none -translate-y-1/2 md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)' }} />
       <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
-
-        {/* Section label */}
         <motion.p
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           transition={{ duration: 0.7, ease }}
           className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-8 md:mb-10"
         >
-          Experience Timeline
+          Education Timeline
         </motion.p>
-
-        {/* Headline */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 md:mb-10">
           <motion.h2
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 1, ease }}
             className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7rem] leading-[0.95] font-medium tracking-tighter text-white mb-8 md:mb-10"
           >
-            Work <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Experience.</span>
+            My <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Education.</span>
           </motion.h2>
         </div>
-
-        {/* Vertical Timeline */}
         <div ref={containerRef} className="relative ml-4 md:ml-6 pl-6 md:pl-8 py-2 space-y-5">
-
-          {/* Static Background Line */}
           <div className="absolute left-0 top-0 bottom-0 w-px bg-white/10" />
-
-          {/* Animated Tracking Line */}
           <motion.div
             style={{ height: lineHeight }}
             className="absolute left-[-1px] top-0 w-[3px] bg-gradient-to-b from-emerald-400 via-emerald-500 to-transparent shadow-[0_0_15px_3px_rgba(16,185,129,0.5)] origin-top z-0 rounded-full"
           />
-
           {loading ? (
             /* Skeleton Loading State */
             [1, 2, 3].map(i => (
@@ -113,7 +96,7 @@ const Experience = () => {
               </div>
             ))
           ) : (
-            experiences.map((exp, i) => (
+            items.map((exp, i) => (
               <motion.div
                 key={exp.id}
                 initial={{ opacity: 0, x: -30, scale: 0.95 }} 
@@ -123,10 +106,7 @@ const Experience = () => {
                 whileHover={{ x: 6 }}
                 className="relative group"
               >
-                {/* Timeline Node */}
                 <div className={`absolute -left-[33px] md:-left-[41px] top-6 w-3.5 h-3.5 rounded-full border-2 transition-colors duration-500 ${exp.status === 'SYS_ACTIVE' ? 'border-emerald-500 bg-emerald-500/20' : 'border-white/20 bg-black group-hover:border-emerald-500/50'} z-10`} />
-
-                {/* Expandable Card */}
                 <div
                   onClick={() => toggleExpand(exp.id)}
                   className={`w-full max-w-3xl rounded-[1.25rem] transition-all duration-500 cursor-pointer overflow-hidden border backdrop-blur-xl ${expandedId === exp.id
@@ -134,10 +114,9 @@ const Experience = () => {
                       : 'bg-transparent border-white/[0.08] hover:border-white/15 hover:bg-white/[0.02]'
                     }`}
                 >
-                  {/* Header (Always Visible) */}
                   <div className="p-5 md:p-6 flex items-start gap-3 md:gap-4">
                     <div className="text-slate-500 group-hover:text-slate-300 transition-colors duration-500 text-2xl shrink-0 mt-0.5">
-                      {iconMap[exp.iconString] || <FaBriefcase />}
+                      {iconMap[exp.iconString] || <FaGraduationCap />}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-white text-lg md:text-xl font-medium tracking-tight mb-1">{exp.role}</h3>
@@ -146,11 +125,9 @@ const Experience = () => {
                     {/* Status indicator */}
                     <div className={`text-[10px] font-mono tracking-widest hidden md:flex items-center gap-1.5 ${exp.status === 'SYS_ACTIVE' ? 'text-emerald-500' : 'text-slate-600'}`}>
                       {exp.status === 'SYS_ACTIVE' && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />}
-                      {exp.status === 'SYS_ACTIVE' ? 'ACTIVE' : 'ARCHIVED'}
+                      [{exp.status}]
                     </div>
                   </div>
-
-                  {/* Expandable Details */}
                   <AnimatePresence>
                     {expandedId === exp.id && (
                       <motion.div
@@ -167,7 +144,7 @@ const Experience = () => {
                               <p className="text-slate-200 text-sm md:text-sm font-light mt-1 leading-relaxed">{detail.value}</p>
                             </div>
                           ))}
-                          
+
                           {(exp.certificateImage || exp.link) && (
                             <div className="pt-4 mt-4 border-t border-white/[0.05] flex flex-wrap gap-3">
                               {exp.certificateImage && (
@@ -201,7 +178,6 @@ const Experience = () => {
             ))
           )}
         </div>
-
       </div>
 
       <ImageModal 
@@ -213,5 +189,4 @@ const Experience = () => {
   );
 };
 
-
-export default Experience;
+export default Education;

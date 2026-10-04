@@ -114,17 +114,7 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Book a Meeting */}
-            <div className="pt-2 mt-4">
-              <a 
-                href="https://calendly.com/sarvjeetrajverma" 
-                target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-full transition-colors border border-emerald-500/20"
-              >
-                <FaCalendarAlt />
-                <span className="font-medium">Book a Meeting</span>
-              </a>
-            </div>
+
           </div>
 
           {/* Form */}

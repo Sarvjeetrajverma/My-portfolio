@@ -15,7 +15,9 @@ import { usePresence } from './hooks/usePresence';
 
 // Below the fold / heavy components (Lazy loaded)
 const Projects = lazy(() => import("./sections/Projects"));
+const Education = lazy(() => import("./sections/Education"));
 const Experience = lazy(() => import("./sections/Experience"));
+const Achievements = lazy(() => import("./sections/Achievements"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 const TravelGallery = lazy(() => import("./components/TravelGallery"));
 const Blog = lazy(() => import("./sections/Blog"));
@@ -28,6 +30,8 @@ const TripDetails = lazy(() => import('./components/TripDetails'));
 
 const BlogIndex = lazy(() => import('./pages/BlogIndex'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
+const AllProjects = lazy(() => import('./pages/AllProjects'));
+const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
 
 const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'));
 const Admin = lazy(() => import('./sections/Admin'));
@@ -70,7 +74,9 @@ const MainPage = () => {
         {/* Lazy loaded components (Loaded as browser has idle time) */}
         <Suspense fallback={<SectionLoader />}>
           <Projects />
+          <Education />
           <Experience />
+          <Achievements />
           <Testimonials />
           <section id="travel">
             <TravelGallery preview={true} />
@@ -104,6 +110,16 @@ const AnimatedRoutes = () => {
         <Route path="/highlights" element={
           <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
              <SocialMedia preview={false} />
+          </Suspense>
+        } />
+        <Route path="/projects" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+             <AllProjects />
+          </Suspense>
+        } />
+        <Route path="/project/:projectId" element={
+          <Suspense fallback={<div className="h-screen bg-black flex items-center justify-center"><SectionLoader /></div>}>
+             <ProjectDetails />
           </Suspense>
         } />
 

@@ -370,7 +370,7 @@ const TravelGallery = ({ preview = false }) => {
             Visual <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Diaries.</span>
           </h2>
           
-          {preview && filteredAndSortedTrips.length > 4 && (
+          {preview && trips.length > 0 && (
             <button
               onClick={() => navigate('/travel')}
               className="group flex items-center gap-3 text-sm font-medium text-slate-400 hover:text-white transition-colors pb-2 md:pb-6"

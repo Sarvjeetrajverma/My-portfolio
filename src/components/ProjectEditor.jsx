@@ -20,10 +20,12 @@ export default function ProjectEditor({ project, onBack }) {
       light: project?.images?.light || '',
       read: project?.images?.read || '',
       green: project?.images?.green || ''
-    }
+    },
+    screenshots: project?.screenshots || []
   });
 
   const [uploadingTheme, setUploadingTheme] = useState(null);
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +67,45 @@ export default function ProjectEditor({ project, onBack }) {
     }
   };
 
+  const handleScreenshotUpload = async (e) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setUploadingScreenshot(true);
+    try {
+      const fd = new FormData();
+      fd.append('upload_preset', 'protfolio');
+      fd.append('file', file, `screenshot-${Date.now()}.jpg`);
+
+      const res = await fetch('https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload', {
+        method: 'POST',
+        body: fd
+      });
+      
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      
+      if (data.secure_url) {
+        setFormData(prev => ({
+          ...prev,
+          screenshots: [...prev.screenshots, data.secure_url]
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading screenshot');
+    } finally {
+      setUploadingScreenshot(false);
+    }
+  };
+
+  const removeScreenshot = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      screenshots: prev.screenshots.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -82,6 +123,7 @@ export default function ProjectEditor({ project, onBack }) {
         videoUrl: formData.videoUrl,
         tech: techArray,
         images: formData.images,
+        screenshots: formData.screenshots,
         updatedAt: new Date().toISOString()
       };
 
@@ -211,6 +253,39 @@ export default function ProjectEditor({ project, onBack }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Screenshots */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-medium">Screenshots / Gallery</h3>
+              <p className="text-sm text-slate-400">Upload additional screenshots to show in the project details gallery.</p>
+            </div>
+            <label className="cursor-pointer bg-emerald-500 hover:bg-emerald-600 text-black px-4 py-2 rounded-full font-medium transition-colors flex items-center gap-2">
+              {uploadingScreenshot ? <span className="animate-spin w-4 h-4 border-2 border-black/30 border-t-black rounded-full" /> : <FiUploadCloud />}
+              {uploadingScreenshot ? 'Uploading...' : 'Add Screenshot'}
+              <input type="file" accept="image/*" className="hidden" onChange={handleScreenshotUpload} />
+            </label>
+          </div>
+          
+          {formData.screenshots.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {formData.screenshots.map((url, idx) => (
+                <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-white/10 relative group">
+                  <img src={url} alt={`Screenshot ${idx + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                    <button type="button" onClick={() => removeScreenshot(idx)} className="text-xs bg-red-500/80 hover:bg-red-500 px-3 py-1.5 rounded-full text-white transition-colors">Remove</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="w-full py-12 rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500">
+              <FiImage size={32} className="mb-3 opacity-50" />
+              <span className="text-sm">No screenshots added yet</span>
+            </div>
+          )}
         </div>
 
         {/* Submit */}

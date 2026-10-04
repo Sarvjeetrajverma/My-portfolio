@@ -3,29 +3,67 @@ import { db } from '../firebase';
 import { collection, doc, setDoc, addDoc } from 'firebase/firestore';
 import { FiArrowLeft, FiSave, FiPlus, FiTrash2 } from 'react-icons/fi';
 
-export default function ExperienceEditor({ exp, onBack }) {
+export default function TimelineEditor({ item, collectionName, onBack }) {
   const [formData, setFormData] = useState({
-    role: exp?.role || '',
-    institution: exp?.institution || '',
-    period: exp?.period || '',
-    status: exp?.status || 'SYS_ACTIVE',
-    type: exp?.type || 'experience',
-    iconString: exp?.iconString || 'FaBriefcase',
-    order: exp?.order || 0,
-    details: exp?.details || []
+    role: item?.role || '',
+    institution: item?.institution || '',
+    period: item?.period || '',
+    status: item?.status || 'SYS_ACTIVE',
+    iconString: item?.iconString || 'FaBriefcase',
+    order: item?.order || 0,
+    details: item?.details || [],
+    certificateImage: item?.certificateImage || '',
+    link: item?.link || ''
   });
 
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadProgress(20);
+
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("upload_preset", "protfolio");
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/dpj6dbqyn/image/upload`, {
+        method: "POST",
+        body: uploadData
+      });
+
+      setUploadProgress(80);
+      const data = await res.json();
+
+      if (data.secure_url) {
+        setFormData(prev => ({ ...prev, certificateImage: data.secure_url }));
+        setUploadProgress(100);
+      } else {
+        throw new Error(data.error?.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error("Cloudinary upload failed:", error);
+      alert("Upload failed: " + error.message);
+    } finally {
+      setUploading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     
     try {
-      if (exp?.id) {
-        await setDoc(doc(db, 'experiences', exp.id), formData);
+      if (item?.id) {
+        await setDoc(doc(db, collectionName, item.id), formData);
       } else {
-        await addDoc(collection(db, 'experiences'), formData);
+        await addDoc(collection(db, collectionName), formData);
       }
       onBack();
     } catch (err) {
@@ -74,7 +112,7 @@ export default function ExperienceEditor({ exp, onBack }) {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
-        <h3 className="text-xl font-medium mb-6">{exp ? 'Edit Entry' : 'New Entry'}</h3>
+        <h3 className="text-xl font-medium mb-6">{item ? 'Edit Entry' : 'New Entry'}</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -125,21 +163,7 @@ export default function ExperienceEditor({ exp, onBack }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm text-slate-400">Category Type</label>
-            <select 
-              value={formData.type}
-              onChange={e => setFormData(prev => ({ ...prev, type: e.target.value }))}
-              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition-colors"
-            >
-              <option value="experience">Experience</option>
-              <option value="education">Education</option>
-              <option value="leadership">Leadership</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">          <div className="space-y-2">
             <label className="text-sm text-slate-400">Status</label>
             <select 
               value={formData.status}
@@ -159,6 +183,50 @@ export default function ExperienceEditor({ exp, onBack }) {
               onChange={e => setFormData(prev => ({ ...prev, iconString: e.target.value }))}
               className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
               placeholder="e.g. FaBrain, FaBriefcase"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400">Certificate Image Upload</label>
+            <div className="flex flex-col gap-3">
+              {formData.certificateImage && (
+                <div className="relative w-full h-32 bg-black/40 rounded-lg overflow-hidden border border-white/10 group">
+                  <img src={formData.certificateImage} alt="Certificate preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <button 
+                    type="button" 
+                    onClick={() => setFormData(prev => ({...prev, certificateImage: ''}))} 
+                    className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 p-1.5 rounded text-white backdrop-blur-sm transition-colors"
+                    title="Remove Image"
+                  >
+                    <FiTrash2 size={14}/>
+                  </button>
+                </div>
+              )}
+              <input 
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploading}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer disabled:opacity-50"
+              />
+              {uploading && (
+                <div className="w-full bg-white/10 rounded-full h-1.5 mt-1 overflow-hidden">
+                  <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm text-slate-400">External Link</label>
+            <input 
+              type="url"
+              value={formData.link}
+              onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              placeholder="e.g. https://github.com/my-project"
             />
           </div>
         </div>

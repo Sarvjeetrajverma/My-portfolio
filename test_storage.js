@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 import fs from "fs";
 
 const envStr = fs.readFileSync(".env.local", "utf8");
@@ -20,15 +20,16 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const storage = getStorage(app);
 
 async function run() {
   try {
-    const expSnapshot = await getDocs(collection(db, "experiences"));
-    console.log("Experiences:");
-    expSnapshot.forEach(doc => console.log(doc.id, doc.data()));
+    const storageRef = ref(storage, "test_upload.txt");
+    await uploadString(storageRef, "Hello World");
+    const url = await getDownloadURL(storageRef);
+    console.log("Upload successful! URL:", url);
   } catch (err) {
-    console.error("Error connecting to Firebase:", err.message);
+    console.error("Storage Error:", err.message);
   }
   process.exit(0);
 }

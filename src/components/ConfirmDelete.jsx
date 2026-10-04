@@ -23,7 +23,7 @@ export default function ConfirmDelete({ onConfirm, className, iconSize = 14, tit
           onConfirm(); 
           setConfirming(false); 
         }}
-        className={`bg-red-600 text-white hover:bg-red-700 px-2 py-1 rounded text-xs font-bold shadow-lg flex items-center justify-center whitespace-nowrap transition-all ${className}`}
+        className="bg-red-600 text-white hover:bg-red-700 px-3 py-1.5 rounded-md text-xs font-bold shadow-lg flex items-center justify-center whitespace-nowrap transition-all z-10"
         title="Click to confirm deletion"
       >
         Sure?

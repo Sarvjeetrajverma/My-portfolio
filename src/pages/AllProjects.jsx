@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaPlay, FaStar, FaChevronRight } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaPlay, FaStar, FaArrowLeft } from 'react-icons/fa';
 import { FaXmark } from 'react-icons/fa6';
 import { Link, useNavigate } from 'react-router-dom';
+
 import project1Image from '../assets/project1.png';
 import project2Image from '../assets/project2.png';
 import project3Image from '../assets/project3.png';
@@ -12,8 +13,6 @@ import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { trackEvent } from '../hooks/useGlobalAnalytics';
 
-const ease = [0.22, 1, 0.36, 1];
-
 const fallbackImages = {
   dark: project1Image,
   light: project2Image,
@@ -21,7 +20,6 @@ const fallbackImages = {
   green: project4Image
 };
 
-// --- GitHub Stars Sub-Component ---
 const GitHubStars = ({ repoUrl }) => {
   const [stars, setStars] = useState(null);
 
@@ -38,7 +36,7 @@ const GitHubStars = ({ repoUrl }) => {
               setStars(data.stargazers_count);
             }
           })
-          .catch(() => {}); // Silent fail on rate limit/error
+          .catch(() => {});
       }
     } catch (e) {}
   }, [repoUrl]);
@@ -51,57 +49,18 @@ const GitHubStars = ({ repoUrl }) => {
   );
 };
 
-// --- Drag to Scroll Hook ---
-const useDragToScroll = () => {
-  const ref = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const hasDragged = useRef(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  const onMouseDown = (e) => {
-    if (!ref.current) return;
-    setIsDragging(true);
-    hasDragged.current = false;
-    setStartX(e.pageX - ref.current.offsetLeft);
-    setScrollLeft(ref.current.scrollLeft);
-  };
-  const onMouseLeave = () => {
-    setIsDragging(false);
-  };
-  const onMouseUp = () => {
-    setIsDragging(false);
-  };
-  const onMouseMove = (e) => {
-    if (!isDragging || !ref.current) return;
-    e.preventDefault();
-    const x = e.pageX - ref.current.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll speed multiplier
-    if (Math.abs(x - startX) > 5) {
-      hasDragged.current = true;
-    }
-    ref.current.scrollLeft = scrollLeft - walk;
-  };
-
-  return { ref, onMouseDown, onMouseLeave, onMouseUp, onMouseMove, isDragging, hasDraggedRef: hasDragged };
-};
-
-const Projects = () => {
+const AllProjects = () => {
   const navigate = useNavigate();
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
   const [projects, setProjects] = useState({ active: [], upcoming: [] });
   const [loading, setLoading] = useState(true);
-  
-  // Filtering state
   const [activeTag, setActiveTag] = useState('All');
-  
-  // Video Modal State
   const [selectedVideo, setSelectedVideo] = useState(null);
 
-  const activeCarousel = useDragToScroll();
-  const upcomingCarousel = useDragToScroll();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-  // Theme observer
   useEffect(() => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     if (theme !== currentTheme) setTheme(currentTheme);
@@ -114,9 +73,8 @@ const Projects = () => {
     });
     observer.observe(document.documentElement, { attributes: true });
     return () => observer.disconnect();
-  }, []);
+  }, [theme]);
 
-  // Firestore listener
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'projects'), (snapshot) => {
       let activeList = [];
@@ -142,13 +100,11 @@ const Projects = () => {
     return () => unsub();
   }, []);
 
-  // Compute Tags
   const allTags = ['All', ...new Set(projects.active.flatMap(p => p.tech || []))];
   const filteredActive = activeTag === 'All' 
     ? projects.active 
     : projects.active.filter(p => (p.tech || []).includes(activeTag));
 
-  // Extract YouTube ID for embeds
   const getEmbedUrl = (url) => {
     if (!url) return null;
     if (url.includes('youtube.com/watch')) {
@@ -163,129 +119,76 @@ const Projects = () => {
   };
 
   return (
-    <section id="projects" className="relative w-full bg-transparent text-white overflow-hidden py-5 md:py-8 lg:py-10">
+    <div className="min-h-screen bg-transparent text-white pt-24 pb-16 px-6 md:px-10 relative">
+      <div className="absolute inset-0 bg-black -z-10" />
+      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none md:blur-[80px] -z-10" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)' }} />
+      
+      <div className="max-w-[1200px] mx-auto">
+        <div className="mb-12">
+          <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-emerald-400 transition-colors font-mono text-sm mb-6">
+            <FaArrowLeft /> Back to Home
+          </Link>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="text-[3rem] sm:text-[4rem] md:text-[5rem] font-medium tracking-tighter text-white mb-4"
+          >
+            All <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Projects.</span>
+          </motion.h1>
+          <p className="text-slate-400 text-lg max-w-2xl">A complete collection of my research, implementations, and experimental builds.</p>
+        </div>
 
-      {/* Ambient glow */}
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none md:blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)' }} />
-
-      <div className="max-w-[1100px] mx-auto px-6 md:px-10 relative z-10">
-
-        {/* Section label */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          transition={{ duration: 0.7, ease }}
-          className="text-[10px] tracking-[0.35em] text-slate-600 uppercase font-medium mb-10 md:mb-14"
-        >
-          Research & Implementations
-        </motion.p>
-
-        {/* Headline */}
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          transition={{ duration: 1, ease }}
-          className="text-[3rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] leading-[0.95] font-medium tracking-tighter text-white mb-8"
-        >
-          Featured <span className="text-transparent" style={{ WebkitTextStroke: '1px var(--theme-stroke)' }}>Projects.</span>
-        </motion.h2>
-
-        {/* Filters and Swipe Hint */}
+        {/* Filters */}
         {!loading && projects.active.length > 0 && (
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-            <motion.div 
-              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="flex overflow-x-auto gap-2 pb-2 -mx-6 px-6 md:mx-0 md:px-0" style={{ scrollbarWidth: 'none' }}
-            >
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setActiveTag(tag)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-mono transition-all duration-300 ${activeTag === tag ? 'bg-white text-black font-semibold' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="flex items-center gap-4"
-            >
-              <Link to="/projects" className="hidden md:flex items-center gap-2 text-xs text-emerald-400 font-mono tracking-widest uppercase hover:text-emerald-300 transition-colors">
-                View All <FaExternalLinkAlt className="w-3 h-3" />
-              </Link>
-              <div className="hidden md:flex items-center gap-2 text-[10px] text-slate-500 font-mono tracking-widest uppercase pointer-events-none">
-                <span>Drag to explore</span>
-                <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}>
-                  <FaChevronRight />
-                </motion.div>
-              </div>
-            </motion.div>
-            
-            {/* Mobile View All */}
-            <div className="md:hidden mt-2 text-right">
-              <Link to="/projects" className="inline-flex items-center gap-2 text-xs text-emerald-400 font-mono tracking-widest uppercase hover:text-emerald-300 transition-colors">
-                View All Projects <FaExternalLinkAlt className="w-3 h-3" />
-              </Link>
-            </div>
+          <div className="mb-10 flex overflow-x-auto gap-2 pb-4" style={{ scrollbarWidth: 'none' }}>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(tag)}
+                className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-mono transition-all duration-300 ${activeTag === tag ? 'bg-white text-black font-semibold' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Carousel Container - Active */}
-        <div 
-          ref={activeCarousel.ref}
-          onMouseDown={activeCarousel.onMouseDown}
-          onMouseLeave={activeCarousel.onMouseLeave}
-          onMouseUp={activeCarousel.onMouseUp}
-          onMouseMove={activeCarousel.onMouseMove}
-          className={`flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 ${activeCarousel.isDragging ? 'cursor-grabbing select-none scroll-auto' : 'cursor-grab scroll-smooth'}`} 
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {loading ? (
-            <div className="flex items-center justify-center min-h-[420px] w-[80vw] sm:w-[320px] md:w-[360px] lg:w-[400px] flex-none bg-black rounded-2xl border border-white/[0.08]">
-              <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-            </div>
-          ) : filteredActive.length === 0 ? (
-            /* EMPTY STATE */
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="w-full min-h-[300px] flex flex-col items-center justify-center bg-white/[0.02] border border-dashed border-white/[0.1] rounded-2xl"
+        {/* Active Projects Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="w-8 h-8 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+          </div>
+        ) : filteredActive.length === 0 ? (
+          <div className="w-full min-h-[300px] flex flex-col items-center justify-center bg-white/[0.02] border border-dashed border-white/[0.1] rounded-2xl">
+            <div className="text-4xl mb-4 opacity-40">📂</div>
+            <h3 className="text-lg text-slate-300 font-medium mb-2">No projects found</h3>
+            <p className="text-sm text-slate-500 font-light text-center max-w-sm mb-6">There are no projects matching the "{activeTag}" stack.</p>
+            <button 
+              onClick={() => setActiveTag('All')}
+              className="px-5 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
             >
-              <div className="text-4xl mb-4 opacity-40">📂</div>
-              <h3 className="text-lg text-slate-300 font-medium mb-2">No projects found</h3>
-              <p className="text-sm text-slate-500 font-light text-center max-w-sm mb-6">There are no featured projects matching the "{activeTag}" stack currently.</p>
-              <button 
-                onClick={() => setActiveTag('All')}
-                className="px-5 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
-              >
-                Clear Filter
-              </button>
-            </motion.div>
-          ) : (
-            filteredActive.map((project) => (
+              Clear Filter
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {filteredActive.map((project, idx) => (
               <motion.div
                 key={project.id}
-                onClick={() => {
-                  if (!activeCarousel.hasDraggedRef.current) {
-                    navigate(`/project/${project.id}`);
-                  }
-                }}
-                initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                className="cursor-pointer flex-none w-[80vw] sm:w-[320px] md:w-[360px] lg:w-[400px] snap-center group relative card-frosted overflow-hidden transition-colors duration-500 bg-black rounded-2xl border border-white/[0.08]"
+                onClick={() => navigate(`/project/${project.id}`)}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
+                className="cursor-pointer group relative card-frosted overflow-hidden transition-colors duration-500 bg-black rounded-2xl border border-white/[0.08]"
               >
                 {/* Image */}
-                <div className="relative h-32 sm:h-40 overflow-hidden bg-white/[0.02]">
-                  <motion.img
+                <div className="relative h-48 overflow-hidden bg-white/[0.02]">
+                  <img
                     key={theme}
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 0.8, ease }}
                     src={project.images?.[theme] || fallbackImages[theme]}
                     alt={project.title}
                     loading="lazy" decoding="async"
-                    className="w-full h-full object-cover pointer-events-none"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
                   
-                  {/* Status & Stars */}
                   <div className="absolute top-4 right-4 flex items-center gap-2">
                     {project.github && <GitHubStars repoUrl={project.github} />}
                     {project.status && (
@@ -296,7 +199,6 @@ const Projects = () => {
                     )}
                   </div>
                   
-                  {/* Video Demo Button Overlay */}
                   {project.videoUrl && (
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-[2px]">
                       <button 
@@ -310,39 +212,33 @@ const Projects = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-5 sm:p-6 pointer-events-none">
-                  <h3 className="text-white text-xl sm:text-2xl font-medium tracking-tight mb-2">{project.title}</h3>
-                  <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-4 font-light line-clamp-3">{project.description}</p>
+                <div className="p-6">
+                  <h3 className="text-white text-xl font-medium tracking-tight mb-2">{project.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed mb-4 font-light line-clamp-3">{project.description}</p>
 
-                  {/* Tech tags */}
                   <div className="flex flex-wrap gap-2 mb-5">
                     {(project.tech || []).slice(0, 4).map((tech, j) => (
-                      <span key={j} className="text-[10px] sm:text-xs font-mono uppercase text-slate-400 border border-white/[0.08] px-2 py-1 rounded-full tracking-wider">
+                      <span key={j} className="text-[10px] font-mono uppercase text-slate-400 border border-white/[0.08] px-2 py-1 rounded-full tracking-wider">
                         {tech}
                       </span>
                     ))}
                   </div>
 
-                  {/* Links (Pointer events re-enabled for interactive buttons) */}
-                  <div className="flex gap-5 pt-4 border-t border-white/[0.05] pointer-events-auto">
+                  <div className="flex gap-5 pt-4 border-t border-white/[0.05]">
                     {project.github && (
                       <a 
-                        href={project.github} 
-                        target="_blank" 
-                        rel="noreferrer" 
+                        href={project.github} target="_blank" rel="noreferrer" 
                         onClick={(e) => { e.stopPropagation(); trackEvent('project_click', { id: `${project.id}_github` }); }}
-                        className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
+                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
                       >
                         <FaGithub /> Codebase
                       </a>
                     )}
                     {project.demo && (
                       <a 
-                        href={project.demo} 
-                        target="_blank" 
-                        rel="noreferrer" 
+                        href={project.demo} target="_blank" rel="noreferrer" 
                         onClick={(e) => { e.stopPropagation(); trackEvent('project_click', { id: `${project.id}_demo` }); }}
-                        className="flex items-center gap-2 text-sm sm:text-base text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
+                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors tracking-wide font-medium"
                       >
                         <FaExternalLinkAlt /> Live Demo
                       </a>
@@ -350,54 +246,37 @@ const Projects = () => {
                   </div>
                 </div>
               </motion.div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* UPCOMING PROJECTS SECTION */}
         {projects.upcoming.length > 0 && (
-          <div className="mt-10 md:mt-12">
-            {/* Section label */}
+          <div>
             <motion.div
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.7, ease }}
-              className="flex items-center gap-4 mb-10"
+              className="flex items-center gap-4 mb-8"
             >
               <p className="text-[10px] tracking-[0.35em] text-emerald-500/70 uppercase font-medium">In Training / Upcoming</p>
               <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
             </motion.div>
 
-            <div 
-              ref={upcomingCarousel.ref}
-              onMouseDown={upcomingCarousel.onMouseDown}
-              onMouseLeave={upcomingCarousel.onMouseLeave}
-              onMouseUp={upcomingCarousel.onMouseUp}
-              onMouseMove={upcomingCarousel.onMouseMove}
-              className={`flex overflow-x-auto gap-6 pb-8 pt-4 snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 ${upcomingCarousel.isDragging ? 'cursor-grabbing select-none scroll-auto' : 'cursor-grab scroll-smooth'}`} 
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.upcoming.map((project, idx) => (
                 <motion.div
                   key={project.id}
-                  onClick={() => {
-                    if (!upcomingCarousel.hasDraggedRef.current) {
-                      navigate(`/project/${project.id}`);
-                    }
-                  }}
-                  initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  transition={{ duration: 0.85, ease, delay: idx * 0.1 }}
-                  className="cursor-pointer flex-none w-[80vw] sm:w-[320px] md:w-[360px] lg:w-[400px] snap-center group relative card-frosted flex flex-col p-5 md:p-6 min-h-[300px] transition-colors duration-500 overflow-hidden bg-black/60 border border-emerald-500/10 hover:border-emerald-500/30 rounded-2xl"
+                  onClick={() => navigate(`/project/${project.id}`)}
+                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="cursor-pointer group relative card-frosted flex flex-col p-6 min-h-[300px] transition-colors duration-500 overflow-hidden bg-black/60 border border-emerald-500/10 hover:border-emerald-500/30 rounded-2xl"
                 >
-                  {/* Scanning line */}
                   <motion.div
                     animate={{ top: ["0%", "100%"] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent pointer-events-none z-10"
                   />
 
-                  {/* Terminal Window Mockup */}
                   <div className="w-full rounded-lg border border-white/[0.08] bg-black/80 overflow-hidden mb-5 shadow-2xl z-20 pointer-events-none">
-                    {/* Terminal Header */}
                     <div className="flex items-center gap-2 px-4 py-2 border-b border-white/[0.05] bg-white/[0.02]">
                       <div className="flex gap-1.5">
                         <span className="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
@@ -406,7 +285,6 @@ const Projects = () => {
                       </div>
                       <span className="ml-2 text-[9px] font-mono text-emerald-500 uppercase tracking-widest">{project.title.toLowerCase().replace(/\s+/g, '_')}.py</span>
                     </div>
-                    {/* Terminal Body */}
                     <div className="p-3 font-mono text-[9px] sm:text-[10px] text-slate-400 text-left space-y-1.5 h-[100px] overflow-hidden relative">
                       <p><span className="text-emerald-400">root@ai-cluster:~#</span> initialize_project --target "{project.title}"</p>
                       <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.5 }}>Loading core dependencies... [OK]</motion.p>
@@ -432,25 +310,23 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  <div className="mt-auto z-20 pointer-events-none">
+                  <div className="mt-auto z-20">
                     <h3 className="text-slate-200 text-lg font-medium tracking-tight mb-2">
                       [ {project.title} ]
                     </h3>
-                    <p className="text-slate-500 text-xs md:text-sm leading-relaxed font-light mb-4 line-clamp-2">
+                    <p className="text-slate-500 text-sm leading-relaxed font-light mb-4 line-clamp-2">
                       {project.description}
                     </p>
 
-                    <div className="flex flex-wrap items-center justify-between gap-4 pointer-events-auto">
-                      <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-emerald-500/70 rounded-full animate-pulse pointer-events-none" />
-                        <span className="text-[11px] font-mono text-emerald-500 tracking-widest pointer-events-none">{project.status || 'IN DEVELOPMENT...'}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 pointer-events-none">
+                        <span className="w-1.5 h-1.5 bg-emerald-500/70 rounded-full animate-pulse" />
+                        <span className="text-[11px] font-mono text-emerald-500 tracking-widest">{project.status || 'IN DEVELOPMENT...'}</span>
                       </div>
                       
                       {project.github && (
                         <a 
-                          href={project.github} 
-                          target="_blank" 
-                          rel="noreferrer" 
+                          href={project.github} target="_blank" rel="noreferrer" 
                           onClick={(e) => { e.stopPropagation(); trackEvent('project_click', { id: `${project.id}_github` }); }}
                           className="flex items-center gap-2 text-xs font-mono text-slate-500 hover:text-white transition-colors"
                         >
@@ -466,7 +342,6 @@ const Projects = () => {
         )}
       </div>
 
-      {/* Video Modal Overlay */}
       <AnimatePresence>
         {selectedVideo && (
           <motion.div 
@@ -495,9 +370,8 @@ const Projects = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-    </section>
+    </div>
   );
 };
 
-export default Projects;
+export default AllProjects;

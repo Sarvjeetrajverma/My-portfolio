@@ -10,7 +10,7 @@ import AboutImageManager from '../components/AboutImageManager';
 import SocialManager from '../components/SocialManager';
 import ProjectsManager from '../components/ProjectsManager';
 import SettingsManager from '../components/SettingsManager';
-import ExperienceManager from '../components/ExperienceManager';
+import TimelineManager from '../components/TimelineManager';
 import BlogManager from '../components/BlogManager';
 import GlobalAnalyticsManager from '../components/GlobalAnalyticsManager';
 
@@ -146,6 +146,18 @@ export default function Admin() {
             Experience
           </button>
           <button 
+            onClick={() => setActiveTab('education')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'education' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Education
+          </button>
+          <button 
+            onClick={() => setActiveTab('achievements')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'achievements' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+          >
+            Achievements
+          </button>
+          <button 
             onClick={() => setActiveTab('blog')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'blog' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
           >
@@ -179,7 +191,9 @@ export default function Admin() {
 
         {activeTab === 'analytics' && <GlobalAnalyticsManager />}
         {activeTab === 'projects' && <ProjectsManager />}
-        {activeTab === 'experience' && <ExperienceManager />}
+        {activeTab === 'experience' && <TimelineManager collectionName="experiences" title="Experience" />}
+        {activeTab === 'education' && <TimelineManager collectionName="education" title="Education" />}
+        {activeTab === 'achievements' && <TimelineManager collectionName="achievements" title="Achievements" />}
         {activeTab === 'blog' && <BlogManager />}
         {activeTab === 'trips' && <AdminDashboard />}
         {activeTab === 'about' && <AboutImageManager />}
